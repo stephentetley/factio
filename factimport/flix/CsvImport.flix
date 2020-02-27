@@ -87,7 +87,11 @@ namespace CsvImport {
         let csvRow = iterator.next();
         CsvRow(csvRow)
 
-    def finalize(_: CsvSource): Unit = ()
+    def finalize(src: CsvSource): Unit =
+        let CsvSource(iterator) = src;
+        import flix.runtime.factimport.CsvIterator.close();
+        iterator.close()
+
 
     def makeCsvIterator(): RowIterator[CsvSource, CsvRow] =
         { hasNext = hasNext,  getRow = getRow, finalize = finalize }

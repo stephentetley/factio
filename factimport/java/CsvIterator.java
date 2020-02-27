@@ -20,11 +20,13 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Iterator;
 
 public class CsvIterator {
 
-    private Iterator<CSVRecord> rator;
+    private FileReader inputReader;
+    private Iterator<CSVRecord> csvIterator;
 
     // 0 DEFAULT
     // 1 EXCEL
@@ -59,35 +61,37 @@ public class CsvIterator {
             case 9:
                 return CSVFormat.POSTGRESQL_CSV;
             case 10:
-                return CSVFormat.POSTGRESQL_CSV;
-            case 11:
                 return CSVFormat.POSTGRESQL_TEXT;
-            case 12:
+            case 11:
                 return CSVFormat.TDF;
             default:
                 return CSVFormat.DEFAULT;
         }
     }
 
-    /// TODO - more options than hasHeasers...
+    /// TODO - more options than hasHeaders...
     public CsvIterator(String filepath, int format, boolean hasHeaders) throws Exception {
-        FileReader in = new FileReader(filepath);
-        Iterable<CSVRecord> rable = null;
+        inputReader = new FileReader(filepath);
+        Iterable<CSVRecord> iterable;
         CSVFormat csvformat = selectFormat(format);
         if (hasHeaders) {
-            rable = csvformat.withFirstRecordAsHeader().parse(in);
+            iterable = csvformat.withFirstRecordAsHeader().parse(inputReader);
         } else {
-            rable = csvformat.parse(in);
+            iterable = csvformat.parse(inputReader);
         }
-        rator = rable.iterator();
+        csvIterator = iterable.iterator();
     }
 
     public boolean hasNext() {
-        return rator.hasNext();
+        return csvIterator.hasNext();
     }
 
-    public CsvRow next() {
-        CsvRow row = new CsvRow(rator.next());
+    public CsvRow next() throws Exception {
+        CsvRow row = new CsvRow(csvIterator.next());
         return row;
+    }
+
+    public void close() throws IOException {
+        inputReader.close();
     }
 }
