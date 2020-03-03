@@ -65,7 +65,7 @@ namespace CsvImport {
     ///
     /// Returns a new CsvSource.
     ///
-    pub def newCsvSource(filepath: String, format: CsvFormat, hasHeaders: Bool): Result[CsvSource, String] =
+    pub def newCsvSource(filepath: String, format: CsvFormat, hasHeaders: Bool): Result[CsvSource, String] & Impure =
         let fmt = formatToInt(format);
         try {
             import new flix.runtime.factimport.CsvIterator(String, Int32, Bool) as newCsvIterator;
@@ -76,22 +76,21 @@ namespace CsvImport {
             case _: ##java.io.IOException => Err("newCsvSource - io exception")
         }
 
-    def hasNext(src: CsvSource): Bool =
+    def hasNext(src: CsvSource): Bool & Impure =
         let CsvSource(iterator) = src;
         import flix.runtime.factimport.CsvIterator.hasNext();
         iterator.hasNext()
 
-    def getRow(src: CsvSource): CsvRow =
+    def getRow(src: CsvSource): CsvRow & Impure =
         let CsvSource(iterator) = src;
         import flix.runtime.factimport.CsvIterator.next();
         let csvRow = iterator.next();
         CsvRow(csvRow)
 
-    def finalize(src: CsvSource): Unit =
+    def finalize(src: CsvSource): Unit & Impure =
         let CsvSource(iterator) = src;
         import flix.runtime.factimport.CsvIterator.close();
         iterator.close()
-
 
     def makeCsvIterator(): RowIterator[CsvSource, CsvRow] =
         { hasNext = hasNext,  getRow = getRow, finalize = finalize }
@@ -99,41 +98,41 @@ namespace CsvImport {
     ///
     /// Track row number for errors.
     ///
-    pub def collect(f: CsvRow -> CsvResult[reln], src: CsvSource): Result[reln, String] =
+    pub def collect(f: CsvRow -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
         Strategies.collect(iterator, f, src)
 
 
-    pub def collectWithCount(f: (CsvRow, Int32) -> CsvResult[reln], src: CsvSource): Result[reln, String] =
+    pub def collectWithCount(f: (CsvRow, Int32) -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
         Strategies.collectWithCount(iterator, f, src)
 
-    pub def collectAccum(f: (CsvRow, st) -> CsvResult[(reln, st)], state: st, src: CsvSource): Result[(reln, st), String] =
+    pub def collectAccum(f: (CsvRow, st) -> CsvResult[(reln, st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
         let iterator = makeCsvIterator();
         Strategies.collectAccum(iterator, f, state, src)
 
 
-    pub def choose(f: CsvRow -> CsvResult[Option[reln]], src: CsvSource): Result[reln, String] =
+    pub def choose(f: CsvRow -> CsvResult[Option[reln]] & e, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
         Strategies.choose(iterator, f, src)
 
-    pub def chooseWithCount(f: (CsvRow,Int32) -> CsvResult[Option[reln]], src: CsvSource): Result[reln, String] =
+    pub def chooseWithCount(f: (CsvRow,Int32) -> CsvResult[Option[reln]] & e, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
         Strategies.chooseWithCount(iterator, f, src)
 
 
-    pub def chooseAccum(f: (CsvRow, st) -> CsvResult[(Option[reln], st)], state: st, src: CsvSource): Result[(reln, st), String] =
+    pub def chooseAccum(f: (CsvRow, st) -> CsvResult[(Option[reln], st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
         let iterator = makeCsvIterator();
         Strategies.chooseAccum(iterator, f, state, src)
 
 
     // Cell readers
 
-    pub def getStringByIndex(row: CsvRow, ix: Int32): CsvResult[String] =
+    pub def getStringByIndex(row: CsvRow, ix: Int32): CsvResult[String] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getStringByIndex(Int32);
-            let a = r1.getStringByIndex(ix);
+            let a = r1.getStringByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getStringByIndex: " + Int32.toString(ix))
@@ -142,151 +141,151 @@ namespace CsvImport {
     ///
     /// Get a string
     /// TODO - does not appear to be working...
-    pub def getStringByLabel(row: CsvRow, label: String): CsvResult[String] =
+    pub def getStringByLabel(row: CsvRow, label: String): CsvResult[String] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getStringByLabel(String);
-            let a = r1.getStringByLabel(label);
+            let a = r1.getStringByLabel(label) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getStringByLabel:" + label)
         }
 
-    pub def getInt8ByIndex(row: CsvRow, ix: Int32): CsvResult[Int8] =
+    pub def getInt8ByIndex(row: CsvRow, ix: Int32): CsvResult[Int8] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getByteByIndex(Int32);
-            let a = r1.getByteByIndex(ix);
+            let a = r1.getByteByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getInt8ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getInt8ByLabel(row: CsvRow, label: String): CsvResult[Int8] =
+    pub def getInt8ByLabel(row: CsvRow, label: String): CsvResult[Int8] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getByteByLabel(String);
-            let a = r1.getByteByLabel(label);
+            let a = r1.getByteByLabel(label) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getInt8ByLabel:" + label)
         }
 
-    pub def getInt16ByIndex(row: CsvRow, ix: Int32): CsvResult[Int16] =
+    pub def getInt16ByIndex(row: CsvRow, ix: Int32): CsvResult[Int16] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getShortByIndex(Int32);
-            let a = r1.getShortByIndex(ix);
+            let a = r1.getShortByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getInt16ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getInt16ByLabel(row: CsvRow, label: String): CsvResult[Int16] =
+    pub def getInt16ByLabel(row: CsvRow, label: String): CsvResult[Int16] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getShortByLabel(String);
-            let a = r1.getShortByLabel(label);
+            let a = r1.getShortByLabel(label) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getInt16ByLabel: " + label)
         }
 
-    pub def getInt32ByIndex(row: CsvRow, ix: Int32): CsvResult[Int32] =
+    pub def getInt32ByIndex(row: CsvRow, ix: Int32): CsvResult[Int32] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getIntByIndex(Int32);
-            let a = r1.getIntByIndex(ix);
+            let a = r1.getIntByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getInt32ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getInt32ByLabel(row: CsvRow, label: String): CsvResult[Int32] =
+    pub def getInt32ByLabel(row: CsvRow, label: String): CsvResult[Int32] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getIntByLabel(String);
-            let a = r1.getIntByLabel(label);
+            let a = r1.getIntByLabel(label) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getInt32ByLabel: " + label)
         }
 
-    pub def getInt64ByIndex(row: CsvRow, ix: Int32): CsvResult[Int64] =
+    pub def getInt64ByIndex(row: CsvRow, ix: Int32): CsvResult[Int64] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getLongByIndex(Int32);
-            let a = r1.getLongByIndex(ix);
+            let a = r1.getLongByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getInt64ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getInt64ByLabel(row: CsvRow, label: String): CsvResult[Int64] =
+    pub def getInt64ByLabel(row: CsvRow, label: String): CsvResult[Int64] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getLongByLabel(String);
-            let a = r1.getLongByLabel(label);
+            let a = r1.getLongByLabel(label) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getInt64ByLabel: " + label)
         }
 
-    pub def getFloat32ByIndex(row: CsvRow, ix: Int32): CsvResult[Float32] =
+    pub def getFloat32ByIndex(row: CsvRow, ix: Int32): CsvResult[Float32] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getFloatByIndex(Int32);
-            let a = r1.getFloatByIndex(ix);
+            let a = r1.getFloatByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getFloat32ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getFloat32ByLabel(row: CsvRow, label: String): CsvResult[Float32] =
+    pub def getFloat32ByLabel(row: CsvRow, label: String): CsvResult[Float32] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getFloatByLabel(String);
-            let a = r1.getFloatByLabel(label);
+            let a = r1.getFloatByLabel(label) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getFloat32ByLabel: " + label)
         }
 
-    pub def getFloat64ByIndex(row: CsvRow, ix: Int32): CsvResult[Float64] =
+    pub def getFloat64ByIndex(row: CsvRow, ix: Int32): CsvResult[Float64] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getDoubleByIndex(Int32);
-            let a = r1.getDoubleByIndex(ix);
+            let a = r1.getDoubleByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getFloat64ByIndex: " + Int32.toString(ix))
         }
 
-    pub def getFloat64ByLabel(row: CsvRow, label: String): CsvResult[Float64] =
+    pub def getFloat64ByLabel(row: CsvRow, label: String): CsvResult[Float64] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getDoubleByLabel(String);
-            let a = r1.getDoubleByLabel(label);
+            let a = r1.getDoubleByLabel(label) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getFloat64ByLabel: " + label)
         }
 
-    pub def getBigIntByIndex(row: CsvRow, ix: Int32): CsvResult[BigInt] =
+    pub def getBigIntByIndex(row: CsvRow, ix: Int32): CsvResult[BigInt] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getBigIntegerByIndex(Int32);
-            let a = r1.getBigIntegerByIndex(ix);
+            let a = r1.getBigIntegerByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getBigIntByIndex: " + Int32.toString(ix))
         }
 
-    pub def getBigIntByLabel(row: CsvRow, label: String): CsvResult[BigInt] =
+    pub def getBigIntByLabel(row: CsvRow, label: String): CsvResult[BigInt] & e =
         let CsvRow(r1) = row;
         try {
             import flix.runtime.factimport.CsvRow.getBigIntegerByLabel(String);
-            let a = r1.getBigIntegerByLabel(label);
+            let a = r1.getBigIntegerByLabel(label) as & e;
             Validation.valid(a)
         } catch {
             case _: ##java.lang.Exception => Validation.error("getBigIntByLabel: " + label)

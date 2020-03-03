@@ -27,12 +27,10 @@ namespace CsvExport {
     ///
     def getDelim(): String = 
         import flix.runtime.csvexport.CsvExport:getDelim();
-        getDelim()
+        getDelim() as & Pure
 
-    pub def showDelim(): Unit = 
-        getDelim() |> Console.printLine 
 
-    def internalNew (filepath: String, format: Int32, headerdata: String): CsvWriter =
+    def internalNew (filepath: String, format: Int32, headerdata: String): CsvWriter & Impure =
         import new flix.runtime.csvexport.CsvExport(String, Int32, String) as newCsvExport;
         CsvWriter(newCsvExport(filepath, format, headerdata))
 
@@ -40,16 +38,16 @@ namespace CsvExport {
         let sep = getDelim();
         ExportBase.mkStringBy(x -> x, sep, cells)
 
-    pub def new (filepath: String, headers: Array[String]): CsvWriter =
+    pub def new (filepath: String, headers: Array[String]): CsvWriter & Impure =
         internalNew(filepath, 0, serializeRow(headers))
 
-    pub def writeRow(w: CsvWriter, cells: Array[String]): Unit =
+    pub def writeRow(w: CsvWriter, cells: Array[String]): Unit & Impure =
         let CsvWriter(handle) = w;
         let rowdata = serializeRow(cells);
         import flix.runtime.csvexport.CsvExport.writeRow(String);
         handle.writeRow(rowdata)
 
-    pub def close(w: CsvWriter): Unit =
+    pub def close(w: CsvWriter): Unit & Impure =
         let CsvWriter(handle) = w;
         import flix.runtime.csvexport.CsvExport.close();
         handle.close()
@@ -62,7 +60,7 @@ namespace CsvExport {
     /// When all the relations have been folded over the fold emits the CsvWriter
     /// so client code can close it.
     ///
-    pub def wrapCellPrinterForFixpointFold(f: x -> Array[String]): (x, CsvWriter) -> CsvWriter =
+    pub def wrapCellPrinterForFixpointFold(f: x -> Array[String]): (x, CsvWriter) -> CsvWriter & Impure =
         (x, w) -> { let cells = f(x); writeRow(w, cells); w }
 
  }

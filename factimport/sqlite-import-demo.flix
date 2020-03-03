@@ -1,18 +1,18 @@
-def fail1(msg: String): reln = 
+def fail1(msg: String): reln & Impure = 
     Console.printLine(msg);
     #{ }
 
 rel Lang(name: String, year: Int32)
 
-def getLang (row: SQLiteRow): SQLiteResult[#{Lang}] = 
+def getLang (row: SQLiteRow): SQLiteResult[#{Lang}] & e = 
     Validation.pipeV2(
         SQLiteImport.getStringByLabel(row, "name"), 
         SQLiteImport.getInt32ByLabel(row, "year"), 
         (x,y) -> Lang(x, y).)
 
 
-pub def test01(): #{Lang} =
-    let path = "e:/coding/flix/flix-doodle/factimport/data/langs.sqlite";
+pub def test01(): #{Lang} & Impure =
+    let path = "e:/coding/flix/factio/data/langs.sqlite";
     let query = "SELECT name, year FROM language";
     match SQLiteImport.newSQLiteSource(path, query) {
         case Err(msg) => fail1(msg)

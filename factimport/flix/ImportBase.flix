@@ -17,12 +17,15 @@
 
 namespace ImportBase {
 
-    def listIter(f: a -> Unit, xs: List[a]): Unit = match xs {
+    def listIter(f: a -> Unit & Impure, xs: List[a]): Unit & Impure = match xs {
         case Nil => ()
         case x :: rs => { f(x); listIter(f, rs) }
     }
 
     pub def collectErrors(line: Int32, errs: List[String]): String =
+        collectErrorsHelper(line, errs) as & Pure
+
+    def collectErrorsHelper(line: Int32, errs: List[String]): String & Impure =
         let sb = StringBuilder.new();
         StringBuilder.appendLine(sb, "${Int32.toString(line)}| Errors:");
         listIter(StringBuilder.appendLine(sb), errs);

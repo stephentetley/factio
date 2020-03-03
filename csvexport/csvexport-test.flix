@@ -1,7 +1,7 @@
 
 @test
-def stations01(): Unit = 
-    let dest = "d:/coding/flix/flix-doodle/csvexport/data/stations_export.csv";
+def stations01(): Unit & Impure = 
+    let dest = "e:/coding/flix/factio/data/output/stations_export.csv";
     let writer = CsvExport.new(dest, ["Name", "Grid_Ref"]);
     CsvExport.writeRow(writer, ["Bradford Interchange", "SE1657832808"]);
     CsvExport.writeRow(writer, ["Halifax", "SE0973324980"]);
@@ -22,15 +22,15 @@ pub def dummyRelations(): #{ Dummy } = solve #{
 
 
 /// A "cell printer" for the body of Dummy.
-def dummyCells(src: (String,Int)): Array[String] = 
+def dummyCells(src: (String,Int)): Array[String] & Impure = 
     let (name,i) = src;
     [name, Int32.toString(i)]
 
 
 
 @test
-def test01(): Unit = 
-    let dest = "d:/coding/flix/flix-doodle/csvexport/data/dummy_export.csv";
+def test01(): Unit & Impure = 
+    let dest = "e:/coding/flix/factio/data/output/dummy_export.csv";
     let writer = CsvExport.new(dest, ["Name", "Grid_Ref"]);
     let writeRow = (x, _) -> { let cells = dummyCells(x); CsvExport.writeRow(writer, cells) };
     fold Dummy () writeRow dummyRelations();
@@ -43,12 +43,12 @@ def test01(): Unit =
 /// Of course `writer` is in scope after the fold so we could "directly" close it
 /// by name.
 ///
-@test
-def test02(): Unit = 
-    let dest = "d:/coding/flix/flix-doodle/csvexport/data/dummy_export2.csv";
-    let writer = CsvExport.new(dest, ["Name", "Grid_Ref"]);
-    let step = CsvExport.wrapCellPrinterForFixpointFold(dummyCells);
-    { fold Dummy writer step dummyRelations() } |> CsvExport.close
+// @test
+// def test02(): Unit & Impure = 
+//     let dest = "e:/coding/flix/factio/data/output/dummy_export2.csv";
+//     let writer = CsvExport.new(dest, ["Name", "Grid_Ref"]);
+//     let step = CsvExport.wrapCellPrinterForFixpointFold(dummyCells as & e);
+//     { fold Dummy writer step dummyRelations() } |> CsvExport.close
 
 
 

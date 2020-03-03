@@ -32,7 +32,7 @@ namespace LinesImport {
     ///
     /// TODO - use Flix's paths...
     ///
-    pub def newLinesSource(filepath: String, cs: Charset): Result[LinesSource, String] =
+    pub def newLinesSource(filepath: String, cs: Charset): Result[LinesSource, String] & Impure =
         try {
             import new flix.runtime.factimport.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
             let Charset(cs1) = cs;
@@ -43,18 +43,18 @@ namespace LinesImport {
             case _: ##java.io.IOException => Err("newTextLineSource - io exception")
         }
 
-    def hasNext(src: LinesSource): Bool =
+    def hasNext(src: LinesSource): Bool & Impure =
         let LinesSource(iterator) = src;
         import flix.runtime.factimport.LinesIterator.hasNext();
         iterator.hasNext()
 
-    def getLine(src: LinesSource): TextLine =
+    def getLine(src: LinesSource): TextLine & Impure =
         let LinesSource(iterator) = src;
         import flix.runtime.factimport.LinesIterator.getLine();
         let line = iterator.getLine();
         TextLine(line)
 
-    def finalize(src: LinesSource): Unit =
+    def finalize(src: LinesSource): Unit & Impure =
         let LinesSource(iterator) = src;
         import flix.runtime.factimport.LinesIterator.close();
         iterator.close()
@@ -66,29 +66,29 @@ namespace LinesImport {
     ///
     /// Track line number for errors.
     ///
-    pub def collect(f: TextLine -> LineResult[reln], src: LinesSource): Result[reln, String] =
+    pub def collect(f: TextLine -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
         Strategies.collect(iterator, f, src)
 
-    pub def collectWithCount(f: (TextLine, Int32) -> LineResult[reln], src: LinesSource): Result[reln, String] =
+    pub def collectWithCount(f: (TextLine, Int32) -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
         Strategies.collectWithCount(iterator, f, src)
 
-    pub def collectAccum(f: (TextLine, st) -> LineResult[(reln, st)], state: st, src: LinesSource): Result[(reln, st), String] =
+    pub def collectAccum(f: (TextLine, st) -> LineResult[(reln, st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
         let iterator = makeLinesIterator();
         Strategies.collectAccum(iterator, f, state, src)
 
 
-    pub def choose(f: TextLine -> LineResult[Option[reln]], src: LinesSource): Result[reln, String] =
+    pub def choose(f: TextLine -> LineResult[Option[reln]] & e, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
         Strategies.choose(iterator, f, src)
 
-    pub def chooseWithCount(f: (TextLine,Int32) -> LineResult[Option[reln]], src: LinesSource): Result[reln, String] =
+    pub def chooseWithCount(f: (TextLine,Int32) -> LineResult[Option[reln]] & e, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
         Strategies.chooseWithCount(iterator, f, src)
 
 
-    pub def chooseAccum(f: (TextLine, st) -> LineResult[(Option[reln], st)], state: st, src: LinesSource): Result[(reln, st), String] =
+    pub def chooseAccum(f: (TextLine, st) -> LineResult[(Option[reln], st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
         let iterator = makeLinesIterator();
         Strategies.chooseAccum(iterator, f, state, src)
 
@@ -98,11 +98,11 @@ namespace LinesImport {
         let TextLine(s) = line;
         if (String.length(s) > 0) Validation.valid(s) else Validation.error("nonempty")
 
-    pub def apply(f: String -> a, line: TextLine): LineResult[a] =
+    pub def apply(f: String -> a & e, line: TextLine): LineResult[a] & e=
         let TextLine(s) = line;
         Validation.valid(f(s))
 
-    pub def applyRes(f: String -> Result[a, String], line: TextLine): LineResult[a] =
+    pub def applyRes(f: String -> Result[a, String] & e, line: TextLine): LineResult[a] & e=
         let TextLine(s) = line;
         match f(s) {
             case Ok(a) => Validation.valid(a)

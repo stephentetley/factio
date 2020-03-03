@@ -20,14 +20,14 @@ namespace ExportBase {
     ///
     /// Apply the effectful function `f` to all the elements in the array `a`.
     ///
-    pub def foreachWithIndex(f: (a, Int32) -> Unit, a: Array[a]): Unit =
+    pub def foreachWithIndex(f: (a, Int32) -> Unit & Impure, a: Array[a]): Unit & Impure =
         let len = Array.length(a);
         if (len < 1) () else foreachWithIndexHelper(f, a, len, 0)
 
     ///
     /// Helper for `foreachWithIndex`.
     ///
-    def foreachWithIndexHelper(f: (a, Int32)-> Unit, a: Array[a], len: Int32, i: Int32): Unit =
+    def foreachWithIndexHelper(f: (a, Int32)-> Unit & Impure, a: Array[a], len: Int32, i: Int32): Unit & Impure =
         if (i >= len)
             ()
         else {
@@ -43,6 +43,9 @@ namespace ExportBase {
     /// Candidate for inclusion in stdlib Array.
     ///
     pub def mkStringBy(f: a -> Str, sep: Str, a: Array[a]): Str =
+        mkStringByHelper(f, sep, a) as & Pure
+
+    def mkStringByHelper(f: a -> Str, sep: Str, a: Array[a]): Str & Impure =
         let sb = StringBuilder.new();
         let step = (x,i) ->
             if (i == 0)

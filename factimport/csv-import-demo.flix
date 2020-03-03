@@ -1,4 +1,4 @@
-def fail1(msg: String): reln = 
+def fail1(msg: String): reln & Impure = 
     Console.printLine(msg);
     #{ }
 
@@ -12,8 +12,8 @@ def getName(row: CsvRow): CsvResult[#{Name}] =
     Validation.fmap(makeName, CsvImport.getStringByLabel(row, "Name"))
 
 
-pub def test01(): #{Name} =
-    let path = "e:/coding/flix/flix-doodle/factimport/data/stations.csv";
+pub def test01(): #{Name} & Impure =
+    let path = "e:/coding/flix/factio/data/stations.csv";
     match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
         case Err(msg) => fail1(msg)
         case Ok(csvSource) => 
@@ -33,8 +33,8 @@ def getStation(row: CsvRow): CsvResult[#{Station}] =
                         (x,y) -> Station(x, y).)
 
 
-pub def test02(): #{Station} =
-    let path = "e:/coding/flix/flix-doodle/factimport/data/stations.csv";
+pub def test02(): #{Station} & Impure =
+    let path = "e:/coding/flix/factio/data/stations.csv";
     match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
         case Err(msg) => fail1(msg)
         case Ok(csvSource) => 
