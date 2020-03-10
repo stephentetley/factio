@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package flix.runtime.csvexport;
+package flix.runtime.factio;
 
 import org.apache.commons.csv.*;
 import java.io.Writer;

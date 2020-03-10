@@ -21,7 +21,7 @@ type alias RowIterator[src,row] = { hasNext: src -> Bool & Impure , getRow: src 
 namespace Strategies {
 
     pub def collect(iterator: RowIterator[src, row], rowreader: row -> RowResult[reln] & e, source: src): Result[reln, String] & Impure =
-        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
         collectHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
 
     def collectHelper(iterator: RowIterator[src, row], rowreader: row -> RowResult[reln] & e, src: src, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] & Impure =
@@ -40,7 +40,7 @@ namespace Strategies {
         }
 
     pub def collectWithCount(iterator: RowIterator[src, row], rowreader: (row, Int32) -> RowResult[reln] & e, source: src): Result[reln, String] & Impure =
-        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
         collectWithCountHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
 
     def collectWithCountHelper(iterator: RowIterator[src, row], rowreader: (row, Int32) -> RowResult[reln] & e, src: src, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: rel -> Result[reln, String]): Result[reln, String] & Impure =
@@ -59,7 +59,7 @@ namespace Strategies {
         }
 
     pub def collectAccum(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)] & e, state: st, source: src): Result[(reln, st), String] & Impure =
-        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
         collectAccumHelper(iterator, rowreader, state, source, 0, failk, (relns, st) -> Ok(relns, st))
 
     def collectAccumHelper(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)] & e, state: st, src: src, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] & Impure =
@@ -78,7 +78,7 @@ namespace Strategies {
         }
 
     pub def choose(iterator: RowIterator[src, row], rowreader: row -> RowResult[Option[reln]] & e, source: src): Result[reln, String] & Impure =
-        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
         chooseHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
 
     def chooseHelper(iterator: RowIterator[src, row], rowreader: row -> RowResult[Option[reln]] & e, src: src, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] & Impure =
@@ -98,7 +98,7 @@ namespace Strategies {
         }
 
     pub def chooseWithCount(iterator: RowIterator[src, row], rowreader: (row,Int32) -> RowResult[Option[reln]] & e, source: src): Result[reln, String] & Impure =
-        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
         chooseWithCountHelper(iterator, rowreader, source, 0, 0, failk, relns -> Ok(relns))
 
     def chooseWithCountHelper(iterator: RowIterator[src, row], rowreader: (row,Int32)-> RowResult[Option[reln]] & e, src: src, rownum: Int32, count: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] & Impure =
@@ -118,7 +118,7 @@ namespace Strategies {
         }
 
     pub def chooseAccum(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(Option[reln], st)] & e, state: st, source: src): Result[(reln, st), String] & Impure =
-        let failk = (n,msgs) -> ImportBase.collectErrors(n, msgs) |> Err;
+        let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
         chooseAccumHelper(iterator, rowreader, state, source, 0, failk, (relns, st) -> Ok(relns, st))
 
     def chooseAccumHelper(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(Option[reln], st)] & e, state: st, src: src, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] & Impure =

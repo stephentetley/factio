@@ -17,12 +17,12 @@
 ///
 /// Represents a SQLite row.
 ///
-opaque type SQLiteRow = ##flix.runtime.factimport.SQLiteRow
+opaque type SQLiteRow = ##flix.runtime.factio.SQLiteRow
 
 ///
 /// Represents a SQLite iterator.
 ///
-opaque type SQLiteSource = ##flix.runtime.factimport.SQLiteIterator
+opaque type SQLiteSource = ##flix.runtime.factio.SQLiteIterator
 
 type alias SQLiteResult[t] = Validation[t, String]
 
@@ -33,7 +33,7 @@ namespace SQLiteImport {
     ///
     pub def newSQLiteSource(filepath: String, query: String): Result[SQLiteSource, String] & Impure =
         try {
-            import new flix.runtime.factimport.SQLiteIterator(String, String) as newSQLiteIterator;
+            import new flix.runtime.factio.SQLiteIterator(String, String) as newSQLiteIterator;
             let iterator = newSQLiteIterator(filepath, query);
             SQLiteSource(iterator) |> Ok
         } catch {
@@ -44,7 +44,7 @@ namespace SQLiteImport {
     def hasNext(iterator: SQLiteSource): Bool & Impure =
         let SQLiteSource(rator1) = iterator;
         try {
-            import flix.runtime.factimport.SQLiteIterator.next();
+            import flix.runtime.factio.SQLiteIterator.next();
             rator1.next()
         } catch {
             case _: ##java.sql.SQLException => false
@@ -52,7 +52,7 @@ namespace SQLiteImport {
 
     def getRow(iterator: SQLiteSource): SQLiteRow & Impure =
         let SQLiteSource(rator1) = iterator;
-        import flix.runtime.factimport.SQLiteIterator.getRow();
+        import flix.runtime.factio.SQLiteIterator.getRow();
         let row = rator1.getRow();
         SQLiteRow(row)
 
@@ -92,7 +92,7 @@ namespace SQLiteImport {
     pub def getStringByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[String] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getStringByIndex(Int32);
+            import flix.runtime.factio.SQLiteRow.getStringByIndex(Int32);
             let a = r1.getStringByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -102,7 +102,7 @@ namespace SQLiteImport {
     pub def getStringByLabel(row: SQLiteRow, label: String): SQLiteResult[String] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getStringByLabel(String);
+            import flix.runtime.factio.SQLiteRow.getStringByLabel(String);
             let a = r1.getStringByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -112,7 +112,7 @@ namespace SQLiteImport {
     pub def getInt8ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int8] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getByteByIndex(Int32);
+            import flix.runtime.factio.SQLiteRow.getByteByIndex(Int32);
             let a = r1.getByteByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -122,7 +122,7 @@ namespace SQLiteImport {
     pub def getInt8ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int8] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getByteByLabel(String);
+            import flix.runtime.factio.SQLiteRow.getByteByLabel(String);
             let a = r1.getByteByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -132,7 +132,7 @@ namespace SQLiteImport {
     pub def getInt16ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int16] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getShortByIndex(Int32);
+            import flix.runtime.factio.SQLiteRow.getShortByIndex(Int32);
             let a = r1.getShortByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -142,7 +142,7 @@ namespace SQLiteImport {
     pub def getInt16ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int16] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getShortByLabel(String);
+            import flix.runtime.factio.SQLiteRow.getShortByLabel(String);
             let a = r1.getShortByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -152,7 +152,7 @@ namespace SQLiteImport {
     pub def getInt32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int32] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getIntByIndex(Int32);
+            import flix.runtime.factio.SQLiteRow.getIntByIndex(Int32);
             let a = r1.getIntByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -162,7 +162,7 @@ namespace SQLiteImport {
     pub def getInt32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int32] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getIntByLabel(String);
+            import flix.runtime.factio.SQLiteRow.getIntByLabel(String);
             let a = r1.getIntByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -172,7 +172,7 @@ namespace SQLiteImport {
     pub def getInt64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int64] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getLongByIndex(Int32);
+            import flix.runtime.factio.SQLiteRow.getLongByIndex(Int32);
             let a = r1.getLongByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -182,7 +182,7 @@ namespace SQLiteImport {
     pub def getInt64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int64] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getLongByLabel(String);
+            import flix.runtime.factio.SQLiteRow.getLongByLabel(String);
             let a = r1.getLongByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -192,7 +192,7 @@ namespace SQLiteImport {
     pub def getFloat32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float32] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getFloatByIndex(Int32);
+            import flix.runtime.factio.SQLiteRow.getFloatByIndex(Int32);
             let a = r1.getFloatByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -202,7 +202,7 @@ namespace SQLiteImport {
     pub def getFloat32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float32] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getFloatByLabel(String);
+            import flix.runtime.factio.SQLiteRow.getFloatByLabel(String);
             let a = r1.getFloatByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -212,7 +212,7 @@ namespace SQLiteImport {
     pub def getFloat64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float64] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getDoubleByIndex(Int32);
+            import flix.runtime.factio.SQLiteRow.getDoubleByIndex(Int32);
             let a = r1.getDoubleByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -222,7 +222,7 @@ namespace SQLiteImport {
     pub def getFloat64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float64] & e =
         let SQLiteRow(r1) = row;
         try {
-            import flix.runtime.factimport.SQLiteRow.getDoubleByLabel(String);
+            import flix.runtime.factio.SQLiteRow.getDoubleByLabel(String);
             let a = r1.getDoubleByLabel(label) as & e;
             Validation.valid(a)
         } catch {

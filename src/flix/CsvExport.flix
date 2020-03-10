@@ -17,7 +17,7 @@
 ///
 /// Represents a StringBuilder.
 ///
-opaque type CsvWriter = ##flix.runtime.csvexport.CsvExport
+opaque type CsvWriter = ##flix.runtime.factio.CsvExport
 
 
 namespace CsvExport {
@@ -26,17 +26,17 @@ namespace CsvExport {
     /// Returns a new FilePath.
     ///
     def getDelim(): String = 
-        import flix.runtime.csvexport.CsvExport:getDelim();
+        import flix.runtime.factio.CsvExport:getDelim();
         getDelim() as & Pure
 
 
     def internalNew (filepath: String, format: Int32, headerdata: String): CsvWriter & Impure =
-        import new flix.runtime.csvexport.CsvExport(String, Int32, String) as newCsvExport;
+        import new flix.runtime.factio.CsvExport(String, Int32, String) as newCsvExport;
         CsvWriter(newCsvExport(filepath, format, headerdata))
 
     def serializeRow(cells: Array[String]): String =
         let sep = getDelim();
-        ExportBase.mkStringBy(x -> x, sep, cells)
+        FactIOBase.mkStringBy(x -> x, sep, cells)
 
     pub def new (filepath: String, headers: Array[String]): CsvWriter & Impure =
         internalNew(filepath, 0, serializeRow(headers))
@@ -44,12 +44,12 @@ namespace CsvExport {
     pub def writeRow(w: CsvWriter, cells: Array[String]): Unit & Impure =
         let CsvWriter(handle) = w;
         let rowdata = serializeRow(cells);
-        import flix.runtime.csvexport.CsvExport.writeRow(String);
+        import flix.runtime.factio.CsvExport.writeRow(String);
         handle.writeRow(rowdata)
 
     pub def close(w: CsvWriter): Unit & Impure =
         let CsvWriter(handle) = w;
-        import flix.runtime.csvexport.CsvExport.close();
+        import flix.runtime.factio.CsvExport.close();
         handle.close()
 
     ///
@@ -59,6 +59,8 @@ namespace CsvExport {
     ///
     /// When all the relations have been folded over the fold emits the CsvWriter
     /// so client code can close it.
+    ///
+    /// Warning: temporarily cast to Pure to be useable with Fixpoint fold
     ///
     pub def wrapCellPrinterForFixpointFold(f: x -> Array[String]): (x, CsvWriter) -> CsvWriter & Impure =
         (x, w) -> { let cells = f(x); writeRow(w, cells); w }

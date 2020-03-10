@@ -17,12 +17,12 @@
 ///
 /// Represents a CSV row.
 ///
-opaque type CsvRow = ##flix.runtime.factimport.CsvRow
+opaque type CsvRow = ##flix.runtime.factio.CsvRow
 
 ///
 /// Represents a CSV source (internally an iterator on a CSV file).
 ///
-opaque type CsvSource = ##flix.runtime.factimport.CsvIterator
+opaque type CsvSource = ##flix.runtime.factio.CsvIterator
 
 type alias CsvResult[t] = Validation[t, String]
 
@@ -68,7 +68,7 @@ namespace CsvImport {
     pub def newCsvSource(filepath: String, format: CsvFormat, hasHeaders: Bool): Result[CsvSource, String] & Impure =
         let fmt = formatToInt(format);
         try {
-            import new flix.runtime.factimport.CsvIterator(String, Int32, Bool) as newCsvIterator;
+            import new flix.runtime.factio.CsvIterator(String, Int32, Bool) as newCsvIterator;
             let iterator = newCsvIterator(filepath, fmt, hasHeaders);
             CsvSource(iterator) |> Ok
         } catch {
@@ -78,18 +78,18 @@ namespace CsvImport {
 
     def hasNext(src: CsvSource): Bool & Impure =
         let CsvSource(iterator) = src;
-        import flix.runtime.factimport.CsvIterator.hasNext();
+        import flix.runtime.factio.CsvIterator.hasNext();
         iterator.hasNext()
 
     def getRow(src: CsvSource): CsvRow & Impure =
         let CsvSource(iterator) = src;
-        import flix.runtime.factimport.CsvIterator.next();
+        import flix.runtime.factio.CsvIterator.next();
         let csvRow = iterator.next();
         CsvRow(csvRow)
 
     def finalize(src: CsvSource): Unit & Impure =
         let CsvSource(iterator) = src;
-        import flix.runtime.factimport.CsvIterator.close();
+        import flix.runtime.factio.CsvIterator.close();
         iterator.close()
 
     def makeCsvIterator(): RowIterator[CsvSource, CsvRow] =
@@ -131,7 +131,7 @@ namespace CsvImport {
     pub def getStringByIndex(row: CsvRow, ix: Int32): CsvResult[String] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getStringByIndex(Int32);
+            import flix.runtime.factio.CsvRow.getStringByIndex(Int32);
             let a = r1.getStringByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -144,7 +144,7 @@ namespace CsvImport {
     pub def getStringByLabel(row: CsvRow, label: String): CsvResult[String] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getStringByLabel(String);
+            import flix.runtime.factio.CsvRow.getStringByLabel(String);
             let a = r1.getStringByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -154,7 +154,7 @@ namespace CsvImport {
     pub def getInt8ByIndex(row: CsvRow, ix: Int32): CsvResult[Int8] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getByteByIndex(Int32);
+            import flix.runtime.factio.CsvRow.getByteByIndex(Int32);
             let a = r1.getByteByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -164,7 +164,7 @@ namespace CsvImport {
     pub def getInt8ByLabel(row: CsvRow, label: String): CsvResult[Int8] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getByteByLabel(String);
+            import flix.runtime.factio.CsvRow.getByteByLabel(String);
             let a = r1.getByteByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -174,7 +174,7 @@ namespace CsvImport {
     pub def getInt16ByIndex(row: CsvRow, ix: Int32): CsvResult[Int16] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getShortByIndex(Int32);
+            import flix.runtime.factio.CsvRow.getShortByIndex(Int32);
             let a = r1.getShortByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -184,7 +184,7 @@ namespace CsvImport {
     pub def getInt16ByLabel(row: CsvRow, label: String): CsvResult[Int16] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getShortByLabel(String);
+            import flix.runtime.factio.CsvRow.getShortByLabel(String);
             let a = r1.getShortByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -194,7 +194,7 @@ namespace CsvImport {
     pub def getInt32ByIndex(row: CsvRow, ix: Int32): CsvResult[Int32] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getIntByIndex(Int32);
+            import flix.runtime.factio.CsvRow.getIntByIndex(Int32);
             let a = r1.getIntByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -204,7 +204,7 @@ namespace CsvImport {
     pub def getInt32ByLabel(row: CsvRow, label: String): CsvResult[Int32] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getIntByLabel(String);
+            import flix.runtime.factio.CsvRow.getIntByLabel(String);
             let a = r1.getIntByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -214,7 +214,7 @@ namespace CsvImport {
     pub def getInt64ByIndex(row: CsvRow, ix: Int32): CsvResult[Int64] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getLongByIndex(Int32);
+            import flix.runtime.factio.CsvRow.getLongByIndex(Int32);
             let a = r1.getLongByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -224,7 +224,7 @@ namespace CsvImport {
     pub def getInt64ByLabel(row: CsvRow, label: String): CsvResult[Int64] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getLongByLabel(String);
+            import flix.runtime.factio.CsvRow.getLongByLabel(String);
             let a = r1.getLongByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -234,7 +234,7 @@ namespace CsvImport {
     pub def getFloat32ByIndex(row: CsvRow, ix: Int32): CsvResult[Float32] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getFloatByIndex(Int32);
+            import flix.runtime.factio.CsvRow.getFloatByIndex(Int32);
             let a = r1.getFloatByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -244,7 +244,7 @@ namespace CsvImport {
     pub def getFloat32ByLabel(row: CsvRow, label: String): CsvResult[Float32] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getFloatByLabel(String);
+            import flix.runtime.factio.CsvRow.getFloatByLabel(String);
             let a = r1.getFloatByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -254,7 +254,7 @@ namespace CsvImport {
     pub def getFloat64ByIndex(row: CsvRow, ix: Int32): CsvResult[Float64] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getDoubleByIndex(Int32);
+            import flix.runtime.factio.CsvRow.getDoubleByIndex(Int32);
             let a = r1.getDoubleByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -264,7 +264,7 @@ namespace CsvImport {
     pub def getFloat64ByLabel(row: CsvRow, label: String): CsvResult[Float64] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getDoubleByLabel(String);
+            import flix.runtime.factio.CsvRow.getDoubleByLabel(String);
             let a = r1.getDoubleByLabel(label) as & e;
             Validation.valid(a)
         } catch {
@@ -274,7 +274,7 @@ namespace CsvImport {
     pub def getBigIntByIndex(row: CsvRow, ix: Int32): CsvResult[BigInt] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getBigIntegerByIndex(Int32);
+            import flix.runtime.factio.CsvRow.getBigIntegerByIndex(Int32);
             let a = r1.getBigIntegerByIndex(ix) as & e;
             Validation.valid(a)
         } catch {
@@ -284,7 +284,7 @@ namespace CsvImport {
     pub def getBigIntByLabel(row: CsvRow, label: String): CsvResult[BigInt] & e =
         let CsvRow(r1) = row;
         try {
-            import flix.runtime.factimport.CsvRow.getBigIntegerByLabel(String);
+            import flix.runtime.factio.CsvRow.getBigIntegerByLabel(String);
             let a = r1.getBigIntegerByLabel(label) as & e;
             Validation.valid(a)
         } catch {

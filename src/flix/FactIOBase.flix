@@ -15,12 +15,7 @@
  */
 
 
-namespace ImportBase {
-
-    def listIter(f: a -> Unit & Impure, xs: List[a]): Unit & Impure = match xs {
-        case Nil => ()
-        case x :: rs => { f(x); listIter(f, rs) }
-    }
+namespace FactIOBase {
 
     pub def collectErrors(line: Int32, errs: List[String]): String =
         collectErrorsHelper(line, errs) as & Pure
@@ -28,7 +23,47 @@ namespace ImportBase {
     def collectErrorsHelper(line: Int32, errs: List[String]): String & Impure =
         let sb = StringBuilder.new();
         StringBuilder.appendLine(sb, "${Int32.toString(line)}| Errors:");
-        listIter(StringBuilder.appendLine(sb), errs);
+        List.foreach(StringBuilder.appendLine(sb), errs);
+        StringBuilder.toString(sb)
+
+    ///
+    /// Apply the effectful function `f` to all the elements in the array `a`.
+    ///
+    pub def foreachWithIndex(f: (a, Int32) -> Unit & Impure, a: Array[a]): Unit & Impure =
+        let len = Array.length(a);
+        if (len < 1) () else foreachWithIndexHelper(f, a, len, 0)
+
+    ///
+    /// Helper for `foreachWithIndex`.
+    ///
+    def foreachWithIndexHelper(f: (a, Int32)-> Unit & Impure, a: Array[a], len: Int32, i: Int32): Unit & Impure =
+        if (i >= len)
+            ()
+        else {
+            f(a[i], i);
+            foreachWithIndexHelper(f, a, len, i + 1)
+        }
+
+
+    ///
+    /// Render the array `a` as a String. Elements are rendered with the
+    /// function `f` and separated with the string `sep`.
+    ///
+    /// Candidate for inclusion in stdlib Array.
+    ///
+    pub def mkStringBy(f: a -> Str, sep: Str, a: Array[a]): Str =
+        mkStringByHelper(f, sep, a) as & Pure
+
+    def mkStringByHelper(f: a -> Str, sep: Str, a: Array[a]): Str & Impure =
+        let sb = StringBuilder.new();
+        let step = (x,i) ->
+            if (i == 0)
+                StringBuilder.appendString(sb, f(x))
+            else {
+                StringBuilder.appendString(sb, sep);
+                StringBuilder.appendString(sb, f(x))
+            };
+        foreachWithIndex(step, a);
         StringBuilder.toString(sb)
 
 }

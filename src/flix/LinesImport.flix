@@ -23,7 +23,7 @@ opaque type TextLine = String
 ///
 /// Represents a source of text lines (internally an iterator on a text file).
 ///
-opaque type LinesSource = ##flix.runtime.factimport.LinesIterator
+opaque type LinesSource = ##flix.runtime.factio.LinesIterator
 
 type alias LineResult[t] = Validation[t, String]
 
@@ -34,7 +34,7 @@ namespace LinesImport {
     ///
     pub def newLinesSource(filepath: String, cs: Charset): Result[LinesSource, String] & Impure =
         try {
-            import new flix.runtime.factimport.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
+            import new flix.runtime.factio.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
             let Charset(cs1) = cs;
             let iterator = newLinesIterator(filepath, cs1);
             LinesSource(iterator) |> Ok
@@ -45,18 +45,18 @@ namespace LinesImport {
 
     def hasNext(src: LinesSource): Bool & Impure =
         let LinesSource(iterator) = src;
-        import flix.runtime.factimport.LinesIterator.hasNext();
+        import flix.runtime.factio.LinesIterator.hasNext();
         iterator.hasNext()
 
     def getLine(src: LinesSource): TextLine & Impure =
         let LinesSource(iterator) = src;
-        import flix.runtime.factimport.LinesIterator.getLine();
+        import flix.runtime.factio.LinesIterator.getLine();
         let line = iterator.getLine();
         TextLine(line)
 
     def finalize(src: LinesSource): Unit & Impure =
         let LinesSource(iterator) = src;
-        import flix.runtime.factimport.LinesIterator.close();
+        import flix.runtime.factio.LinesIterator.close();
         iterator.close()
 
 
