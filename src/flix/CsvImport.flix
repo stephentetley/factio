@@ -96,46 +96,41 @@ namespace CsvImport {
         { hasNext = hasNext,  getRow = getRow, finalize = finalize }
 
     ///
-    /// Track row number for errors.
+    /// Process all rows of the input.
     ///
-    pub def eachrow(f: CsvRow -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterate(f: CsvRow -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
-        Strategies.eachrow(iterator, f, src)
+        Strategies.iterate(iterator, f, src)
 
-
-    pub def eachrowWithCount(f: (CsvRow, Int32) -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
+    ///
+    /// Process all rows of the input with a zero indexed row count.
+    ///
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterateWithCount(f: (CsvRow, Int32) -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
-        Strategies.eachrowWithCount(iterator, f, src)
+        Strategies.iterateWithCount(iterator, f, src)
 
-    pub def eachrowAccum(f: (CsvRow, st) -> CsvResult[(reln, st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
+    ///
+    /// Process all rows of the input with a threaded state.
+    ///
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterateAccum(f: (CsvRow, st) -> CsvResult[(reln, st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
         let iterator = makeCsvIterator();
-        Strategies.eachrowAccum(iterator, f, state, src)
+        Strategies.iterateAccum(iterator, f, state, src)
 
-
-    pub def choose(f: CsvRow -> CsvResult[Option[reln]] & e, src: CsvSource): Result[reln, String] & Impure =
+    ///
+    /// Process all rows of the input with threaded state and a zero indexed row count.
+    ///
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterateAccumWithCount(f: (CsvRow, st, Int32) -> CsvResult[(reln, st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
         let iterator = makeCsvIterator();
-        Strategies.choose(iterator, f, src)
+        Strategies.iterateAccumWithCount(iterator, f, state, src)
 
-    pub def chooseWithCount(f: (CsvRow,Int32) -> CsvResult[Option[reln]] & e, src: CsvSource): Result[reln, String] & Impure =
-        let iterator = makeCsvIterator();
-        Strategies.chooseWithCount(iterator, f, src)
-
-    pub def chooseAccum(f: (CsvRow, st) -> CsvResult[(Option[reln], st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
-        let iterator = makeCsvIterator();
-        Strategies.chooseAccum(iterator, f, state, src)
-
-
-    pub def collect(f: CsvRow -> CsvResult[List[reln]] & e, src: CsvSource): Result[reln, String] & Impure =
-        let iterator = makeCsvIterator();
-        Strategies.collect(iterator, f, src)
-
-    pub def collectWithCount(f: (CsvRow,Int32) -> CsvResult[List[reln]] & e, src: CsvSource): Result[reln, String] & Impure =
-        let iterator = makeCsvIterator();
-        Strategies.collectWithCount(iterator, f, src)
-
-    pub def collectAccum(f: (CsvRow, st) -> CsvResult[(List[reln], st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
-        let iterator = makeCsvIterator();
-        Strategies.collectAccum(iterator, f, state, src)
 
     // Cell readers
 

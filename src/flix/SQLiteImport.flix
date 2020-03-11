@@ -61,42 +61,41 @@ namespace SQLiteImport {
     def makeSQLiteIterator(): RowIterator[SQLiteSource, SQLiteRow] =
         { hasNext = hasNext,  getRow = getRow, finalize = finalize }
 
-    pub def eachrow(f: SQLiteRow -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
+    ///
+    /// Process all rows of the input.
+    ///
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterate(f: SQLiteRow -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();
-        Strategies.eachrow(iterator, f, src)
+        Strategies.iterate(iterator, f, src)
 
-    pub def eachrowWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
+    ///
+    /// Process all rows of the input with a zero indexed row count.
+    ///
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterateWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();
-        Strategies.eachrowWithCount(iterator, f, src)
+        Strategies.iterateWithCount(iterator, f, src)
 
-    pub def eachrowAccum(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
+    ///
+    /// Process all rows of the input with a threaded state.
+    ///
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterateAccum(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
         let iterator = makeSQLiteIterator();
-        Strategies.eachrowAccum(iterator, f, state, src)
+        Strategies.iterateAccum(iterator, f, state, src)
 
-    pub def choose(f: SQLiteRow -> SQLiteResult[Option[reln]] & e, src: SQLiteSource): Result[reln, String] & Impure =
+    ///
+    /// Process all rows of the input with threaded state and a zero indexed row count.
+    ///
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterateAccumWithCount(f: (SQLiteRow, st, Int32) -> SQLiteResult[(reln, st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
         let iterator = makeSQLiteIterator();
-        Strategies.choose(iterator, f, src)
-
-    pub def chooseWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[Option[reln]] & e, src: SQLiteSource): Result[reln, String] & Impure =
-        let iterator = makeSQLiteIterator();
-        Strategies.chooseWithCount(iterator, f, src)
-
-    pub def chooseAccum(f: (SQLiteRow, st) -> SQLiteResult[(Option[reln], st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
-        let iterator = makeSQLiteIterator();
-        Strategies.chooseAccum(iterator, f, state, src)
-
-
-    pub def collect(f: SQLiteRow -> SQLiteResult[List[reln]] & e, src: SQLiteSource): Result[reln, String] & Impure =
-        let iterator = makeSQLiteIterator();
-        Strategies.collect(iterator, f, src)
-
-    pub def collectWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[List[reln]] & e, src: SQLiteSource): Result[reln, String] & Impure =
-        let iterator = makeSQLiteIterator();
-        Strategies.collectWithCount(iterator, f, src)
-
-    pub def collectAccum(f: (SQLiteRow, st) -> SQLiteResult[(List[reln], st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
-        let iterator = makeSQLiteIterator();
-        Strategies.collectAccum(iterator, f, state, src)
+        Strategies.iterateAccumWithCount(iterator, f, state, src)
 
     // Cell readers
 

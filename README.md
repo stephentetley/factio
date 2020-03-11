@@ -8,20 +8,20 @@ Imports CSV, SQLite and flat text files, exports CSV.
 I currently build factio within a Flix compiler project in IntelliJ.
 
 Acquire `sqlite-jdbc-3.27.2.1.jar` and Apache `commons-csv-1.7.jar`
-and drop them in the `lib` folder.
+and drop them in Flix's `lib` folder.
 
 https://bitbucket.org/xerial/sqlite-jdbc/downloads/
 
 https://commons.apache.org/proper/commons-csv/download_csv.cgi
 
-In `main\src\flix\runtime` create a folder `factio` and drop in the Java
-modules from factio `src\java`.
+In Flix `main/src/flix/runtime` create a folder `factio` and drop in the Java
+modules from Factio `src/java`.
 
-In `main\src\library` create a folder `factio` and drop in the Flix
-modules from factio `src\flix`.
+In Flix `main/src/library` create a folder `factio` and drop in the Flix
+modules from Factio `src/flix`.
 
-Edit `main\src\ca\uwaterloo\flix\api\Flix.scala` to include the 
-Flix modules, i.e. add this code to the list of libraries:
+Edit Flix `main/src/ca/uwaterloo/flix/api/Flix.scala` to include the 
+Factio Flix modules, i.e. add this code to the list of libraries:
 
 ~~~
 

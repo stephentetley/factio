@@ -11,7 +11,7 @@ def csvDirection1(row: CsvRow): CsvResult[#{Direction}] & e =
     Validation.fmap(makeDirection, CsvImport.getStringByIndex(row, 0))
 
 pub def csv01(): #{Direction} & Impure =
-    let path = "d:/coding/flix/factio/data/compass.csv";
+    let path = "e:/coding/flix/factio/data/compass.csv";
     match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
         case Err(msg) => logFail(msg)
         case Ok(csvSource) => 
@@ -26,7 +26,7 @@ def sqliteDirection1(row: SQLiteRow): SQLiteResult[#{Direction}] & e =
     
 
 pub def sqlite01(): #{Direction} & Impure =
-    let path = "d:/coding/flix/factio/data/compass.sqlite";
+    let path = "e:/coding/flix/factio/data/compass.sqlite";
     let query = "SELECT cardinal_name FROM cardinals";
     match SQLiteImport.newSQLiteSource(path, query) {
         case Err(msg) => logFail(msg)
@@ -44,7 +44,7 @@ def lineDirection1(line: TextLine): LineResult[#{Direction}] & Pure =
 
 
 pub def lines01(): #{ Direction } & Impure =
-    let path = "d:/coding/flix/factio/data/compass.txt";
+    let path = "e:/coding/flix/factio/data/compass.txt";
     match LinesImport.newLinesSource(path, Charset.utf_8()) {
         case Err(msg) => logFail(msg)
         case Ok(src) => 

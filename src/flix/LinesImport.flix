@@ -64,45 +64,41 @@ namespace LinesImport {
         { hasNext = hasNext,  getRow = getLine, finalize = finalize }
 
     ///
-    /// Track line number for errors.
+    /// Process all rows of the input.
     ///
-    pub def eachrow(f: TextLine -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterate(f: TextLine -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
-        Strategies.eachrow(iterator, f, src)
+        Strategies.iterate(iterator, f, src)
 
-    pub def eachrowWithCount(f: (TextLine, Int32) -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
+    ///
+    /// Process all rows of the input with a zero indexed row count.
+    ///
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterateWithCount(f: (TextLine, Int32) -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
-        Strategies.eachrowWithCount(iterator, f, src)
+        Strategies.iterateWithCount(iterator, f, src)
 
-    pub def eachrowAccum(f: (TextLine, st) -> LineResult[(reln, st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
+    ///
+    /// Process all rows of the input with a threaded state.
+    ///
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterateAccum(f: (TextLine, st) -> LineResult[(reln, st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
         let iterator = makeLinesIterator();
-        Strategies.eachrowAccum(iterator, f, state, src)
+        Strategies.iterateAccum(iterator, f, state, src)
 
-
-    pub def choose(f: TextLine -> LineResult[Option[reln]] & e, src: LinesSource): Result[reln, String] & Impure =
+    ///
+    /// Process all rows of the input with threaded state and a zero indexed row count.
+    ///
+    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    ///
+    pub def iterateAccumWithCount(f: (TextLine, st, Int32) -> LineResult[(reln, st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
         let iterator = makeLinesIterator();
-        Strategies.choose(iterator, f, src)
+        Strategies.iterateAccumWithCount(iterator, f, state, src)
 
-    pub def chooseWithCount(f: (TextLine,Int32) -> LineResult[Option[reln]] & e, src: LinesSource): Result[reln, String] & Impure =
-        let iterator = makeLinesIterator();
-        Strategies.chooseWithCount(iterator, f, src)
-
-    pub def chooseAccum(f: (TextLine, st) -> LineResult[(Option[reln], st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
-        let iterator = makeLinesIterator();
-        Strategies.chooseAccum(iterator, f, state, src)
-
-
-    pub def collect(f: TextLine -> LineResult[List[reln]] & e, src: LinesSource): Result[reln, String] & Impure =
-        let iterator = makeLinesIterator();
-        Strategies.collect(iterator, f, src)
-
-    pub def collectWithCount(f: (TextLine,Int32) -> LineResult[List[reln]] & e, src: LinesSource): Result[reln, String] & Impure =
-        let iterator = makeLinesIterator();
-        Strategies.collectWithCount(iterator, f, src)
-
-    pub def collectAccum(f: (TextLine, st) -> LineResult[(List[reln], st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
-        let iterator = makeLinesIterator();
-        Strategies.collectAccum(iterator, f, state, src)
 
     /// Line readers
 
