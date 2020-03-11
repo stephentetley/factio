@@ -17,13 +17,13 @@
 
 namespace FactIOBase {
 
-    pub def collectErrors(line: Int32, errs: List[String]): String =
+    pub def collectErrors(line: Int32, errs: Nel[String]): String =
         collectErrorsHelper(line, errs) as & Pure
 
-    def collectErrorsHelper(line: Int32, errs: List[String]): String & Impure =
+    def collectErrorsHelper(line: Int32, errs: Nel[String]): String & Impure =
         let sb = StringBuilder.new();
         StringBuilder.appendLine(sb, "${Int32.toString(line)}| Errors:");
-        List.foreach(StringBuilder.appendLine(sb), errs);
+        Nel.foreach(StringBuilder.appendLine(sb), errs);
         StringBuilder.toString(sb)
 
     ///

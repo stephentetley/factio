@@ -9,15 +9,15 @@ def makeName(name: String): #{ Name } =
     Name(name).
 
 def getName(row: CsvRow): CsvResult[#{Name}] = 
-    Validation.fmap(makeName, CsvImport.getStringByLabel(row, "Name"))
+    Validation.map(makeName, CsvImport.getStringByLabel(row, "Name"))
 
 
 pub def test01(): #{Name} & Impure =
-    let path = "d:/coding/flix/factio/data/stations.csv";
+    let path = "e:/coding/flix/factio/data/stations.csv";
     match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
         case Err(msg) => fail1(msg)
         case Ok(csvSource) => 
-            match CsvImport.eachrow(getName, csvSource) {
+            match CsvImport.iterate(getName, csvSource) {
                 case Err(msg) => fail1(msg)
                 case Ok(relns) => solve relns
             }
@@ -28,17 +28,18 @@ rel Station(name: String, gridref: String)
 
 
 def getStation(row: CsvRow): CsvResult[#{Station}] = 
-    Validation.pipeV2(CsvImport.getStringByLabel(row, "Name"), 
-                        CsvImport.getStringByLabel(row, "Grid_Ref"), 
-                        (x,y) -> Station(x, y).)
+    ValidationExtras.pipeV2(
+        CsvImport.getStringByLabel(row, "Name"), 
+        CsvImport.getStringByLabel(row, "Grid_Ref"), 
+        (x,y) -> Station(x, y).)
 
 
 pub def test02(): #{Station} & Impure =
-    let path = "d:/coding/flix/factio/data/stations.csv";
+    let path = "e:/coding/flix/factio/data/stations.csv";
     match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
         case Err(msg) => fail1(msg)
         case Ok(csvSource) => 
-            match CsvImport.eachrow(getStation, csvSource) {
+            match CsvImport.iterate(getStation, csvSource) {
                 case Err(msg) => fail1(msg)
                 case Ok(relns) => solve relns            
             }

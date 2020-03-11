@@ -26,7 +26,7 @@ Factio Flix modules, i.e. add this code to the list of libraries:
 ~~~
 
     "FactIOBase.flix" -> LocalResource.get("/library/factio/FactIOBase.flix"),
-    "Validation.flix" -> LocalResource.get("/library/factio/Validation.flix"),
+    "ValidationExtras.flix" -> LocalResource.get("/library/factio/ValidationExtras.flix"),
     "Strategies.flix" -> LocalResource.get("/library/factio/Strategies.flix"),
     "CsvImport.flix" -> LocalResource.get("/library/factio/CsvImport.flix"),
     "SQLiteImport.flix" -> LocalResource.get("/library/factio/SQLiteImport.flix"),
@@ -36,5 +36,8 @@ Factio Flix modules, i.e. add this code to the list of libraries:
 ~~~
 
 Build / rebuild the Flix compiler.
+
+If building fails it will probably be due to missing String / Array functions - please 
+contact me for assistance.
 
 Run the tests - currently you will need to edit the paths to the sample data.

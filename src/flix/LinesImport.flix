@@ -104,16 +104,16 @@ namespace LinesImport {
 
     pub def nonempty(line: TextLine): LineResult[String] =
         let TextLine(s) = line;
-        if (String.length(s) > 0) Validation.valid(s) else Validation.error("nonempty")
+        if (String.length(s) > 0) Success(s) else ValidationExtras.error("nonempty")
 
     pub def apply(f: String -> a & e, line: TextLine): LineResult[a] & e=
         let TextLine(s) = line;
-        Validation.valid(f(s))
+        Success(f(s))
 
     pub def applyRes(f: String -> Result[a, String] & e, line: TextLine): LineResult[a] & e=
         let TextLine(s) = line;
         match f(s) {
-            case Ok(a) => Validation.valid(a)
-            case Err(msg) => Validation.error(msg)
+            case Ok(a) => Success(a)
+            case Err(msg) => ValidationExtras.error(msg)
         }
 }

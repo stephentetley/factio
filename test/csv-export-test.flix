@@ -30,7 +30,7 @@ def dummyCells(src: (String,Int)): Array[String] & Impure =
 
 @test
 def test01(): Unit & Impure = 
-    let dest = "d:/coding/flix/factio/data/output/dummy_export.csv";
+    let dest = "e:/coding/flix/factio/data/output/dummy_export.csv";
     let headers = ["name", "intval"];
     let buildStep = CsvExport.makeBuildStep(dummyCells); 
     let builder: CsvBuilder = fold Dummy CsvExport.emptyCsvBuilder() buildStep dummyRelations();
@@ -45,7 +45,7 @@ def test01(): Unit & Impure =
 ///
 @test
 def test02(): Unit & Impure = 
-    let dest = "d:/coding/flix/factio/data/output/dummy_export2.csv";
+    let dest = "e:/coding/flix/factio/data/output/dummy_export2.csv";
     let headers = ["name", "intval"];
     let buildStep = CsvExport.makeBuildStep(dummyCells); 
     { fold Dummy CsvExport.emptyCsvBuilder() buildStep dummyRelations() } |> CsvExport.outputCsv(dest, headers)

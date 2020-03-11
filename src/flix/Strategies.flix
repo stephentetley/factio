@@ -32,7 +32,7 @@ namespace Strategies {
     ///
     /// Helper for `iterate`.
     ///
-    def iterateHelper(iterator: RowIterator[src, row], rowreader: row -> RowResult[reln] & e, src: src, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] & Impure =
+    def iterateHelper(iterator: RowIterator[src, row], rowreader: row -> RowResult[reln] & e, src: src, n: Int32, fk: (Int32, Nel[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] & Impure =
         let hasNext = iterator.hasNext;
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
@@ -41,7 +41,7 @@ namespace Strategies {
             sk(#{ })
         } else {
             let row = rowreader(getRow(src)) as & Impure;
-            match Validation.validate(row) {
+            match Validation.toResult(row) {
                 case Err(xs) => { finalize(src); fk(n, xs) }
                 case Ok(x) => iterateHelper(iterator, rowreader, src, n+1, fk, relns -> sk(x <+> relns))
             }
@@ -59,7 +59,7 @@ namespace Strategies {
     ///
     /// Helper for `iterateWithCount`.
     ///
-    def iterateWithCountHelper(iterator: RowIterator[src, row], rowreader: (row, Int32) -> RowResult[reln] & e, src: src, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: rel -> Result[reln, String]): Result[reln, String] & Impure =
+    def iterateWithCountHelper(iterator: RowIterator[src, row], rowreader: (row, Int32) -> RowResult[reln] & e, src: src, n: Int32, fk: (Int32, Nel[String]) -> Result[reln, String], sk: rel -> Result[reln, String]): Result[reln, String] & Impure =
         let hasNext = iterator.hasNext;
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
@@ -68,7 +68,7 @@ namespace Strategies {
             sk(#{ })
         } else {
             let row = rowreader(getRow(src), n) as & Impure;
-            match Validation.validate(row) {
+            match Validation.toResult(row) {
                 case Err(xs) => { finalize(src); fk(n, xs) }
                 case Ok(x) => iterateWithCountHelper(iterator, rowreader, src, n+1, fk, relns -> sk(x <+> relns))
             }
@@ -86,7 +86,7 @@ namespace Strategies {
     ///
     /// Helper for `iterateWithCount`.
     ///
-    def iterateAccumHelper(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)] & e, state: st, src: src, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] & Impure =
+    def iterateAccumHelper(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)] & e, state: st, src: src, n: Int32, fk: (Int32, Nel[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] & Impure =
         let hasNext = iterator.hasNext;
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
@@ -95,7 +95,7 @@ namespace Strategies {
             sk(state, #{ })
         } else {
             let row = rowreader(getRow(src), state) as & Impure;
-            match Validation.validate(row) {
+            match Validation.toResult(row) {
                 case Err(xs) => { finalize(src); fk(n, xs) }
                 case Ok(x, st1) => iterateAccumHelper(iterator, rowreader, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
             }
@@ -113,7 +113,7 @@ namespace Strategies {
     ///
     /// Helper for `iterateAccumWithCount`.
     ///
-    def iterateAccumWithCountHelper(iterator: RowIterator[src, row], rowreader: (row, st, Int32) -> RowResult[(reln, st)] & e, state: st, src: src, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] & Impure =
+    def iterateAccumWithCountHelper(iterator: RowIterator[src, row], rowreader: (row, st, Int32) -> RowResult[(reln, st)] & e, state: st, src: src, n: Int32, fk: (Int32, Nel[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] & Impure =
         let hasNext = iterator.hasNext;
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
@@ -122,7 +122,7 @@ namespace Strategies {
             sk(state, #{ })
         } else {
             let row = rowreader(getRow(src), state, n) as & Impure;
-            match Validation.validate(row) {
+            match Validation.toResult(row) {
                 case Err(xs) => { finalize(src); fk(n, xs) }
                 case Ok(x, st1) => iterateAccumWithCountHelper(iterator, rowreader, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
             }
