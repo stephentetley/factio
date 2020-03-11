@@ -30,11 +30,11 @@ def dummyCells(src: (String,Int)): Array[String] & Impure =
 
 @test
 def test01(): Unit & Impure = 
-    let dest = "e:/coding/flix/factio/data/output/dummy_export.csv";
-    let writer = CsvExport.new(dest, ["Name", "Grid_Ref"]);
-    let writeRow = (x, _) -> { let cells = dummyCells(x); CsvExport.writeRow(writer, cells) };
-    fold Dummy () writeRow dummyRelations();
-    CsvExport.close(writer)
+    let dest = "d:/coding/flix/factio/data/output/dummy_export.csv";
+    let headers = ["name", "intval"];
+    let buildStep = CsvExport.makeBuildStep(dummyCells); 
+    let builder: CsvBuilder = fold Dummy CsvExport.emptyCsvBuilder() buildStep dummyRelations();
+    CsvExport.outputCsv(dest, headers, builder)
 
 ///
 /// Because fixpoint fold is not first class we cannot abstract over Dummy
@@ -43,12 +43,13 @@ def test01(): Unit & Impure =
 /// Of course `writer` is in scope after the fold so we could "directly" close it
 /// by name.
 ///
-// @test
-// def test02(): Unit & Impure = 
-//     let dest = "e:/coding/flix/factio/data/output/dummy_export2.csv";
-//     let writer = CsvExport.new(dest, ["Name", "Grid_Ref"]);
-//     let step = CsvExport.wrapCellPrinterForFixpointFold(dummyCells as & e);
-//     { fold Dummy writer step dummyRelations() } |> CsvExport.close
+@test
+def test02(): Unit & Impure = 
+    let dest = "d:/coding/flix/factio/data/output/dummy_export2.csv";
+    let headers = ["name", "intval"];
+    let buildStep = CsvExport.makeBuildStep(dummyCells); 
+    { fold Dummy CsvExport.emptyCsvBuilder() buildStep dummyRelations() } |> CsvExport.outputCsv(dest, headers)
+
 
 
 

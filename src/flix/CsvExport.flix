@@ -19,12 +19,11 @@
 ///
 opaque type CsvWriter = ##flix.runtime.factio.CsvExport
 
+type alias CsvBuilder = List[CsvWriter -> Unit & Impure]
 
 namespace CsvExport {
 
-    ///
-    /// Returns a new FilePath.
-    ///
+
     def getDelim(): String = 
         import flix.runtime.factio.CsvExport:getDelim();
         getDelim() as & Pure
@@ -34,12 +33,15 @@ namespace CsvExport {
         import new flix.runtime.factio.CsvExport(String, Int32, String) as newCsvExport;
         CsvWriter(newCsvExport(filepath, format, headerdata))
 
+    ///
+    /// Returns a new CsvWriter.
+    ///
+    pub def new (filepath: String, headers: Array[String]): CsvWriter & Impure =
+        internalNew(filepath, 0, serializeRow(headers))
+
     def serializeRow(cells: Array[String]): String =
         let sep = getDelim();
         FactIOBase.mkStringBy(x -> x, sep, cells)
-
-    pub def new (filepath: String, headers: Array[String]): CsvWriter & Impure =
-        internalNew(filepath, 0, serializeRow(headers))
 
     pub def writeRow(w: CsvWriter, cells: Array[String]): Unit & Impure =
         let CsvWriter(handle) = w;
@@ -52,17 +54,18 @@ namespace CsvExport {
         import flix.runtime.factio.CsvExport.close();
         handle.close()
 
-    ///
-    /// Wrap a "cell printer" i.e. a function from the tuple of a relations fields
-    /// to the step function of a fixpoint fold, the fold should be seeded
-    /// with a CsvWriter.
-    ///
-    /// When all the relations have been folded over the fold emits the CsvWriter
-    /// so client code can close it.
-    ///
-    /// Warning: temporarily cast to Pure to be useable with Fixpoint fold
-    ///
-    pub def wrapCellPrinterForFixpointFold(f: x -> Array[String]): (x, CsvWriter) -> CsvWriter & Impure =
-        (x, w) -> { let cells = f(x); writeRow(w, cells); w }
+
+    pub def emptyCsvBuilder(): CsvBuilder = Nil
+
+    pub def makeBuildStep(f: x -> Array[String] & e): (x,CsvBuilder) -> CsvBuilder =
+        (x, ws) ->
+            let w1 = { w ->  let cells = f(x) as & Impure; writeRow(w, cells) };
+            w1 :: ws
+
+
+    pub def outputCsv(filepath: String, headers: Array[String], builder: CsvBuilder): Unit & Impure =
+        let w = new(filepath, headers);
+        List.foreach(f -> f(w),  builder);
+        close(w)
 
  }
