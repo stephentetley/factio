@@ -120,11 +120,22 @@ namespace CsvImport {
         let iterator = makeCsvIterator();
         Strategies.chooseWithCount(iterator, f, src)
 
-
     pub def chooseAccum(f: (CsvRow, st) -> CsvResult[(Option[reln], st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
         let iterator = makeCsvIterator();
         Strategies.chooseAccum(iterator, f, state, src)
 
+
+    pub def collect(f: CsvRow -> CsvResult[List[reln]] & e, src: CsvSource): Result[reln, String] & Impure =
+        let iterator = makeCsvIterator();
+        Strategies.collect(iterator, f, src)
+
+    pub def collectWithCount(f: (CsvRow,Int32) -> CsvResult[List[reln]] & e, src: CsvSource): Result[reln, String] & Impure =
+        let iterator = makeCsvIterator();
+        Strategies.collectWithCount(iterator, f, src)
+
+    pub def collectAccum(f: (CsvRow, st) -> CsvResult[(List[reln], st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
+        let iterator = makeCsvIterator();
+        Strategies.collectAccum(iterator, f, state, src)
 
     // Cell readers
 

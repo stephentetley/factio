@@ -77,15 +77,26 @@ namespace SQLiteImport {
         let iterator = makeSQLiteIterator();
         Strategies.choose(iterator, f, src)
 
-
     pub def chooseWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[Option[reln]] & e, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();
         Strategies.chooseWithCount(iterator, f, src)
 
-
     pub def chooseAccum(f: (SQLiteRow, st) -> SQLiteResult[(Option[reln], st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
         let iterator = makeSQLiteIterator();
         Strategies.chooseAccum(iterator, f, state, src)
+
+
+    pub def collect(f: SQLiteRow -> SQLiteResult[List[reln]] & e, src: SQLiteSource): Result[reln, String] & Impure =
+        let iterator = makeSQLiteIterator();
+        Strategies.collect(iterator, f, src)
+
+    pub def collectWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[List[reln]] & e, src: SQLiteSource): Result[reln, String] & Impure =
+        let iterator = makeSQLiteIterator();
+        Strategies.collectWithCount(iterator, f, src)
+
+    pub def collectAccum(f: (SQLiteRow, st) -> SQLiteResult[(List[reln], st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
+        let iterator = makeSQLiteIterator();
+        Strategies.collectAccum(iterator, f, state, src)
 
     // Cell readers
 

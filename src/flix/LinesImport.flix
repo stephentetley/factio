@@ -87,10 +87,22 @@ namespace LinesImport {
         let iterator = makeLinesIterator();
         Strategies.chooseWithCount(iterator, f, src)
 
-
     pub def chooseAccum(f: (TextLine, st) -> LineResult[(Option[reln], st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
         let iterator = makeLinesIterator();
         Strategies.chooseAccum(iterator, f, state, src)
+
+
+    pub def collect(f: TextLine -> LineResult[List[reln]] & e, src: LinesSource): Result[reln, String] & Impure =
+        let iterator = makeLinesIterator();
+        Strategies.collect(iterator, f, src)
+
+    pub def collectWithCount(f: (TextLine,Int32) -> LineResult[List[reln]] & e, src: LinesSource): Result[reln, String] & Impure =
+        let iterator = makeLinesIterator();
+        Strategies.collectWithCount(iterator, f, src)
+
+    pub def collectAccum(f: (TextLine, st) -> LineResult[(List[reln], st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
+        let iterator = makeLinesIterator();
+        Strategies.collectAccum(iterator, f, state, src)
 
     /// Line readers
 
