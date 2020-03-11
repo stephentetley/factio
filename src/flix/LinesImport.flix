@@ -66,17 +66,17 @@ namespace LinesImport {
     ///
     /// Track line number for errors.
     ///
-    pub def collect(f: TextLine -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
+    pub def eachrow(f: TextLine -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
-        Strategies.collect(iterator, f, src)
+        Strategies.eachrow(iterator, f, src)
 
-    pub def collectWithCount(f: (TextLine, Int32) -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
+    pub def eachrowWithCount(f: (TextLine, Int32) -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
-        Strategies.collectWithCount(iterator, f, src)
+        Strategies.eachrowWithCount(iterator, f, src)
 
-    pub def collectAccum(f: (TextLine, st) -> LineResult[(reln, st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
+    pub def eachrowAccum(f: (TextLine, st) -> LineResult[(reln, st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
         let iterator = makeLinesIterator();
-        Strategies.collectAccum(iterator, f, state, src)
+        Strategies.eachrowAccum(iterator, f, state, src)
 
 
     pub def choose(f: TextLine -> LineResult[Option[reln]] & e, src: LinesSource): Result[reln, String] & Impure =

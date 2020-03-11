@@ -98,18 +98,18 @@ namespace CsvImport {
     ///
     /// Track row number for errors.
     ///
-    pub def collect(f: CsvRow -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
+    pub def eachrow(f: CsvRow -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
-        Strategies.collect(iterator, f, src)
+        Strategies.eachrow(iterator, f, src)
 
 
-    pub def collectWithCount(f: (CsvRow, Int32) -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
+    pub def eachrowWithCount(f: (CsvRow, Int32) -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
-        Strategies.collectWithCount(iterator, f, src)
+        Strategies.eachrowWithCount(iterator, f, src)
 
-    pub def collectAccum(f: (CsvRow, st) -> CsvResult[(reln, st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
+    pub def eachrowAccum(f: (CsvRow, st) -> CsvResult[(reln, st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
         let iterator = makeCsvIterator();
-        Strategies.collectAccum(iterator, f, state, src)
+        Strategies.eachrowAccum(iterator, f, state, src)
 
 
     pub def choose(f: CsvRow -> CsvResult[Option[reln]] & e, src: CsvSource): Result[reln, String] & Impure =

@@ -61,17 +61,17 @@ namespace SQLiteImport {
     def makeSQLiteIterator(): RowIterator[SQLiteSource, SQLiteRow] =
         { hasNext = hasNext,  getRow = getRow, finalize = finalize }
 
-    pub def collect(f: SQLiteRow -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
+    pub def eachrow(f: SQLiteRow -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();
-        Strategies.collect(iterator, f, src)
+        Strategies.eachrow(iterator, f, src)
 
-    pub def collectWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
+    pub def eachrowWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();
-        Strategies.collectWithCount(iterator, f, src)
+        Strategies.eachrowWithCount(iterator, f, src)
 
-    pub def collectAccum(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
+    pub def eachrowAccum(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
         let iterator = makeSQLiteIterator();
-        Strategies.collectAccum(iterator, f, state, src)
+        Strategies.eachrowAccum(iterator, f, state, src)
 
     pub def choose(f: SQLiteRow -> SQLiteResult[Option[reln]] & e, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();

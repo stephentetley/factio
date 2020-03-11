@@ -20,11 +20,14 @@ type alias RowIterator[src,row] = { hasNext: src -> Bool & Impure , getRow: src 
 
 namespace Strategies {
 
-    pub def collect(iterator: RowIterator[src, row], rowreader: row -> RowResult[reln] & e, source: src): Result[reln, String] & Impure =
+    ///
+    /// `eachrow` generates one fact for each row in the input.
+    ///
+    pub def eachrow(iterator: RowIterator[src, row], rowreader: row -> RowResult[reln] & e, source: src): Result[reln, String] & Impure =
         let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
-        collectHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
+        eachrowHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
 
-    def collectHelper(iterator: RowIterator[src, row], rowreader: row -> RowResult[reln] & e, src: src, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] & Impure =
+    def eachrowHelper(iterator: RowIterator[src, row], rowreader: row -> RowResult[reln] & e, src: src, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] & Impure =
         let hasNext = iterator.hasNext;
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
@@ -35,15 +38,15 @@ namespace Strategies {
             let row = rowreader(getRow(src)) as & Impure;
             match Validation.validate(row) {
                 case Err(xs) => { finalize(src); fk(n, xs) }
-                case Ok(x) => collectHelper(iterator, rowreader, src, n+1, fk, relns -> sk(x <+> relns))
+                case Ok(x) => eachrowHelper(iterator, rowreader, src, n+1, fk, relns -> sk(x <+> relns))
             }
         }
 
-    pub def collectWithCount(iterator: RowIterator[src, row], rowreader: (row, Int32) -> RowResult[reln] & e, source: src): Result[reln, String] & Impure =
+    pub def eachrowWithCount(iterator: RowIterator[src, row], rowreader: (row, Int32) -> RowResult[reln] & e, source: src): Result[reln, String] & Impure =
         let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
-        collectWithCountHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
+        eachrowWithCountHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
 
-    def collectWithCountHelper(iterator: RowIterator[src, row], rowreader: (row, Int32) -> RowResult[reln] & e, src: src, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: rel -> Result[reln, String]): Result[reln, String] & Impure =
+    def eachrowWithCountHelper(iterator: RowIterator[src, row], rowreader: (row, Int32) -> RowResult[reln] & e, src: src, n: Int32, fk: (Int32, List[String]) -> Result[reln, String], sk: rel -> Result[reln, String]): Result[reln, String] & Impure =
         let hasNext = iterator.hasNext;
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
@@ -54,15 +57,15 @@ namespace Strategies {
             let row = rowreader(getRow(src), n) as & Impure;
             match Validation.validate(row) {
                 case Err(xs) => { finalize(src); fk(n, xs) }
-                case Ok(x) => collectWithCountHelper(iterator, rowreader, src, n+1, fk, relns -> sk(x <+> relns))
+                case Ok(x) => eachrowWithCountHelper(iterator, rowreader, src, n+1, fk, relns -> sk(x <+> relns))
             }
         }
 
-    pub def collectAccum(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)] & e, state: st, source: src): Result[(reln, st), String] & Impure =
+    pub def eachrowAccum(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)] & e, state: st, source: src): Result[(reln, st), String] & Impure =
         let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
-        collectAccumHelper(iterator, rowreader, state, source, 0, failk, (relns, st) -> Ok(relns, st))
+        eachrowAccumHelper(iterator, rowreader, state, source, 0, failk, (relns, st) -> Ok(relns, st))
 
-    def collectAccumHelper(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)] & e, state: st, src: src, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] & Impure =
+    def eachrowAccumHelper(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)] & e, state: st, src: src, n: Int32, fk: (Int32, List[String]) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] & Impure =
         let hasNext = iterator.hasNext;
         let getRow = iterator.getRow;
         let finalize = iterator.finalize;
@@ -73,10 +76,13 @@ namespace Strategies {
             let row = rowreader(getRow(src), state) as & Impure;
             match Validation.validate(row) {
                 case Err(xs) => { finalize(src); fk(n, xs) }
-                case Ok(x, st1) => collectAccumHelper(iterator, rowreader, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
+                case Ok(x, st1) => eachrowAccumHelper(iterator, rowreader, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
             }
         }
 
+    ///
+    /// `choose` generates either one fact or nothing for each row in the input.
+    ///
     pub def choose(iterator: RowIterator[src, row], rowreader: row -> RowResult[Option[reln]] & e, source: src): Result[reln, String] & Impure =
         let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
         chooseHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))

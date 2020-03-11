@@ -13,11 +13,11 @@ def getName(row: CsvRow): CsvResult[#{Name}] =
 
 
 pub def test01(): #{Name} & Impure =
-    let path = "e:/coding/flix/factio/data/stations.csv";
+    let path = "d:/coding/flix/factio/data/stations.csv";
     match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
         case Err(msg) => fail1(msg)
         case Ok(csvSource) => 
-            match CsvImport.collect(getName, csvSource) {
+            match CsvImport.eachrow(getName, csvSource) {
                 case Err(msg) => fail1(msg)
                 case Ok(relns) => solve relns
             }
@@ -34,11 +34,11 @@ def getStation(row: CsvRow): CsvResult[#{Station}] =
 
 
 pub def test02(): #{Station} & Impure =
-    let path = "e:/coding/flix/factio/data/stations.csv";
+    let path = "d:/coding/flix/factio/data/stations.csv";
     match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
         case Err(msg) => fail1(msg)
         case Ok(csvSource) => 
-            match CsvImport.collect(getStation, csvSource) {
+            match CsvImport.eachrow(getStation, csvSource) {
                 case Err(msg) => fail1(msg)
                 case Ok(relns) => solve relns            
             }

@@ -12,12 +12,12 @@ def getLang (row: SQLiteRow): SQLiteResult[#{Lang}] & e =
 
 
 pub def test01(): #{Lang} & Impure =
-    let path = "e:/coding/flix/factio/data/langs.sqlite";
+    let path = "d:/coding/flix/factio/data/langs.sqlite";
     let query = "SELECT name, year FROM language";
     match SQLiteImport.newSQLiteSource(path, query) {
         case Err(msg) => fail1(msg)
         case Ok(src) => {
-            match SQLiteImport.collect(getLang, src) {
+            match SQLiteImport.eachrow(getLang, src) {
                 case Err(msg) => fail1(msg)
                 case Ok(relns) => solve relns
             }
