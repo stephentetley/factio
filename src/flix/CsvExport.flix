@@ -39,9 +39,9 @@ namespace CsvExport {
     pub def new (filepath: String, headers: Array[String]): CsvWriter & Impure =
         internalNew(filepath, 0, serializeRow(headers))
 
-    def serializeRow(cells: Array[String]): String =
+    def serializeRow(cells: Array[String]): String & Impure =
         let sep = getDelim();
-        FactIOBase.mkStringBy(x -> x, sep, cells)
+        Array.formatWith(x -> x, sep, cells)
 
     pub def writeRow(w: CsvWriter, cells: Array[String]): Unit & Impure =
         let CsvWriter(handle) = w;
