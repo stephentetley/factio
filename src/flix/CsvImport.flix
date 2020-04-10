@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+use FactIO.CsvFormat;
 use FactIO.CsvRow;
 use FactIO.CsvRow.{CsvRow};
 use FactIO.CsvSource;
@@ -40,44 +41,10 @@ namespace FactIO {
 namespace FactIO/CsvImport {
 
     ///
-    /// See Apache Commons CSV User Guide for details:
-    /// http://commons.apache.org/proper/commons-csv/user-guide.html
-    ///
-    pub enum CsvFormat {
-        case Default,
-        case Excel,
-        case InformixUnload,
-        case InformixUnloadCsv,
-        case MongodbCsv,
-        case MongodbTsv,
-        case Mysql,
-        case Rfc4180,
-        case Oracle,
-        case PostgresqlCsv,
-        case PostgresqlText,
-        case Tdf
-    }
-
-    def formatToInt(format: CsvFormat): Int32 = match format {
-        case Default => 0
-        case Excel => 1
-        case InformixUnload => 2
-        case InformixUnloadCsv => 3
-        case MongodbCsv => 4
-        case MongodbTsv => 5
-        case Mysql => 6
-        case Rfc4180 => 7
-        case Oracle => 8
-        case PostgresqlCsv => 9
-        case PostgresqlText => 10
-        case Tdf => 11
-    }
-
-    ///
     /// Returns a new CsvSource.
     ///
     pub def newCsvSource(filepath: String, format: CsvFormat, hasHeaders: Bool): Result[CsvSource, String] & Impure =
-        let fmt = formatToInt(format);
+        let fmt = FactIO/CsvFormat.toInt32(format);
         try {
             import new flix.runtime.factio.CsvIterator(String, Int32, Bool) as newCsvIterator;
             let iterator = newCsvIterator(filepath, fmt, hasHeaders);

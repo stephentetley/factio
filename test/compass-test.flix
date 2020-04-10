@@ -12,7 +12,7 @@ def csvDirection1(row: FactIO.CsvRow): FactIO.CsvResult[#{Direction}] & e =
 
 pub def csv01(): #{Direction} & Impure =
     let path = "e:/coding/flix/factio/data/compass.csv";
-    match FactIO/CsvImport.newCsvSource(path, FactIO/CsvImport/CsvFormat.Default, true) {
+    match FactIO/CsvImport.newCsvSource(path, FactIO/CsvFormat.Default, true) {
         case Err(msg) => logFail(msg)
         case Ok(csvSource) => 
             match FactIO/CsvImport.iterate(csvDirection1, csvSource) {

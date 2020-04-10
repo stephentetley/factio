@@ -16,7 +16,7 @@ def getName(row: FactIO.CsvRow): FactIO.CsvResult[#{Name}] =
 
 pub def test01(): #{Name} & Impure =
     let path = "e:/coding/flix/factio/data/stations.csv";
-    match FactIO/CsvImport.newCsvSource(path, FactIO/CsvImport/CsvFormat.Default, true) {
+    match FactIO/CsvImport.newCsvSource(path, FactIO/CsvFormat.Default, true) {
         case Err(msg) => fail1(msg)
         case Ok(csvSource) => 
             match FactIO/CsvImport.iterate(getName, csvSource) {
@@ -39,7 +39,7 @@ def getStation(row: FactIO.CsvRow): FactIO.CsvResult[#{Station}] =
 
 pub def test02(): #{Station} & Impure =
     let path = "e:/coding/flix/factio/data/stations.csv";
-    match FactIO/CsvImport.newCsvSource(path, FactIO/CsvImport/CsvFormat.Default, true) {
+    match FactIO/CsvImport.newCsvSource(path, FactIO/CsvFormat.Default, true) {
         case Err(msg) => fail1(msg)
         case Ok(csvSource) => 
             match FactIO/CsvImport.iterate(getStation, csvSource) {
