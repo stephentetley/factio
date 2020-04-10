@@ -7,48 +7,48 @@ rel Direction(name: String)
 def makeDirection(name: String): #{ Direction } = 
     Direction(name).
     
-def csvDirection1(row: CsvRow): CsvResult[#{Direction}] & e = 
-    Validation.map(makeDirection, CsvImport.getStringByIndex(row, 0))
+def csvDirection1(row: FactIO.CsvRow): FactIO.CsvResult[#{Direction}] & e = 
+    Validation.map(makeDirection, FactIO/CsvImport.getStringByIndex(row, 0))
 
 pub def csv01(): #{Direction} & Impure =
     let path = "e:/coding/flix/factio/data/compass.csv";
-    match CsvImport.newCsvSource(path, CsvFormat.Default, true) {
+    match FactIO/CsvImport.newCsvSource(path, FactIO/CsvImport/CsvFormat.Default, true) {
         case Err(msg) => logFail(msg)
         case Ok(csvSource) => 
-            match CsvImport.iterate(csvDirection1, csvSource) {
+            match FactIO/CsvImport.iterate(csvDirection1, csvSource) {
                 case Err(msg) => logFail(msg)
                 case Ok(relns) => solve relns
             }
     }
     
-def sqliteDirection1(row: SQLiteRow): SQLiteResult[#{Direction}] & e = 
-    Validation.map(makeDirection, SQLiteImport.getStringByLabel(row, "cardinal_name"))
+def sqliteDirection1(row: FactIO.SQLiteRow): FactIO.SQLiteResult[#{Direction}] & e = 
+    Validation.map(makeDirection, FactIO/SQLiteImport.getStringByLabel(row, "cardinal_name"))
     
 
 pub def sqlite01(): #{Direction} & Impure =
     let path = "e:/coding/flix/factio/data/compass.sqlite";
     let query = "SELECT cardinal_name FROM cardinals";
-    match SQLiteImport.newSQLiteSource(path, query) {
+    match FactIO/SQLiteImport.newSQLiteSource(path, query) {
         case Err(msg) => logFail(msg)
         case Ok(src) => {
-            match SQLiteImport.iterate(sqliteDirection1, src) {
+            match FactIO/SQLiteImport.iterate(sqliteDirection1, src) {
                 case Err(msg) => logFail(msg)
                 case Ok(relns) => solve relns
             }
         }
     }
 
-def lineDirection1(line: TextLine): LineResult[#{Direction}] & Pure = 
-    Validation.map(makeDirection, LinesImport.nonempty(line))
+def lineDirection1(line: FactIO.TextLine): FactIO.LineResult[#{Direction}] & Pure = 
+    Validation.map(makeDirection, FactIO/LinesImport.nonempty(line))
 
 
 
 pub def lines01(): #{ Direction } & Impure =
     let path = "e:/coding/flix/factio/data/compass.txt";
-    match LinesImport.newLinesSource(path, Charset.utf_8()) {
+    match FactIO/LinesImport.newLinesSource(path, System/Charset.utf_8()) {
         case Err(msg) => logFail(msg)
         case Ok(src) => 
-            match LinesImport.iterate(lineDirection1, src) {
+            match FactIO/LinesImport.iterate(lineDirection1, src) {
                 case Err(msg) => logFail(msg)
                 case Ok(relns) => solve relns
             }

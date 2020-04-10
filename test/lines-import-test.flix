@@ -8,17 +8,17 @@ rel Colour(name: String)
 def makeColour(name: String): #{ Colour } = 
     Colour(name).
 
-def getColour(line: TextLine): LineResult[#{ Colour }] & e = 
-    Validation.map(makeColour, LinesImport.nonempty(line))
+def getColour(line: FactIO.TextLine): FactIO.LineResult[#{ Colour }] & e = 
+    Validation.map(makeColour, FactIO/LinesImport.nonempty(line))
 
 
 
 pub def test01(): #{ Colour } & Impure =
     let path = "e:/coding/flix/factio/data/colours.txt";
-    match LinesImport.newLinesSource(path, Charset.utf_8()) {
+    match FactIO/LinesImport.newLinesSource(path, System/Charset.utf_8()) {
         case Err(msg) => fail1(msg)
         case Ok(linesSource) => 
-            match LinesImport.iterate(getColour, linesSource) {
+            match FactIO/LinesImport.iterate(getColour, linesSource) {
                 case Err(msg) => fail1(msg)
                 case Ok(relns) => solve relns
             }
@@ -28,10 +28,10 @@ pub def test01(): #{ Colour } & Impure =
 
 pub def test02(): #{ Colour } & Impure=
     let path = "e:/coding/flix/factio/data/colours.utf16le.txt";
-    match LinesImport.newLinesSource(path, Charset.utf_16le()) {
+    match FactIO/LinesImport.newLinesSource(path, System/Charset.utf_16le()) {
         case Err(msg) => fail1(msg)
         case Ok(linesSource) => 
-            match LinesImport.iterate(getColour, linesSource) {
+            match FactIO/LinesImport.iterate(getColour, linesSource) {
                 case Err(msg) => fail1(msg)
                 case Ok(relns) => solve relns
             }

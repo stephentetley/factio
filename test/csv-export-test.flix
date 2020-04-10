@@ -2,13 +2,13 @@
 @test
 def stations01(): Unit & Impure = 
     let dest = "e:/coding/flix/factio/data/output/stations_export.csv";
-    let writer = CsvExport.new(dest, ["Name", "Grid_Ref"]);
-    CsvExport.writeRow(writer, ["Bradford Interchange", "SE1657832808"]);
-    CsvExport.writeRow(writer, ["Halifax", "SE0973324980"]);
-    CsvExport.writeRow(writer, ["Low Moor", "SE1633428224"]);
-    CsvExport.writeRow(writer, ["Mytholmroyd", "SE0127125846"]);
-    CsvExport.writeRow(writer, ["Sowerby Bridge", "SE0624023505"]);
-    CsvExport.close(writer)
+    let writer = FactIO/CsvExport.new(dest, ["Name", "Grid_Ref"]);
+    FactIO/CsvExport.writeRow(writer, ["Bradford Interchange", "SE1657832808"]);
+    FactIO/CsvExport.writeRow(writer, ["Halifax", "SE0973324980"]);
+    FactIO/CsvExport.writeRow(writer, ["Low Moor", "SE1633428224"]);
+    FactIO/CsvExport.writeRow(writer, ["Mytholmroyd", "SE0127125846"]);
+    FactIO/CsvExport.writeRow(writer, ["Sowerby Bridge", "SE0624023505"]);
+    FactIO/CsvExport.close(writer)
 
 
 rel Dummy(name: String, intval: Int32)
@@ -32,9 +32,9 @@ def dummyCells(src: (String,Int)): Array[String] & Impure =
 def test01(): Unit & Impure = 
     let dest = "e:/coding/flix/factio/data/output/dummy_export.csv";
     let headers = ["name", "intval"];
-    let buildStep = CsvExport.makeBuildStep(dummyCells); 
-    let builder: CsvBuilder = fold Dummy CsvExport.emptyCsvBuilder() buildStep dummyRelations();
-    CsvExport.outputCsv(dest, headers, builder)
+    let buildStep = FactIO/CsvExport.makeBuildStep(dummyCells); 
+    let builder: FactIO.CsvBuilder = fold Dummy FactIO/CsvExport.emptyCsvBuilder() buildStep dummyRelations();
+    FactIO/CsvExport.outputCsv(dest, headers, builder)
 
 ///
 /// Because fixpoint fold is not first class we cannot abstract over Dummy
@@ -47,8 +47,8 @@ def test01(): Unit & Impure =
 def test02(): Unit & Impure = 
     let dest = "e:/coding/flix/factio/data/output/dummy_export2.csv";
     let headers = ["name", "intval"];
-    let buildStep = CsvExport.makeBuildStep(dummyCells); 
-    { fold Dummy CsvExport.emptyCsvBuilder() buildStep dummyRelations() } |> CsvExport.outputCsv(dest, headers)
+    let buildStep = FactIO/CsvExport.makeBuildStep(dummyCells); 
+    { fold Dummy FactIO/CsvExport.emptyCsvBuilder() buildStep dummyRelations() } |> FactIO/CsvExport.outputCsv(dest, headers)
 
 
 
