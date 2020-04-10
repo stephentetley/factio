@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-///
-/// Represents a StringBuilder.
-///
-opaque type CsvWriter = ##flix.runtime.factio.CsvExport
+use FactIO.CsvWriter;
+use FactIO.CsvWriter.{CsvWriter};
+use FactIO.CsvBuilder;
 
-type alias CsvBuilder = List[CsvWriter -> Unit & Impure]
+namespace FactIO {
 
-namespace CsvExport {
+    ///
+    /// Represents a CsvWriter.
+    ///
+    pub opaque type CsvWriter = ##flix.runtime.factio.CsvExport
+
+    type alias CsvBuilder = List[CsvWriter -> Unit & Impure]
+
+}
+
+namespace FactIO/CsvExport {
 
 
     def getDelim(): String = 

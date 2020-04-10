@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-type alias RowResult[t] = Validation[t, String]
+use FactIO.RowResult;
+use FactIO.RowIterator;
 
-type alias RowIterator[src,row] = { hasNext: src -> Bool & Impure , getRow: src -> row & Impure , finalize: src -> Unit & Impure }
+namespace FactIO {
 
-namespace Strategies {
+    type alias RowResult[t] = Validation[t, String]
+
+    type alias RowIterator[src,row] = { hasNext: src -> Bool & Impure , getRow: src -> row & Impure , finalize: src -> Unit & Impure }
+}
+
+namespace FactIO/Strategies {
 
     ///
     /// Process all rows of the input.
@@ -26,7 +32,7 @@ namespace Strategies {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def iterate(iterator: RowIterator[src, row], rowreader: row -> RowResult[reln] & e, source: src): Result[reln, String] & Impure =
-        let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
+        let failk = (n,msgs) -> FactIO/Internal/Base.collectErrors(n, msgs) |> Err;
         iterateHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
 
     ///
@@ -53,7 +59,7 @@ namespace Strategies {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def iterateWithCount(iterator: RowIterator[src, row], rowreader: (row, Int32) -> RowResult[reln] & e, source: src): Result[reln, String] & Impure =
-        let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
+        let failk = (n,msgs) -> FactIO/Internal/Base.collectErrors(n, msgs) |> Err;
         iterateWithCountHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
 
     ///
@@ -80,7 +86,7 @@ namespace Strategies {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def iterateAccum(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)] & e, state: st, source: src): Result[(reln, st), String] & Impure =
-        let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
+        let failk = (n,msgs) -> FactIO/Internal/Base.collectErrors(n, msgs) |> Err;
         iterateAccumHelper(iterator, rowreader, state, source, 0, failk, (relns, st) -> Ok(relns, st))
 
     ///
@@ -107,7 +113,7 @@ namespace Strategies {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def iterateAccumWithCount(iterator: RowIterator[src, row], rowreader: (row, st, Int32) -> RowResult[(reln, st)] & e, state: st, source: src): Result[(reln, st), String] & Impure =
-        let failk = (n,msgs) -> FactIOBase.collectErrors(n, msgs) |> Err;
+        let failk = (n,msgs) -> FactIO/Internal/Base.collectErrors(n, msgs) |> Err;
         iterateAccumWithCountHelper(iterator, rowreader, state, source, 0, failk, (relns, st) -> Ok(relns, st))
 
     ///

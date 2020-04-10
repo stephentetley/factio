@@ -14,19 +14,29 @@
  * limitations under the License.
  */
 
-///
-/// Represents a SQLite row.
-///
-opaque type SQLiteRow = ##flix.runtime.factio.SQLiteRow
+use FactIO.SQLiteRow;
+use FactIO.SQLiteRow.{SQLiteRow};
+use FactIO.SQLiteSource;
+use FactIO.SQLiteSource.{SQLiteSource};
+use FactIO.SQLiteResult;
+use FactIO.RowIterator;
 
-///
-/// Represents a SQLite iterator.
-///
-opaque type SQLiteSource = ##flix.runtime.factio.SQLiteIterator
+namespace FactIO {
 
-type alias SQLiteResult[t] = Validation[t, String]
+    ///
+    /// Represents a SQLite row.
+    ///
+    pub opaque type SQLiteRow = ##flix.runtime.factio.SQLiteRow
 
-namespace SQLiteImport {
+    ///
+    /// Represents a SQLite iterator.
+    ///
+    opaque type SQLiteSource = ##flix.runtime.factio.SQLiteIterator
+
+    type alias SQLiteResult[t] = Validation[t, String]
+
+}
+namespace FactIO/SQLiteImport {
 
     ///
     /// Returns a new SQLite reader.
@@ -68,7 +78,7 @@ namespace SQLiteImport {
     ///
     pub def iterate(f: SQLiteRow -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();
-        Strategies.iterate(iterator, f, src)
+        FactIO/Strategies.iterate(iterator, f, src)
 
     ///
     /// Process all rows of the input with a zero indexed row count.
@@ -77,7 +87,7 @@ namespace SQLiteImport {
     ///
     pub def iterateWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();
-        Strategies.iterateWithCount(iterator, f, src)
+        FactIO/Strategies.iterateWithCount(iterator, f, src)
 
     ///
     /// Process all rows of the input with a threaded state.
@@ -86,7 +96,7 @@ namespace SQLiteImport {
     ///
     pub def iterateAccum(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
         let iterator = makeSQLiteIterator();
-        Strategies.iterateAccum(iterator, f, state, src)
+        FactIO/Strategies.iterateAccum(iterator, f, state, src)
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
@@ -95,7 +105,7 @@ namespace SQLiteImport {
     ///
     pub def iterateAccumWithCount(f: (SQLiteRow, st, Int32) -> SQLiteResult[(reln, st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
         let iterator = makeSQLiteIterator();
-        Strategies.iterateAccumWithCount(iterator, f, state, src)
+        FactIO/Strategies.iterateAccumWithCount(iterator, f, state, src)
 
     // Cell readers
 
@@ -106,7 +116,7 @@ namespace SQLiteImport {
             let a = r1.getStringByIndex(ix) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getStringByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getStringByIndex: " + Int32.toString(ix))
         }
 
     pub def getStringByLabel(row: SQLiteRow, label: String): SQLiteResult[String] & e =
@@ -116,7 +126,7 @@ namespace SQLiteImport {
             let a = r1.getStringByLabel(label) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getStringByLabel: " + label)
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getStringByLabel: " + label)
         }
 
     pub def getInt8ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int8] & e =
@@ -126,7 +136,7 @@ namespace SQLiteImport {
             let a = r1.getByteByIndex(ix) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getInt8ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getInt8ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt8ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int8] & e =
@@ -136,7 +146,7 @@ namespace SQLiteImport {
             let a = r1.getByteByLabel(label) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getInt8ByLabel: " + label)
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getInt8ByLabel: " + label)
         }
 
     pub def getInt16ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int16] & e =
@@ -146,7 +156,7 @@ namespace SQLiteImport {
             let a = r1.getShortByIndex(ix) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getInt16ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getInt16ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt16ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int16] & e =
@@ -156,7 +166,7 @@ namespace SQLiteImport {
             let a = r1.getShortByLabel(label) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getInt16ByLabel: " + label)
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getInt16ByLabel: " + label)
         }
 
     pub def getInt32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int32] & e =
@@ -166,7 +176,7 @@ namespace SQLiteImport {
             let a = r1.getIntByIndex(ix) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getInt32ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getInt32ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int32] & e =
@@ -176,7 +186,7 @@ namespace SQLiteImport {
             let a = r1.getIntByLabel(label) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getInt32ByLabel: " + label)
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getInt32ByLabel: " + label)
         }
 
     pub def getInt64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int64] & e =
@@ -186,7 +196,7 @@ namespace SQLiteImport {
             let a = r1.getLongByIndex(ix) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getInt64ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getInt64ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int64] & e =
@@ -196,7 +206,7 @@ namespace SQLiteImport {
             let a = r1.getLongByLabel(label) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getInt64ByLabel: " + label)
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getInt64ByLabel: " + label)
         }
 
     pub def getFloat32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float32] & e =
@@ -206,7 +216,7 @@ namespace SQLiteImport {
             let a = r1.getFloatByIndex(ix) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getFloat32ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getFloat32ByIndex: " + Int32.toString(ix))
         }
 
     pub def getFloat32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float32] & e =
@@ -216,7 +226,7 @@ namespace SQLiteImport {
             let a = r1.getFloatByLabel(label) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getFloat32ByLabel: " + label)
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getFloat32ByLabel: " + label)
         }
 
     pub def getFloat64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float64] & e =
@@ -226,7 +236,7 @@ namespace SQLiteImport {
             let a = r1.getDoubleByIndex(ix) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getFloat64ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getFloat64ByIndex: " + Int32.toString(ix))
         }
 
     pub def getFloat64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float64] & e =
@@ -236,7 +246,7 @@ namespace SQLiteImport {
             let a = r1.getDoubleByLabel(label) as & e;
             Success(a)
         } catch {
-            case _: ##java.lang.Exception => ValidationExtras.error("getFloat64ByLabel: " + label)
+            case _: ##java.lang.Exception => FactIO/ValidationExtras.error("getFloat64ByLabel: " + label)
         }
 
 }

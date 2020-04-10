@@ -15,7 +15,7 @@
  */
 
 
-namespace FactIOBase {
+namespace FactIO/Internal/Base {
 
     pub def collectErrors(line: Int32, errs: Nel[String]): String =
         collectErrorsHelper(line, errs) as & Pure

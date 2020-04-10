@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace ValidationExtras {
+namespace FactIO/ValidationExtras {
 
     
     pub def error(err: e): Validation[t, e] =
