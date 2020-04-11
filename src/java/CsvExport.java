@@ -16,10 +16,12 @@
 
 package flix.runtime.factio;
 
+import flix.runtime.factio.marshal.MarshalRow;
 import org.apache.commons.csv.*;
 import java.io.Writer;
 import java.io.FileWriter;
 import java.util.Arrays;
+import java.util.Iterator;
 
 public class CsvExport {
 
@@ -30,10 +32,10 @@ public class CsvExport {
         return "\u22B6\u22B7";
     }
 
-    public CsvExport(String filepath, int format, String headerdata) throws Exception {
+    public CsvExport(String filepath, int format, MarshalRow headerdata) throws Exception {
         outw = new FileWriter(filepath);
 
-        String[] headersArray = headerdata.split(getDelim());
+        String[] headersArray = headerdata.toArray();
         switch (format) {
             case 1:
                 printer = CSVFormat.EXCEL.withHeader(headersArray).print(outw);
@@ -78,11 +80,10 @@ public class CsvExport {
         return;
     }
 
-    public void writeRow(String rowdata) throws Exception {
-        String[] cells = rowdata.split(getDelim());
-        Iterable<String> row = Arrays.asList(cells);
-
-        printer.printRecord(row);
+    public void writeRow(MarshalRow rowdata) throws Exception {
+        String[] row = rowdata.toArray();
+        Iterable<String> cells = Arrays.asList(row);
+        printer.printRecord(cells);
     }
 
     public void close() throws Exception {

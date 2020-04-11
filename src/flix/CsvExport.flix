@@ -31,14 +31,10 @@ namespace FactIO {
 
 namespace FactIO/CsvExport {
 
+    type alias MarshalRow = ##flix.runtime.factio.marshal.MarshalRow
 
-    def getDelim(): String = 
-        import flix.runtime.factio.CsvExport:getDelim();
-        getDelim() as & Pure
-
-
-    def internalNew (filepath: String, format: Int32, headerdata: String): CsvWriter & Impure =
-        import new flix.runtime.factio.CsvExport(String, Int32, String) as newCsvExport;
+    def internalNew (filepath: String, format: Int32, headerdata: MarshalRow): CsvWriter & Impure =
+        import new flix.runtime.factio.CsvExport(String, Int32, MarshalRow) as newCsvExport;
         CsvWriter(newCsvExport(filepath, format, headerdata))
 
     ///
@@ -47,20 +43,23 @@ namespace FactIO/CsvExport {
     pub def new (filepath: String, headers: Array[String]): CsvWriter & Impure =
         internalNew(filepath, 0, serializeRow(headers))
 
-    def serializeRow(cells: Array[String]): String & Impure =
-        let sep = getDelim();
-        Array.formatWith(x -> x, sep, cells)
+    def serializeRow(cells: Array[String]): MarshalRow & Impure =
+        import new flix.runtime.factio.marshal.MarshalRow() as newMarshalRow;
+        import flix.runtime.factio.marshal.MarshalRow.append(String);
+        let r = newMarshalRow();
+        Array.foreach(x -> r.append(x), cells);
+        r
 
     pub def writeRow(w: CsvWriter, cells: Array[String]): Unit & Impure =
-        let CsvWriter(handle) = w;
+        import flix.runtime.factio.CsvExport.writeRow(##flix.runtime.factio.marshal.MarshalRow);
+        let CsvWriter(w1) = w;
         let rowdata = serializeRow(cells);
-        import flix.runtime.factio.CsvExport.writeRow(String);
-        handle.writeRow(rowdata)
+        w1.writeRow(rowdata)
 
     pub def close(w: CsvWriter): Unit & Impure =
-        let CsvWriter(handle) = w;
+        let CsvWriter(w1) = w;
         import flix.runtime.factio.CsvExport.close();
-        handle.close()
+        w1.close()
 
 
     pub def emptyCsvBuilder(): CsvBuilder = Nil
