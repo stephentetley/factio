@@ -5,7 +5,7 @@ def fail1(msg: String): reln & Impure =
 rel Lang(name: String, year: Int32)
 
 def getLang (row: FactIO.SQLiteRow): FactIO.SQLiteResult[#{Lang}] & e = 
-    FactIO/ValidationExtras.liftV2(
+    Validation.lift2(
         (x,y) -> { Lang(x, y). } ,
         FactIO/SQLiteImport.getStringByLabel(row, "name"), 
         FactIO/SQLiteImport.getInt32ByLabel(row, "year")

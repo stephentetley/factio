@@ -30,7 +30,7 @@ rel Station(name: String, gridref: String)
 
 
 def getStation(row: FactIO.CsvRow): FactIO.CsvResult[#{Station}] = 
-    FactIO/ValidationExtras.liftV2(
+    Validation.lift2(
         (x,y) -> { Station(x, y). },
         FactIO/CsvImport.getStringByLabel(row, "Name"), 
         FactIO/CsvImport.getStringByLabel(row, "Grid_Ref")

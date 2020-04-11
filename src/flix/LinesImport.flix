@@ -116,7 +116,7 @@ namespace FactIO/LinesImport {
 
     pub def nonempty(line: TextLine): LineResult[String] =
         let TextLine(s) = line;
-        if (String.length(s) > 0) Success(s) else FactIO/ValidationExtras.error("nonempty")
+        if (String.length(s) > 0) Success(s) else FactIO/Internal/Base.error1("nonempty")
 
     pub def apply(f: String -> a & e, line: TextLine): LineResult[a] & e=
         let TextLine(s) = line;
@@ -126,6 +126,6 @@ namespace FactIO/LinesImport {
         let TextLine(s) = line;
         match f(s) {
             case Ok(a) => Success(a)
-            case Err(msg) => FactIO/ValidationExtras.error(msg)
+            case Err(msg) => FactIO/Internal/Base.error1(msg)
         }
 }

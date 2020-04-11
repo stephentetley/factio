@@ -26,4 +26,6 @@ namespace FactIO/Internal/Base {
         Nel.foreach(StringBuilder.appendLine!(sb), errs);
         StringBuilder.toString(sb)
 
+    pub def error1(err: e): Validation[t, e] = Failure(Nel(err, Nil))
+
 }
