@@ -1,4 +1,4 @@
-
+use FactIO/CsvImport.{CsvRow, CsvResult};
 
 def fail1(msg: String): reln & Impure = 
     Console.printLine(msg);
@@ -10,7 +10,7 @@ rel Name(name: String)
 def makeName(name: String): #{ Name } = 
     Name(name).
 
-def getName(row: FactIO.CsvRow): FactIO.CsvResult[#{Name}] = 
+def getName(row: CsvRow): CsvResult[#{Name}] = 
     Validation.map(makeName, FactIO/CsvImport.getStringByLabel(row, "Name"))
 
 
@@ -29,7 +29,7 @@ pub def test01(): #{Name} & Impure =
 rel Station(name: String, gridref: String)
 
 
-def getStation(row: FactIO.CsvRow): FactIO.CsvResult[#{Station}] = 
+def getStation(row: CsvRow): CsvResult[#{Station}] = 
     Validation.lift2(
         (x,y) -> { Station(x, y). },
         FactIO/CsvImport.getStringByLabel(row, "Name"), 

@@ -1,10 +1,12 @@
+use FactIO/SQLiteImport.{SQLiteRow, SQLiteResult};
+
 def fail1(msg: String): reln & Impure = 
     Console.printLine(msg);
     #{ }
 
 rel Lang(name: String, year: Int32)
 
-def getLang (row: FactIO.SQLiteRow): FactIO.SQLiteResult[#{Lang}] & e = 
+def getLang (row: SQLiteRow): SQLiteResult[#{Lang}] & e = 
     Validation.lift2(
         (x,y) -> { Lang(x, y). } ,
         FactIO/SQLiteImport.getStringByLabel(row, "name"), 

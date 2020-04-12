@@ -15,14 +15,9 @@
  */
 
 use FactIO.CsvFormat;
-use FactIO.CsvRow;
-use FactIO.CsvRow.{CsvRow};
-use FactIO.CsvSource;
-use FactIO.CsvSource.{CsvSource};
-use FactIO.CsvResult;
-use FactIO.RowIterator;
+use FactIO/ImportStrategies.RowIterator;
 
-namespace FactIO {
+namespace FactIO/CsvImport {
 
     ///
     /// Represents a CSV row.
@@ -35,10 +30,6 @@ namespace FactIO {
     pub opaque type CsvSource = ##flix.runtime.factio.CsvIterator
 
     type alias CsvResult[t] = Validation[t, String]
-
-}
-
-namespace FactIO/CsvImport {
 
     ///
     /// Returns a new CsvSource.
@@ -80,7 +71,7 @@ namespace FactIO/CsvImport {
     ///
     pub def iterate(f: CsvRow -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
-        FactIO/Strategies.iterate(iterator, f, src)
+        FactIO/ImportStrategies.iterate(iterator, f, src)
 
     ///
     /// Process all rows of the input with a zero indexed row count.
@@ -89,7 +80,7 @@ namespace FactIO/CsvImport {
     ///
     pub def iterateWithCount(f: (CsvRow, Int32) -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
-        FactIO/Strategies.iterateWithCount(iterator, f, src)
+        FactIO/ImportStrategies.iterateWithCount(iterator, f, src)
 
     ///
     /// Process all rows of the input with a threaded state.
@@ -98,7 +89,7 @@ namespace FactIO/CsvImport {
     ///
     pub def iterateAccum(f: (CsvRow, st) -> CsvResult[(reln, st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
         let iterator = makeCsvIterator();
-        FactIO/Strategies.iterateAccum(iterator, f, state, src)
+        FactIO/ImportStrategies.iterateAccum(iterator, f, state, src)
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
@@ -107,7 +98,7 @@ namespace FactIO/CsvImport {
     ///
     pub def iterateAccumWithCount(f: (CsvRow, st, Int32) -> CsvResult[(reln, st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
         let iterator = makeCsvIterator();
-        FactIO/Strategies.iterateAccumWithCount(iterator, f, state, src)
+        FactIO/ImportStrategies.iterateAccumWithCount(iterator, f, state, src)
 
 
     // Cell readers

@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-use FactIO.TextLine;
-use FactIO.TextLine.{TextLine};
-use FactIO.LinesSource;
-use FactIO.LinesSource.{LinesSource};
-use FactIO.LineResult;
-use FactIO.RowIterator;
+use FactIO/ImportStrategies.RowIterator;
 use System.Charset;
 use System.Charset.{Charset};
 
-namespace FactIO {
+
+namespace FactIO/LinesImport {
 
     ///
     /// Represents a line of text (a String).
@@ -37,9 +33,6 @@ namespace FactIO {
     pub opaque type LinesSource = ##flix.runtime.factio.LinesIterator
 
     type alias LineResult[t] = Validation[t, String]
-}
-
-namespace FactIO/LinesImport {
 
     ///
     /// TODO - use Flix's paths...
@@ -82,7 +75,7 @@ namespace FactIO/LinesImport {
     ///
     pub def iterate(f: TextLine -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
-        FactIO/Strategies.iterate(iterator, f, src)
+        FactIO/ImportStrategies.iterate(iterator, f, src)
 
     ///
     /// Process all rows of the input with a zero indexed row count.
@@ -91,7 +84,7 @@ namespace FactIO/LinesImport {
     ///
     pub def iterateWithCount(f: (TextLine, Int32) -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
-        FactIO/Strategies.iterateWithCount(iterator, f, src)
+        FactIO/ImportStrategies.iterateWithCount(iterator, f, src)
 
     ///
     /// Process all rows of the input with a threaded state.
@@ -100,7 +93,7 @@ namespace FactIO/LinesImport {
     ///
     pub def iterateAccum(f: (TextLine, st) -> LineResult[(reln, st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
         let iterator = makeLinesIterator();
-        FactIO/Strategies.iterateAccum(iterator, f, state, src)
+        FactIO/ImportStrategies.iterateAccum(iterator, f, state, src)
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
@@ -109,7 +102,7 @@ namespace FactIO/LinesImport {
     ///
     pub def iterateAccumWithCount(f: (TextLine, st, Int32) -> LineResult[(reln, st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
         let iterator = makeLinesIterator();
-        FactIO/Strategies.iterateAccumWithCount(iterator, f, state, src)
+        FactIO/ImportStrategies.iterateAccumWithCount(iterator, f, state, src)
 
 
     /// Line readers

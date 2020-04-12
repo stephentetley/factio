@@ -1,3 +1,7 @@
+use FactIO/CsvImport.{CsvRow, CsvResult};
+use FactIO/LinesImport.{TextLine, LineResult};
+use FactIO/SQLiteImport.{SQLiteRow, SQLiteResult};
+
 def logFail(msg: String): reln & Impure= 
     Console.printLine(msg);
     #{ }
@@ -7,7 +11,7 @@ rel Direction(name: String)
 def makeDirection(name: String): #{ Direction } = 
     Direction(name).
     
-def csvDirection1(row: FactIO.CsvRow): FactIO.CsvResult[#{Direction}] & e = 
+def csvDirection1(row: CsvRow): CsvResult[#{Direction}] & e = 
     Validation.map(makeDirection, FactIO/CsvImport.getStringByIndex(row, 0))
 
 pub def csv01(): #{Direction} & Impure =
@@ -21,7 +25,7 @@ pub def csv01(): #{Direction} & Impure =
             }
     }
     
-def sqliteDirection1(row: FactIO.SQLiteRow): FactIO.SQLiteResult[#{Direction}] & e = 
+def sqliteDirection1(row: SQLiteRow): SQLiteResult[#{Direction}] & e = 
     Validation.map(makeDirection, FactIO/SQLiteImport.getStringByLabel(row, "cardinal_name"))
     
 
@@ -38,7 +42,7 @@ pub def sqlite01(): #{Direction} & Impure =
         }
     }
 
-def lineDirection1(line: FactIO.TextLine): FactIO.LineResult[#{Direction}] & Pure = 
+def lineDirection1(line: TextLine): LineResult[#{Direction}] & Pure = 
     Validation.map(makeDirection, FactIO/LinesImport.nonempty(line))
 
 

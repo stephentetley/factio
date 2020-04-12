@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-use FactIO.SQLiteRow;
-use FactIO.SQLiteRow.{SQLiteRow};
-use FactIO.SQLiteSource;
-use FactIO.SQLiteSource.{SQLiteSource};
-use FactIO.SQLiteResult;
-use FactIO.RowIterator;
+use FactIO/ImportStrategies.RowIterator;
 
-namespace FactIO {
+namespace FactIO/SQLiteImport {
 
     ///
     /// Represents a SQLite row.
@@ -34,9 +29,6 @@ namespace FactIO {
     opaque type SQLiteSource = ##flix.runtime.factio.SQLiteIterator
 
     type alias SQLiteResult[t] = Validation[t, String]
-
-}
-namespace FactIO/SQLiteImport {
 
     ///
     /// Returns a new SQLite reader.
@@ -78,7 +70,7 @@ namespace FactIO/SQLiteImport {
     ///
     pub def iterate(f: SQLiteRow -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();
-        FactIO/Strategies.iterate(iterator, f, src)
+        FactIO/ImportStrategies.iterate(iterator, f, src)
 
     ///
     /// Process all rows of the input with a zero indexed row count.
@@ -87,7 +79,7 @@ namespace FactIO/SQLiteImport {
     ///
     pub def iterateWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();
-        FactIO/Strategies.iterateWithCount(iterator, f, src)
+        FactIO/ImportStrategies.iterateWithCount(iterator, f, src)
 
     ///
     /// Process all rows of the input with a threaded state.
@@ -96,7 +88,7 @@ namespace FactIO/SQLiteImport {
     ///
     pub def iterateAccum(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
         let iterator = makeSQLiteIterator();
-        FactIO/Strategies.iterateAccum(iterator, f, state, src)
+        FactIO/ImportStrategies.iterateAccum(iterator, f, state, src)
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
@@ -105,7 +97,7 @@ namespace FactIO/SQLiteImport {
     ///
     pub def iterateAccumWithCount(f: (SQLiteRow, st, Int32) -> SQLiteResult[(reln, st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
         let iterator = makeSQLiteIterator();
-        FactIO/Strategies.iterateAccumWithCount(iterator, f, state, src)
+        FactIO/ImportStrategies.iterateAccumWithCount(iterator, f, state, src)
 
     // Cell readers
 

@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-use FactIO.RowResult;
-use FactIO.RowIterator;
 
-namespace FactIO {
+namespace FactIO/ImportStrategies {
 
     type alias RowResult[t] = Validation[t, String]
 
     type alias RowIterator[src,row] = { hasNext: src -> Bool & Impure , getRow: src -> row & Impure , finalize: src -> Unit & Impure }
-}
-
-namespace FactIO/Strategies {
 
     ///
     /// Process all rows of the input.
