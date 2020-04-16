@@ -73,7 +73,7 @@ namespace FactIO/LinesImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterate(f: TextLine -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
+    pub def iterate(f: TextLine -> LineResult[reln] & Impure, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
         FactIO/ImportStrategies.iterate(iterator, f, src)
 
@@ -82,7 +82,7 @@ namespace FactIO/LinesImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateWithCount(f: (TextLine, Int32) -> LineResult[reln] & e, src: LinesSource): Result[reln, String] & Impure =
+    pub def iterateWithCount(f: (TextLine, Int32) -> LineResult[reln] & Impure, src: LinesSource): Result[reln, String] & Impure =
         let iterator = makeLinesIterator();
         FactIO/ImportStrategies.iterateWithCount(iterator, f, src)
 
@@ -91,7 +91,7 @@ namespace FactIO/LinesImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateAccum(f: (TextLine, st) -> LineResult[(reln, st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
+    pub def iterateAccum(f: (TextLine, st) -> LineResult[(reln, st)] & Impure, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
         let iterator = makeLinesIterator();
         FactIO/ImportStrategies.iterateAccum(iterator, f, state, src)
 
@@ -100,7 +100,7 @@ namespace FactIO/LinesImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateAccumWithCount(f: (TextLine, st, Int32) -> LineResult[(reln, st)] & e, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
+    pub def iterateAccumWithCount(f: (TextLine, st, Int32) -> LineResult[(reln, st)] & Impure, state: st, src: LinesSource): Result[(reln, st), String] & Impure =
         let iterator = makeLinesIterator();
         FactIO/ImportStrategies.iterateAccumWithCount(iterator, f, state, src)
 
@@ -111,7 +111,7 @@ namespace FactIO/LinesImport {
         let TextLine(s) = line;
         if (String.length(s) > 0) Success(s) else FactIO/Internal/Base.error1("nonempty")
 
-    pub def apply(f: String -> a & e, line: TextLine): LineResult[a] & e=
+    pub def apply(f: String -> a & e, line: TextLine): LineResult[a] & e =
         let TextLine(s) = line;
         Success(f(s))
 

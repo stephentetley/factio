@@ -69,7 +69,7 @@ namespace FactIO/CsvImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterate(f: CsvRow -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
+    pub def iterate(f: CsvRow -> CsvResult[reln] & Impure, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
         FactIO/ImportStrategies.iterate(iterator, f, src)
 
@@ -78,7 +78,7 @@ namespace FactIO/CsvImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateWithCount(f: (CsvRow, Int32) -> CsvResult[reln] & e, src: CsvSource): Result[reln, String] & Impure =
+    pub def iterateWithCount(f: (CsvRow, Int32) -> CsvResult[reln] & Impure, src: CsvSource): Result[reln, String] & Impure =
         let iterator = makeCsvIterator();
         FactIO/ImportStrategies.iterateWithCount(iterator, f, src)
 
@@ -87,7 +87,7 @@ namespace FactIO/CsvImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateAccum(f: (CsvRow, st) -> CsvResult[(reln, st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
+    pub def iterateAccum(f: (CsvRow, st) -> CsvResult[(reln, st)] & Impure, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
         let iterator = makeCsvIterator();
         FactIO/ImportStrategies.iterateAccum(iterator, f, state, src)
 
@@ -96,7 +96,7 @@ namespace FactIO/CsvImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateAccumWithCount(f: (CsvRow, st, Int32) -> CsvResult[(reln, st)] & e, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
+    pub def iterateAccumWithCount(f: (CsvRow, st, Int32) -> CsvResult[(reln, st)] & Impure, state: st, src: CsvSource): Result[(reln, st), String] & Impure =
         let iterator = makeCsvIterator();
         FactIO/ImportStrategies.iterateAccumWithCount(iterator, f, state, src)
 

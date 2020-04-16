@@ -68,7 +68,7 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterate(f: SQLiteRow -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
+    pub def iterate(f: SQLiteRow -> SQLiteResult[reln] & Impure, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();
         FactIO/ImportStrategies.iterate(iterator, f, src)
 
@@ -77,7 +77,7 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln] & e, src: SQLiteSource): Result[reln, String] & Impure =
+    pub def iterateWithCount(f: (SQLiteRow, Int32) -> SQLiteResult[reln] & Impure, src: SQLiteSource): Result[reln, String] & Impure =
         let iterator = makeSQLiteIterator();
         FactIO/ImportStrategies.iterateWithCount(iterator, f, src)
 
@@ -86,7 +86,7 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateAccum(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
+    pub def iterateAccum(f: (SQLiteRow, st) -> SQLiteResult[(reln, st)] & Impure, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
         let iterator = makeSQLiteIterator();
         FactIO/ImportStrategies.iterateAccum(iterator, f, state, src)
 
@@ -95,7 +95,7 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateAccumWithCount(f: (SQLiteRow, st, Int32) -> SQLiteResult[(reln, st)] & e, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
+    pub def iterateAccumWithCount(f: (SQLiteRow, st, Int32) -> SQLiteResult[(reln, st)] & Impure, state: st, src: SQLiteSource): Result[(reln, st), String] & Impure =
         let iterator = makeSQLiteIterator();
         FactIO/ImportStrategies.iterateAccumWithCount(iterator, f, state, src)
 
