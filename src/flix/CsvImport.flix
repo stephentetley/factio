@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+use System.Charset;
+use System.Charset.{Charset};
+
 use FactIO.CsvFormat;
 use FactIO/ImportStrategies.RowIterator;
 
@@ -35,10 +38,24 @@ namespace FactIO/CsvImport {
     /// Returns a new CsvSource.
     ///
     pub def newCsvSource(filepath: String, format: CsvFormat, hasHeaders: Bool): Result[CsvSource, String] & Impure =
-        let fmt = FactIO/CsvFormat.toInt32(format);
+        import new flix.runtime.factio.CsvIterator(String, Int32, Bool) as newCsvIterator;
         try {
-            import new flix.runtime.factio.CsvIterator(String, Int32, Bool) as newCsvIterator;
+            let fmt = FactIO/CsvFormat.toInt32(format);
             let iterator = newCsvIterator(filepath, fmt, hasHeaders);
+            CsvSource(iterator) |> Ok
+        } catch {
+            case _: ##java.io.FileNotFoundException => Err("newCsvSource - file not found")
+            case _: ##java.io.IOException => Err("newCsvSource - io exception")
+        }
+
+    ///
+    /// Returns a new CsvSource.
+    ///
+    pub def newCsvSourceWithBOM(filepath: String, cs: Charset, hasHeaders: Bool): Result[CsvSource, String] & Impure =
+        import new flix.runtime.factio.CsvIterator(String, ##java.nio.charset.Charset, Bool) as newCsvIterator;
+        try {
+            let Charset(cs1) = cs;
+            let iterator = newCsvIterator(filepath, cs1, hasHeaders);
             CsvSource(iterator) |> Ok
         } catch {
             case _: ##java.io.FileNotFoundException => Err("newCsvSource - file not found")

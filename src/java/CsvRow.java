@@ -16,9 +16,10 @@
 
 package flix.runtime.factio;
 
+import java.math.BigInteger;
 import org.apache.commons.csv.CSVRecord;
 
-import java.math.BigInteger;
+
 
 public class CsvRow {
     private CSVRecord wrappedRow;

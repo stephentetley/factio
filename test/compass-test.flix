@@ -42,8 +42,8 @@ pub def sqlite01(): #{Direction} & Impure =
         }
     }
 
-def lineDirection1(line: TextLine): LineResult[#{Direction}] & Pure = 
-    Validation.map(makeDirection, FactIO/LinesImport.nonempty(line))
+def lineDirection1(line: TextLine): LineResult[#{Direction}] & Impure = 
+    Validation.map(makeDirection, FactIO/LinesImport.nonempty(line)) as & Impure
 
 
 

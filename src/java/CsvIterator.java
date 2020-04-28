@@ -18,14 +18,16 @@ package flix.runtime.factio;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.io.input.BoundedInputStream;
 
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 
 public class CsvIterator {
 
-    private FileReader inputReader;
+    private Reader inputReader;
     private Iterator<CSVRecord> csvIterator;
 
     // 0 DEFAULT
@@ -78,6 +80,19 @@ public class CsvIterator {
             iterable = csvformat.withFirstRecordAsHeader().parse(inputReader);
         } else {
             iterable = csvformat.parse(inputReader);
+        }
+        csvIterator = iterable.iterator();
+    }
+
+    /// Call this constructor for Excel created files...
+    public CsvIterator(String filepath, Charset cs, boolean hasHeaders) throws Exception {
+        FileInputStream instream = new FileInputStream(filepath);
+        inputReader = new InputStreamReader(new BOMInputStream(instream), cs);
+        Iterable<CSVRecord> iterable;
+        if (hasHeaders) {
+            iterable = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(inputReader);
+        } else {
+            iterable = CSVFormat.EXCEL.parse(inputReader);
         }
         csvIterator = iterable.iterator();
     }
