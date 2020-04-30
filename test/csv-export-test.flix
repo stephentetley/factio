@@ -1,15 +1,18 @@
 
 @test
-def stations01(): Unit & Impure = 
+def stations01(): Unit & Impure =     
     let dest = "e:/coding/flix/factio/data/output/stations_export.csv";
-    let writer = FactIO/CsvExport.new(dest, ["Name", "Grid_Ref"]);
-    FactIO/CsvExport.writeRow(writer, ["Bradford Interchange", "SE1657832808"]);
-    FactIO/CsvExport.writeRow(writer, ["Halifax", "SE0973324980"]);
-    FactIO/CsvExport.writeRow(writer, ["Low Moor", "SE1633428224"]);
-    FactIO/CsvExport.writeRow(writer, ["Mytholmroyd", "SE0127125846"]);
-    FactIO/CsvExport.writeRow(writer, ["Sowerby Bridge", "SE0624023505"]);
-    FactIO/CsvExport.close(writer)
-
+    match FactIO/CsvExport.new(dest, ["Name", "Grid_Ref"]) {
+        case Err(msg) => Console.printLine(msg)
+        case Ok(writer) => {
+            FactIO/CsvExport.writeRow(writer, ["Bradford Interchange", "SE1657832808"]);
+            FactIO/CsvExport.writeRow(writer, ["Halifax", "SE0973324980"]);
+            FactIO/CsvExport.writeRow(writer, ["Low Moor", "SE1633428224"]);
+            FactIO/CsvExport.writeRow(writer, ["Mytholmroyd", "SE0127125846"]);
+            FactIO/CsvExport.writeRow(writer, ["Sowerby Bridge", "SE0624023505"]);
+            FactIO/CsvExport.close(writer)
+        }
+    }
 
 rel Dummy(name: String, intval: Int32)
 
@@ -29,7 +32,7 @@ def dummyCells(src: (String,Int)): Array[String] & Impure =
 
 
 @test
-def test01(): Unit & Impure = 
+def test01(): Result[Unit, String] & Impure = 
     let dest = "e:/coding/flix/factio/data/output/dummy_export.csv";
     let headers = ["name", "intval"];
     let buildStep = FactIO/CsvExport.makeBuildStep(dummyCells); 
@@ -44,7 +47,7 @@ def test01(): Unit & Impure =
 /// by name.
 ///
 @test
-def test02(): Unit & Impure = 
+def test02(): Result[Unit, String] & Impure = 
     let dest = "e:/coding/flix/factio/data/output/dummy_export2.csv";
     let headers = ["name", "intval"];
     let buildStep = FactIO/CsvExport.makeBuildStep(dummyCells); 

@@ -19,7 +19,6 @@ package flix.runtime.factio;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.input.BOMInputStream;
-import org.apache.commons.io.input.BoundedInputStream;
 
 import java.io.*;
 import java.nio.charset.Charset;

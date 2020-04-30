@@ -23,7 +23,7 @@ namespace FactIO {
     ///
     /// Represents a CsvWriter.
     ///
-    pub opaque type CsvWriter = ##flix.runtime.factio.CsvExport
+    pub opaque type CsvWriter = ##flix.runtime.factio.CsvWriter
 
     type alias CsvBuilder = List[CsvWriter -> Unit & Impure]
 
@@ -31,36 +31,29 @@ namespace FactIO {
 
 namespace FactIO/CsvExport {
 
-    type alias MarshalRow = ##flix.runtime.factio.marshal.MarshalRow
-
-    def internalNew (filepath: String, format: Int32, headerdata: MarshalRow): CsvWriter & Impure =
-        import new flix.runtime.factio.CsvExport(String, Int32, MarshalRow) as newCsvExport;
-        CsvWriter(newCsvExport(filepath, format, headerdata))
-
     ///
     /// Returns a new CsvWriter.
     ///
-    pub def new (filepath: String, headers: Array[String]): CsvWriter & Impure =
-        internalNew(filepath, 0, serializeRow(headers))
+    pub def new(filename: String, headers: Array[String]): Result[CsvWriter, String] & Impure =
+        import new flix.runtime.factio.CsvWriter(String) as newCsvWriter;
+        try {
+            let w1 = CsvWriter(newCsvWriter(filename));
+            w1.writeRow(headers);
+            Ok(w1)
+        } catch {
+            case _: ##java.lang.Exception => Err("new CsvWriter")
+        }
 
-    def serializeRow(cells: Array[String]): MarshalRow & Impure =
-        import new flix.runtime.factio.marshal.MarshalRow() as newMarshalRow;
-        import flix.runtime.factio.marshal.MarshalRow.append(String);
-        let r = newMarshalRow();
-        Array.foreach(x -> r.append(x), cells);
-        r
 
-    pub def writeRow(w: CsvWriter, cells: Array[String]): Unit & Impure =
-        import flix.runtime.factio.CsvExport.writeRow(##flix.runtime.factio.marshal.MarshalRow);
+    pub def writeRow(w: CsvWriter, row: Array[String]): Unit & Impure =
+        import flix.runtime.factio.CsvWriter.writeRow(Array[String]);
         let CsvWriter(w1) = w;
-        let rowdata = serializeRow(cells);
-        w1.writeRow(rowdata)
+        w1.writeRow(row)
 
     pub def close(w: CsvWriter): Unit & Impure =
         let CsvWriter(w1) = w;
-        import flix.runtime.factio.CsvExport.close();
+        import flix.runtime.factio.CsvWriter.close();
         w1.close()
-
 
     pub def emptyCsvBuilder(): CsvBuilder = Nil
 
@@ -70,9 +63,11 @@ namespace FactIO/CsvExport {
             w1 :: ws
 
 
-    pub def outputCsv(filepath: String, headers: Array[String], builder: CsvBuilder): Unit & Impure =
-        let w = new(filepath, headers);
+    pub def outputCsv(filepath: String, headers: Array[String], builder: CsvBuilder): Result[Unit, String] & Impure =
+        use Result.flatMap;
+        let* w = new(filepath, headers);
         List.foreach(f -> f(w),  builder);
-        close(w)
+        close(w);
+        Ok()
 
  }

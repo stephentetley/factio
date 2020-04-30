@@ -25,14 +25,7 @@ modules from Factio `src/flix`.
 Edit Flix `main/src/ca/uwaterloo/flix/api/Flix.scala` to include the 
 Factio Flix modules, i.e. add this code to the list of libraries:
 
-**Caution** Factio now depends on `flix-system` that is an incubator
-project towards adding more IO related modules to Flix.
-
-Add at least the Charset module from here:
-
-https://github.com/stephentetley/flix-system
-
-~~~
+~~~ {.Scala}
 
     "FactIOBase.flix" -> LocalResource.get("/library/factio/FactIOBase.flix"),
     "ValidationExtras.flix" -> LocalResource.get("/library/factio/ValidationExtras.flix"),
@@ -43,6 +36,13 @@ https://github.com/stephentetley/flix-system
     "CsvExport.flix" -> LocalResource.get("/library/factio/CsvExport.flix"),
 
 ~~~
+
+**Caution** Factio now depends on `flix-system` that is an incubator
+project towards adding more IO related modules to Flix. 
+
+Add at least the Charset module from here:
+
+https://github.com/stephentetley/flix-system
 
 Build / rebuild the Flix compiler.
 
