@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+use System.Charset;
+use System.Charset.{Charset};
+
 use FactIO.CsvWriter;
 use FactIO.CsvWriter.{CsvWriter};
 use FactIO.CsvBuilder;
@@ -36,11 +39,12 @@ namespace FactIO/CsvExport {
     ///
     /// Returns a new CsvWriter.
     ///
-    pub def new(filename: String, headers: Array[String]): Result[CsvWriter, String] & Impure =
-        import new flix.runtime.factio.CsvWriter(String) as newCsvWriter;
+    pub def new(filename: String, cs: Charset, headers: Array[String]): Result[CsvWriter, String] & Impure =
+        import new flix.runtime.factio.CsvWriter(String, ##java.nio.charset.Charset) as newCsvWriter;
         use Result.flatMap;
         try {
-            let w1 = CsvWriter(newCsvWriter(filename));
+            let Charset(cs1) = cs;
+            let w1 = CsvWriter(newCsvWriter(filename, cs1));
             let* _ = w1.writeRow(headers);
             Ok(w1)
         } catch {
@@ -81,9 +85,9 @@ namespace FactIO/CsvExport {
             w1 :: ws
 
 
-    pub def outputCsv(filepath: String, headers: Array[String], builder: CsvBuilder): Result[Unit, String] & Impure =
+    pub def outputCsv(filepath: String, cs: Charset, headers: Array[String], builder: CsvBuilder): Result[Unit, String] & Impure =
         use Result.flatMap;
-        let* w = new(filepath, headers);
+        let* w = new(filepath, cs, headers);
         List.foreach(f -> f(w),  builder);
         close(w);
         Ok()

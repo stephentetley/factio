@@ -19,8 +19,13 @@ package flix.runtime.factio;
 
 import flix.runtime.factio.marshal.MarshalRow;
 import org.apache.commons.csv.*;
+
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.io.FileWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 
@@ -29,14 +34,14 @@ public class CsvWriter {
     private final Writer outw;
     private final CSVPrinter printer;
 
-    public CsvWriter(String filename) throws Exception {
-        outw = new FileWriter(filename);
+    public CsvWriter(String filename, Charset cs) throws Exception {
+        outw = new OutputStreamWriter(new FileOutputStream(filename), cs);
         printer = CSVFormat.DEFAULT.print(outw);
     }
 
 
-    public CsvWriter(String filename, int format) throws Exception {
-        outw = new FileWriter(filename);
+    public CsvWriter(String filename, Charset cs, int format) throws Exception {
+        outw = new OutputStreamWriter(new FileOutputStream(filename), cs);
         switch (format) {
             case 1:
                 printer = CSVFormat.EXCEL.print(outw);
