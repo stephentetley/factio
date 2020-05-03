@@ -17,9 +17,11 @@
 package flix.runtime.factio;
 
 
+import flix.runtime.factio.marshal.MarshalRow;
 import org.apache.commons.csv.*;
 import java.io.Writer;
 import java.io.FileWriter;
+import java.util.Arrays;
 
 
 public class CsvWriter {
@@ -79,8 +81,10 @@ public class CsvWriter {
         return;
     }
 
-    public void writeRow(String[] row) throws Exception {
-        printer.printRecord((Object[]) row);
+    public void writeRow(MarshalRow rowdata) throws Exception {
+        String[] row = rowdata.toArray();
+        Iterable<String> cells = Arrays.asList(row);
+        printer.printRecord(cells);
     }
 
     public void close() throws Exception {

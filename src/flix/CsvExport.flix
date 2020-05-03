@@ -31,35 +31,53 @@ namespace FactIO {
 
 namespace FactIO/CsvExport {
 
+    type alias MarshalRow = ##flix.runtime.factio.marshal.MarshalRow
+
     ///
     /// Returns a new CsvWriter.
     ///
     pub def new(filename: String, headers: Array[String]): Result[CsvWriter, String] & Impure =
         import new flix.runtime.factio.CsvWriter(String) as newCsvWriter;
+        use Result.flatMap;
         try {
             let w1 = CsvWriter(newCsvWriter(filename));
-            w1.writeRow(headers);
+            let* _ = w1.writeRow(headers);
             Ok(w1)
         } catch {
             case _: ##java.lang.Exception => Err("new CsvWriter")
         }
 
+    def serializeRow(cells: Array[String]): MarshalRow & Impure =
+        import new flix.runtime.factio.marshal.MarshalRow() as newMarshalRow;
+        import flix.runtime.factio.marshal.MarshalRow.append(String);
+        let r = newMarshalRow();
+        Array.foreach(x -> r.append(x), cells);
+        r
 
-    pub def writeRow(w: CsvWriter, row: Array[String]): Unit & Impure =
-        import flix.runtime.factio.CsvWriter.writeRow(Array[String]);
-        let CsvWriter(w1) = w;
-        w1.writeRow(row)
+
+    /// Note - row must not be empty.
+    pub def writeRow(w: CsvWriter, row: Array[String]): Result[Unit, String] & Impure =
+        import flix.runtime.factio.CsvWriter.writeRow(##flix.runtime.factio.marshal.MarshalRow);
+        try {
+            let CsvWriter(w1) = w;
+            let mrow = serializeRow(row);
+            w1.writeRow(mrow);
+            Ok()
+        } catch {
+            case _: ##java.io.IOException => Err("writeRow - io exception")
+            case _: ##java.lang.Exception => Err("writeRow - java.lang.Exception")
+        }
 
     pub def close(w: CsvWriter): Unit & Impure =
-        let CsvWriter(w1) = w;
         import flix.runtime.factio.CsvWriter.close();
+        let CsvWriter(w1) = w;
         w1.close()
 
     pub def emptyCsvBuilder(): CsvBuilder = Nil
 
     pub def makeBuildStep(f: x -> Array[String] & e): (x,CsvBuilder) -> CsvBuilder =
         (x, ws) ->
-            let w1 = { w ->  let cells = f(x) as & Impure; writeRow(w, cells) };
+            let w1 = { w ->  let cells = f(x) as & Impure; writeRow(w, cells); () };
             w1 :: ws
 
 
