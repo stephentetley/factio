@@ -27,7 +27,7 @@ namespace FactIO/CsvStream {
 
 
     ///
-    /// Returns a new CsvSource.
+    /// Returns a new Csv Stream.
     ///
     pub def newCsvStream(filepath: String, format: CsvFormat, hasHeaders: Bool): Result[Stream[CsvRow], String] & Impure=
         import new flix.runtime.factio.CsvIterator(String, Int32, Bool) as newCsvIterator;
@@ -49,7 +49,7 @@ namespace FactIO/CsvStream {
         }
 
     ///
-    /// Returns a new Stream.
+    /// Returns a new Csv Stream from a file with a BOM.
     ///
     pub def newCsvStreamWithBOM(filepath: String, cs: Charset, hasHeaders: Bool): Result[Stream[CsvRow], String] & Impure =
         import new flix.runtime.factio.CsvIterator(String, ##java.nio.charset.Charset, Bool) as newCsvIterator;

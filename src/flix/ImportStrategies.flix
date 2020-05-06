@@ -14,119 +14,72 @@
  * limitations under the License.
  */
 
+use FactIO.Error.{IteratorError};
 
 namespace FactIO/ImportStrategies {
 
-    type alias RowResult[t] = Result[t, String]
+    type alias RowResult[t] = Result[t, FactIO.Error]
 
-    type alias RowIterator[src,row] = { hasNext: src -> Bool & Impure , getRow: src -> row & Impure, finalize: src -> Unit & Impure }
-
+    
     ///
     /// Process all rows of the input.
     ///
-    /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
+    /// Note - a `relation` is naturally monoidal - a `rowreader` can generate zero, one or many facts from a `row`.
     ///
-    pub def iterate(iterator: RowIterator[src, row], rowreader: row -> RowResult[reln] & Impure, source: src): Result[reln, String] & Impure =
-        let failk = (n,msg) -> Err("Line: " + Int32.toString(n) + ", Error: " + msg);
-        iterateHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
+    pub def importRows(rowreader: row -> RowResult[reln] & Impure, s: Stream[row]): Result[reln, FactIO.Error] & Impure = 
+        let step = (ac, r1) -> match rowreader(r1) { 
+            case Ok(a1) => Ok(ac <+> a1)
+            case Err(e) => Err(e)
+        };        
+        Stream.foldResult(step, #{ }, s)
 
-    ///
-    /// Helper for `iterate`.
-    ///
-    def iterateHelper(iterator: RowIterator[src, row], rowreader: row -> RowResult[reln] & Impure, src: src, n: Int32, fk: (Int32, String) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] & Impure =
-        let hasNext = iterator.hasNext;
-        let getRow = iterator.getRow;
-        let finalize = iterator.finalize;
-        if (!hasNext(src)) {
-            finalize(src);
-            sk(#{ })
-        } else {
-            let row = rowreader(getRow(src)) as & Impure;
-            match row {
-                case Err(xs) => { finalize(src); fk(n, xs) }
-                case Ok(x) => iterateHelper(iterator, rowreader, src, n+1, fk, relns -> sk(x <+> relns))
-            }
-        }
 
     ///
     /// Process all rows of the input with a zero indexed row count.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateWithCount(iterator: RowIterator[src, row], rowreader: (row, Int32) -> RowResult[reln] & Impure, source: src): Result[reln, String] & Impure =
-        let failk = (n,msg) -> Err("Line: " + Int32.toString(n) + ", Error: " + msg);
-        iterateWithCountHelper(iterator, rowreader, source, 0, failk, relns -> Ok(relns))
-
-    ///
-    /// Helper for `iterateWithCount`.
-    ///
-    def iterateWithCountHelper(iterator: RowIterator[src, row], rowreader: (row, Int32) -> RowResult[reln] & Impure, source: src, n: Int32, fk: (Int32, String) -> Result[reln, String], sk: reln -> Result[reln, String]): Result[reln, String] & Impure =
-        let hasNext = iterator.hasNext;
-        let getRow = iterator.getRow;
-        let finalize = iterator.finalize;
-        if (!hasNext(source)) {
-            finalize(source);
-            sk(#{ })
-        } else {
-            let row = rowreader(getRow(source), n);
-            match row {
-                case Err(xs) => { finalize(source); fk(n, xs) }
-                case Ok(x) => iterateWithCountHelper(iterator, rowreader, source, n+1, fk, relns -> sk(x <+> relns))
+    pub def importRowsWithCount(rowreader: (row, Int32) -> RowResult[reln] & Impure, s: Stream[row]): Result[reln, FactIO.Error] & Impure = 
+        let step = (xy, row) -> {
+            let (relns, n) = xy; 
+            match rowreader(row, n) { 
+                case Ok(reln1) => Ok((relns <+> reln1, n + 1))
+                case Err(e) => Err(e)
             }
-        }
+        };        
+        Stream.foldResult(step, (#{ }, 0), s) 
+            |> Result.map(fst)
+
 
     ///
     /// Process all rows of the input with a threaded state.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateAccum(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)] & Impure, state: st, source: src): Result[(reln, st), String] & Impure =
-        let failk = (n,msg) -> Err("Line: " + Int32.toString(n) + ", Error: " + msg);
-        iterateAccumHelper(iterator, rowreader, state, source, 0, failk, (relns, st) -> Ok(relns, st))
-
-    ///
-    /// Helper for `iterateWithCount`.
-    ///
-    def iterateAccumHelper(iterator: RowIterator[src, row], rowreader: (row, st) -> RowResult[(reln, st)] & Impure, state: st, src: src, n: Int32, fk: (Int32, String) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] & Impure =
-        let hasNext = iterator.hasNext;
-        let getRow = iterator.getRow;
-        let finalize = iterator.finalize;
-        if (!hasNext(src)) {
-            finalize(src);
-            sk(#{ }, state)
-        } else {
-            let row = rowreader(getRow(src), state) as & Impure;
-            match row {
-                case Err(xs) => { finalize(src); fk(n, xs) }
-                case Ok(x, st1) => iterateAccumHelper(iterator, rowreader, st1, src, n+1, fk, (relns, st) -> sk(x <+> relns, st))
+    pub def importRowsWithAccum(rowreader: (row, acc) -> RowResult[(reln, acc)] & Impure, st: acc, s: Stream[row]): Result[(reln, acc), FactIO.Error] & Impure = 
+        let step = (xy, row) -> {
+            let (relns, s1) = xy; 
+            match rowreader(row, s1) { 
+                case Ok((reln1, s2)) => Ok((relns <+> reln1, s2))
+                case Err(e) => Err(e)
             }
-        }
-
+        };        
+        Stream.foldResult(step, (#{ }, st), s) 
+    
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def iterateAccumWithCount(iterator: RowIterator[src, row], rowreader: (row, st, Int32) -> RowResult[(reln, st)] & Impure, state: st, source: src): Result[(reln, st), String] & Impure =
-        let failk = (n,msg) -> Err("Line: " + Int32.toString(n) + ", Error: " + msg);
-        iterateAccumWithCountHelper(iterator, rowreader, state, source, 0, failk, (relns, st) -> Ok(relns, st))
-
-    ///
-    /// Helper for `iterateAccumWithCount`.
-    ///
-    def iterateAccumWithCountHelper(iterator: RowIterator[src, row], rowreader: (row, st, Int32) -> RowResult[(reln, st)] & Impure, state: st, source: src, n: Int32, fk: (Int32, String) -> Result[(reln, st), String], sk: (reln, st) -> Result[(reln, st), String]): Result[(reln, st), String] & Impure =
-        let hasNext = iterator.hasNext;
-        let getRow = iterator.getRow;
-        let finalize = iterator.finalize;
-        if (!hasNext(source)) {
-            finalize(source);
-            sk(#{ }, state)
-        } else {
-            let row = rowreader(getRow(source), state, n) as & Impure;
-            match row {
-                case Err(xs) => { finalize(source); fk(n, xs) }
-                case Ok(x, st1) => iterateAccumWithCountHelper(iterator, rowreader, st1, source, n+1, fk, (relns, st) -> sk(x <+> relns, st))
+    pub def importRowsWithCountAndAccum(rowreader: (row, Int32, acc) -> RowResult[(reln, acc)] & Impure, st: acc, s: Stream[row]): Result[(reln, acc), FactIO.Error] & Impure = 
+        let step = (xyz, row) -> {
+            let (relns, n, s1) = xyz; 
+            match rowreader(row, n, s1) { 
+                case Ok((reln1, s2)) => Ok((relns <+> reln1, n + 1, s2))
+                case Err(e) => Err(e)
             }
-        }
+        };        
+        Stream.foldResult(step, (#{ }, 0, st), s) 
+            |> Result.map(xyz -> let (x, _, z) = xyz; (x,z))
 
  }
