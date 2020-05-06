@@ -11,7 +11,7 @@ rel Lang(name: String)
 
 def getNewDatalog(row: CsvRow): CsvResult[#{Lang}] & Impure = 
     let wrap = s -> { Lang(s). };
-    Validation.map(wrap, FactIO/CsvImport.getStringByIndex(row, 0))
+    Result.map(wrap, FactIO/CsvImport.getStringByIndex(row, 0))
 
 
 pub def test01(): #{Lang} & Impure =
@@ -37,7 +37,7 @@ pub def test02(): #{Lang} & Impure =
 
 def getFunctionalLang(row: CsvRow): CsvResult[#{Lang}] & Impure = 
     let wrap = s -> { Lang(s). };
-    Validation.map(wrap, FactIO/CsvImport.getStringByLabel(row, "Lang Name"))
+    Result.map(wrap, FactIO/CsvImport.getStringByLabel(row, "Lang Name"))
 
 pub def test03(): #{Lang} & Impure =
     use Result.flatMap;

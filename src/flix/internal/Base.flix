@@ -17,15 +17,5 @@
 
 namespace FactIO/Internal/Base {
 
-    pub def collectErrors(line: Int32, errs: Nel[String]): String =
-        collectErrorsHelper(line, errs) as & Pure
-
-    def collectErrorsHelper(line: Int32, errs: Nel[String]): String & Impure =
-        let sb = StringBuilder.new();
-        StringBuilder.appendLine!(sb, "${Int32.toString(line)}| Errors:");
-        Nel.foreach(StringBuilder.appendLine!(sb), errs);
-        StringBuilder.toString(sb)
-
-    pub def error1(err: e): Validation[t, e] = Failure(Nel(err, Nil))
 
 }

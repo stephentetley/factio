@@ -28,7 +28,7 @@ namespace FactIO/SQLiteImport {
     ///
     opaque type SQLiteSource = ##flix.runtime.factio.SQLiteIterator
 
-    type alias SQLiteResult[t] = Validation[t, String]
+    type alias SQLiteResult[t] = Result[t, String]
 
     ///
     /// Returns a new SQLite reader.
@@ -106,9 +106,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getStringByIndex(Int32);
             let a = r1.getStringByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getStringByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getStringByIndex: " + Int32.toString(ix))
         }
 
     pub def getStringByLabel(row: SQLiteRow, label: String): SQLiteResult[String] & e =
@@ -116,9 +116,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getStringByLabel(String);
             let a = r1.getStringByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getStringByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getStringByLabel: " + label)
         }
 
     pub def getInt8ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int8] & e =
@@ -126,9 +126,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getByteByIndex(Int32);
             let a = r1.getByteByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt8ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getInt8ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt8ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int8] & e =
@@ -136,9 +136,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getByteByLabel(String);
             let a = r1.getByteByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt8ByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getInt8ByLabel: " + label)
         }
 
     pub def getInt16ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int16] & e =
@@ -146,9 +146,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getShortByIndex(Int32);
             let a = r1.getShortByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt16ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getInt16ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt16ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int16] & e =
@@ -156,9 +156,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getShortByLabel(String);
             let a = r1.getShortByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt16ByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getInt16ByLabel: " + label)
         }
 
     pub def getInt32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int32] & e =
@@ -166,9 +166,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getIntByIndex(Int32);
             let a = r1.getIntByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt32ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getInt32ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int32] & e =
@@ -176,9 +176,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getIntByLabel(String);
             let a = r1.getIntByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt32ByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getInt32ByLabel: " + label)
         }
 
     pub def getInt64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int64] & e =
@@ -186,9 +186,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getLongByIndex(Int32);
             let a = r1.getLongByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt64ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getInt64ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int64] & e =
@@ -196,9 +196,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getLongByLabel(String);
             let a = r1.getLongByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt64ByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getInt64ByLabel: " + label)
         }
 
     pub def getFloat32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float32] & e =
@@ -206,9 +206,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getFloatByIndex(Int32);
             let a = r1.getFloatByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getFloat32ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getFloat32ByIndex: " + Int32.toString(ix))
         }
 
     pub def getFloat32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float32] & e =
@@ -216,9 +216,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getFloatByLabel(String);
             let a = r1.getFloatByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getFloat32ByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getFloat32ByLabel: " + label)
         }
 
     pub def getFloat64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float64] & e =
@@ -226,9 +226,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getDoubleByIndex(Int32);
             let a = r1.getDoubleByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getFloat64ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getFloat64ByIndex: " + Int32.toString(ix))
         }
 
     pub def getFloat64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float64] & e =
@@ -236,9 +236,9 @@ namespace FactIO/SQLiteImport {
         try {
             import flix.runtime.factio.SQLiteRow.getDoubleByLabel(String);
             let a = r1.getDoubleByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getFloat64ByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getFloat64ByLabel: " + label)
         }
 
 }

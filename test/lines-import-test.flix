@@ -10,7 +10,7 @@ def makeColour(name: String): #{ Colour } =
     Colour(name).
 
 def getColour(line: TextLine): LineResult[#{ Colour }] & e = 
-    Validation.map(makeColour, FactIO/LinesImport.nonempty(line))
+    Result.map(makeColour, FactIO/LinesImport.nonempty(line))
     
 pub def test01(): #{ Colour } & Impure =
     let path = "e:/coding/flix/factio/data/colours.txt";

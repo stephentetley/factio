@@ -6,12 +6,11 @@ def fail1(msg: String): reln & Impure =
 
 rel Lang(name: String, year: Int32)
 
-def getLang (row: SQLiteRow): SQLiteResult[#{Lang}] & e = 
-    Validation.lift2(
-        (x,y) -> { Lang(x, y). } ,
-        FactIO/SQLiteImport.getStringByLabel(row, "name"), 
-        FactIO/SQLiteImport.getInt32ByLabel(row, "year")
-    )
+def getLang (row: SQLiteRow): SQLiteResult[#{Lang}] & Impure = 
+    use Result.flatMap;
+    let* x = FactIO/SQLiteImport.getStringByLabel(row, "name");
+    let* y = FactIO/SQLiteImport.getInt32ByLabel(row, "year");
+    Ok({ Lang(x, y). })
 
 
 pub def test01(): #{Lang} & Impure =

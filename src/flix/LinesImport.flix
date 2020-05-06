@@ -32,7 +32,7 @@ namespace FactIO/LinesImport {
     ///
     pub opaque type LinesSource = ##flix.runtime.factio.LinesIterator
 
-    type alias LineResult[t] = Validation[t, String]
+    type alias LineResult[t] = Result[t, String]
 
     ///
     /// TODO - use Flix's paths...
@@ -109,16 +109,16 @@ namespace FactIO/LinesImport {
 
     pub def nonempty(line: TextLine): LineResult[String] =
         let TextLine(s) = line;
-        if (String.length(s) > 0) Success(s) else FactIO/Internal/Base.error1("nonempty")
+        if (String.length(s) > 0) Ok(s) else Err("nonempty")
 
     pub def apply(f: String -> a & e, line: TextLine): LineResult[a] & e =
         let TextLine(s) = line;
-        Success(f(s))
+        Ok(f(s))
 
     pub def applyRes(f: String -> Result[a, String] & e, line: TextLine): LineResult[a] & e=
         let TextLine(s) = line;
         match f(s) {
-            case Ok(a) => Success(a)
-            case Err(msg) => FactIO/Internal/Base.error1(msg)
+            case Ok(a) => Ok(a)
+            case Err(msg) => Err(msg)
         }
 }

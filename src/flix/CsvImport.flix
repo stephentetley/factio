@@ -32,7 +32,7 @@ namespace FactIO/CsvImport {
     ///
     pub opaque type CsvSource = ##flix.runtime.factio.CsvIterator
 
-    type alias CsvResult[t] = Validation[t, String]
+    type alias CsvResult[t] = Result[t, String]
 
     ///
     /// Returns a new CsvSource.
@@ -125,9 +125,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getStringByIndex(Int32);
             let a = r1.getStringByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getStringByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getStringByIndex: " + Int32.toString(ix))
         }
 
     ///
@@ -138,9 +138,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getStringByLabel(String);
             let a = r1.getStringByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getStringByLabel:" + label)
+            case _: ##java.lang.Exception => Err("getStringByLabel:" + label)
         }
 
     pub def getInt8ByIndex(row: CsvRow, ix: Int32): CsvResult[Int8] & e =
@@ -148,9 +148,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getByteByIndex(Int32);
             let a = r1.getByteByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt8ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getInt8ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt8ByLabel(row: CsvRow, label: String): CsvResult[Int8] & e =
@@ -158,9 +158,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getByteByLabel(String);
             let a = r1.getByteByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt8ByLabel:" + label)
+            case _: ##java.lang.Exception => Err("getInt8ByLabel:" + label)
         }
 
     pub def getInt16ByIndex(row: CsvRow, ix: Int32): CsvResult[Int16] & e =
@@ -168,9 +168,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getShortByIndex(Int32);
             let a = r1.getShortByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt16ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getInt16ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt16ByLabel(row: CsvRow, label: String): CsvResult[Int16] & e =
@@ -178,9 +178,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getShortByLabel(String);
             let a = r1.getShortByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt16ByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getInt16ByLabel: " + label)
         }
 
     pub def getInt32ByIndex(row: CsvRow, ix: Int32): CsvResult[Int32] & e =
@@ -188,9 +188,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getIntByIndex(Int32);
             let a = r1.getIntByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt32ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getInt32ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt32ByLabel(row: CsvRow, label: String): CsvResult[Int32] & e =
@@ -198,9 +198,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getIntByLabel(String);
             let a = r1.getIntByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt32ByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getInt32ByLabel: " + label)
         }
 
     pub def getInt64ByIndex(row: CsvRow, ix: Int32): CsvResult[Int64] & e =
@@ -208,9 +208,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getLongByIndex(Int32);
             let a = r1.getLongByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt64ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getInt64ByIndex: " + Int32.toString(ix))
         }
 
     pub def getInt64ByLabel(row: CsvRow, label: String): CsvResult[Int64] & e =
@@ -218,9 +218,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getLongByLabel(String);
             let a = r1.getLongByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getInt64ByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getInt64ByLabel: " + label)
         }
 
     pub def getFloat32ByIndex(row: CsvRow, ix: Int32): CsvResult[Float32] & e =
@@ -228,9 +228,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getFloatByIndex(Int32);
             let a = r1.getFloatByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getFloat32ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getFloat32ByIndex: " + Int32.toString(ix))
         }
 
     pub def getFloat32ByLabel(row: CsvRow, label: String): CsvResult[Float32] & e =
@@ -238,9 +238,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getFloatByLabel(String);
             let a = r1.getFloatByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getFloat32ByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getFloat32ByLabel: " + label)
         }
 
     pub def getFloat64ByIndex(row: CsvRow, ix: Int32): CsvResult[Float64] & e =
@@ -248,9 +248,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getDoubleByIndex(Int32);
             let a = r1.getDoubleByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getFloat64ByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getFloat64ByIndex: " + Int32.toString(ix))
         }
 
     pub def getFloat64ByLabel(row: CsvRow, label: String): CsvResult[Float64] & e =
@@ -258,9 +258,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getDoubleByLabel(String);
             let a = r1.getDoubleByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getFloat64ByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getFloat64ByLabel: " + label)
         }
 
     pub def getBigIntByIndex(row: CsvRow, ix: Int32): CsvResult[BigInt] & e =
@@ -268,9 +268,9 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getBigIntegerByIndex(Int32);
             let a = r1.getBigIntegerByIndex(ix) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getBigIntByIndex: " + Int32.toString(ix))
+            case _: ##java.lang.Exception => Err("getBigIntByIndex: " + Int32.toString(ix))
         }
 
     pub def getBigIntByLabel(row: CsvRow, label: String): CsvResult[BigInt] & e =
@@ -278,8 +278,8 @@ namespace FactIO/CsvImport {
         try {
             import flix.runtime.factio.CsvRow.getBigIntegerByLabel(String);
             let a = r1.getBigIntegerByLabel(label) as & e;
-            Success(a)
+            Ok(a)
         } catch {
-            case _: ##java.lang.Exception => FactIO/Internal/Base.error1("getBigIntByLabel: " + label)
+            case _: ##java.lang.Exception => Err("getBigIntByLabel: " + label)
         }
 }

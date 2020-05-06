@@ -12,7 +12,7 @@ def makeDirection(name: String): #{ Direction } =
     Direction(name).
     
 def csvDirection1(row: CsvRow): CsvResult[#{Direction}] & e = 
-    Validation.map(makeDirection, FactIO/CsvImport.getStringByIndex(row, 0))
+    Result.map(makeDirection, FactIO/CsvImport.getStringByIndex(row, 0))
 
 pub def csv01(): #{Direction} & Impure =
     let path = "e:/coding/flix/factio/data/compass.csv";
@@ -26,7 +26,7 @@ pub def csv01(): #{Direction} & Impure =
     }
     
 def sqliteDirection1(row: SQLiteRow): SQLiteResult[#{Direction}] & e = 
-    Validation.map(makeDirection, FactIO/SQLiteImport.getStringByLabel(row, "cardinal_name"))
+    Result.map(makeDirection, FactIO/SQLiteImport.getStringByLabel(row, "cardinal_name"))
     
 
 pub def sqlite01(): #{Direction} & Impure =
@@ -43,7 +43,7 @@ pub def sqlite01(): #{Direction} & Impure =
     }
 
 def lineDirection1(line: TextLine): LineResult[#{Direction}] & Impure = 
-    Validation.map(makeDirection, FactIO/LinesImport.nonempty(line)) as & Impure
+    Result.map(makeDirection, FactIO/LinesImport.nonempty(line)) as & Impure
 
 
 

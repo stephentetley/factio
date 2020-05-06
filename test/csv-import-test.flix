@@ -10,8 +10,8 @@ rel Name(name: String)
 def makeName(name: String): #{ Name } = 
     Name(name).
 
-def getName(row: CsvRow): CsvResult[#{Name}] = 
-    Validation.map(makeName, FactIO/CsvImport.getStringByLabel(row, "Name"))
+def getName(row: CsvRow): CsvResult[#{Name}] & Impure = 
+    Result.map(makeName, FactIO/CsvImport.getStringByLabel(row, "Name"))
 
 
 pub def test01(): #{Name} & Impure =
@@ -29,13 +29,12 @@ pub def test01(): #{Name} & Impure =
 rel Station(name: String, gridref: String)
 
 
-def getStation(row: CsvRow): CsvResult[#{Station}] = 
-    Validation.lift2(
-        (x,y) -> { Station(x, y). },
-        FactIO/CsvImport.getStringByLabel(row, "Name"), 
-        FactIO/CsvImport.getStringByLabel(row, "Grid_Ref")
-    )
-
+def getStation(row: CsvRow): CsvResult[#{Station}] & Impure = 
+    use Result.flatMap;
+    let* x = FactIO/CsvImport.getStringByLabel(row, "Name");
+    let* y = FactIO/CsvImport.getStringByLabel(row, "Grid_Ref");
+    Ok({ Station(x, y). })
+    
 
 pub def test02(): #{Station} & Impure =
     let path = "e:/coding/flix/factio/data/stations.csv";
