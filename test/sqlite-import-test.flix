@@ -1,8 +1,12 @@
 use FactIO/SQLiteImport.{SQLiteRow, SQLiteResult};
 
-def fail1(msg: String): reln & Impure = 
-    Console.printLine(msg);
-    #{ }
+def runResult(r1: Result[reln, FactIO.Error]): reln & Impure = match r1 {
+    case Ok(reln) => reln
+    case Err(e) => {
+        Console.printLine(FactIO/Error.toString(e));
+        #{ }
+    }
+}
 
 rel Lang(name: String, year: Int32)
 
@@ -14,14 +18,13 @@ def getLang (row: SQLiteRow): SQLiteResult[#{Lang}] & Impure =
 
 
 pub def test01(): #{Lang} & Impure =
-    let path = "e:/coding/flix/factio/data/langs.sqlite";
-    let query = "SELECT name, year FROM language";
-    match FactIO/SQLiteImport.newSQLiteSource(path, query) {
-        case Err(msg) => fail1(msg)
-        case Ok(src) => {
-            match FactIO/SQLiteImport.iterate(getLang, src) {
-                case Err(msg) => fail1(msg)
-                case Ok(relns) => solve relns
-            }
-        }
-    }
+    use Result.flatMap;
+    let step = () -> {
+        let path = "e:/coding/flix/factio/data/langs.sqlite";
+        let query = "SELECT name, year FROM language";
+        let* src = FactIO/SQLiteImport.newSQLiteStream(path, query);
+        let* relns = FactIO/SQLiteImport.importRows(getLang, src);
+        Ok(solve relns)
+    };
+    step() |> runResult
+

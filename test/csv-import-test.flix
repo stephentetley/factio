@@ -1,10 +1,14 @@
 use FactIO/CsvImport.{CsvRow, CsvResult};
 
-def fail1(msg: String): reln & Impure = 
-    Console.printLine(msg);
-    #{ }
+def runResult(r1: Result[reln, FactIO.Error]): reln & Impure = match r1 {
+    case Ok(reln) => reln
+    case Err(e) => {
+        Console.printLine(FactIO/Error.toString(e));
+        #{ }
+    }
+}
 
-
+    
 rel Name(name: String)
 
 def makeName(name: String): #{ Name } = 
@@ -15,15 +19,14 @@ def getName(row: CsvRow): CsvResult[#{Name}] & Impure =
 
 
 pub def test01(): #{Name} & Impure =
-    let path = "e:/coding/flix/factio/data/stations.csv";
-    match FactIO/CsvImport.newCsvSource(path, FactIO/CsvFormat.Default, true) {
-        case Err(msg) => fail1(msg)
-        case Ok(csvSource) => 
-            match FactIO/CsvImport.iterate(getName, csvSource) {
-                case Err(msg) => fail1(msg)
-                case Ok(relns) => solve relns
-            }
-    }
+    use Result.flatMap;
+    let step = () -> {
+        let path = "e:/coding/flix/factio/data/stations.csv";
+        let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.Default, true);
+        let* ans = FactIO/CsvImport.importRows(getName, src);
+        Ok(solve ans)        
+    };
+    step() |> runResult
     
 
 rel Station(name: String, gridref: String)
@@ -37,14 +40,14 @@ def getStation(row: CsvRow): CsvResult[#{Station}] & Impure =
     
 
 pub def test02(): #{Station} & Impure =
-    let path = "e:/coding/flix/factio/data/stations.csv";
-    match FactIO/CsvImport.newCsvSource(path, FactIO/CsvFormat.Default, true) {
-        case Err(msg) => fail1(msg)
-        case Ok(csvSource) => 
-            match FactIO/CsvImport.iterate(getStation, csvSource) {
-                case Err(msg) => fail1(msg)
-                case Ok(relns) => solve relns            
-            }
-    }
+    use Result.flatMap;
+    let step = () -> {
+        let path = "e:/coding/flix/factio/data/stations.csv";
+        let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.Default, true);
+        let* relns = FactIO/CsvImport.importRows(getStation, src);
+        Ok(solve relns)
+    };
+    step() |> runResult
+
 
 

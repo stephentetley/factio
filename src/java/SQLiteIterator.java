@@ -16,6 +16,7 @@
 
 package flix.runtime.factio;
 
+import java.io.IOException;
 import java.sql.*;
 
 public class SQLiteIterator {
@@ -31,11 +32,15 @@ public class SQLiteIterator {
         this.rs = this.stmt.executeQuery(query);
     }
 
-    public SQLiteRow getRow() throws Exception {
+    public SQLiteRow getRow() {
         return new SQLiteRow(this.rs);
     }
 
     public boolean next() throws Exception {
         return this.rs.next();
+    }
+
+    public void close() throws Exception {
+        conn.close();
     }
 }
