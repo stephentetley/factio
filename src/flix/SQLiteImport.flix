@@ -24,45 +24,7 @@ namespace FactIO/SQLiteImport {
     ///
     pub opaque type SQLiteRow = ##flix.runtime.factio.SQLiteRow
 
-    // ///
-    // /// Represents a SQLite iterator.
-    // ///
-    // opaque type SQLiteSource = ##flix.runtime.factio.SQLiteIterator
-
     type alias SQLiteResult[t] = Result[t, FactIO.Error]
-
-    // ///
-    // /// Returns a new SQLite reader.
-    // ///
-    // pub def newSQLiteSource(filepath: String, query: String): Result[SQLiteSource, String] & Impure =
-    //     try {
-    //         import new flix.runtime.factio.SQLiteIterator(String, String) as newSQLiteIterator;
-    //         let iterator = newSQLiteIterator(filepath, query);
-    //         SQLiteSource(iterator) |> Ok
-    //     } catch {
-    //         case _: ##java.sql.SQLException => Err("newSQLiteSource - file not found")
-    //         case _: ##java.io.IOException => Err("newSQLiteSource - io exception")
-    //     }
-
-    // def hasNext(iterator: SQLiteSource): Bool & Impure =
-    //     let SQLiteSource(rator1) = iterator;
-    //     try {
-    //         import flix.runtime.factio.SQLiteIterator.next();
-    //         rator1.next()
-    //     } catch {
-    //         case _: ##java.sql.SQLException => false
-    //     }
-
-    // def getRow(iterator: SQLiteSource): SQLiteRow & Impure =
-    //     let SQLiteSource(rator1) = iterator;
-    //     import flix.runtime.factio.SQLiteIterator.getRow();
-    //     let row = rator1.getRow();
-    //     SQLiteRow(row)
-
-    // def finalize(_: SQLiteSource): Unit & Impure = () as & Impure
-
-    // def makeSQLiteIterator(): RowIterator[SQLiteSource, SQLiteRow] =
-    //     { hasNext = hasNext,  getRow = getRow, finalize = finalize }
 
     ///
     /// Returns a new SQLite Stream.
@@ -84,9 +46,6 @@ namespace FactIO/SQLiteImport {
             case _: ##java.io.FileNotFoundException => Err(Generic("newSQLiteStream - file not found"))
             case _: ##java.io.IOException => Err(Generic("newSQLiteStream - io exception"))
         }
-
-    
-
 
     ///
     /// Process all rows of the input.

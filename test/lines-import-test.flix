@@ -1,8 +1,12 @@
 use FactIO/LinesImport.{TextLine, LineResult};
 
-def fail1(msg: String): reln & Impure= 
-    Console.printLine(msg);
-    #{ }
+def runResult(r1: Result[reln, FactIO.Error]): reln & Impure = match r1 {
+    case Ok(reln) => reln
+    case Err(e) => {
+        Console.printLine(FactIO/Error.toString(e));
+        #{ }
+    }
+}
 
 rel Colour(name: String)
 
@@ -13,24 +17,22 @@ def getColour(line: TextLine): LineResult[#{ Colour }] & e =
     Result.map(makeColour, FactIO/LinesImport.nonempty(line))
     
 pub def test01(): #{ Colour } & Impure =
-    let path = "e:/coding/flix/factio/data/colours.txt";
-    match FactIO/LinesImport.newLinesSource(path, System/Charset.utf_8()) {
-        case Err(msg) => fail1(msg)
-        case Ok(linesSource) => 
-            match FactIO/LinesImport.iterate(getColour, linesSource) {
-                case Err(msg) => fail1(msg)
-                case Ok(relns) => solve relns
-            }
-    }
+    use Result.flatMap;
+    let step = () -> {
+        let path = "e:/coding/flix/factio/data/colours.txt";
+        let* src = FactIO/LinesImport.newLinesStream(path, System/Charset.utf_8());
+        let* relns = FactIO/LinesImport.importRows(getColour, src);
+        Ok(solve relns)
+    };
+    step() |> runResult
 
-pub def test02(): #{ Colour } & Impure=
-    let path = "e:/coding/flix/factio/data/colours.utf16le.txt";
-    match FactIO/LinesImport.newLinesSource(path, System/Charset.utf_16le()) {
-        case Err(msg) => fail1(msg)
-        case Ok(linesSource) => 
-            match FactIO/LinesImport.iterate(getColour, linesSource) {
-                case Err(msg) => fail1(msg)
-                case Ok(relns) => solve relns
-            }
-    }    
+pub def test02(): #{ Colour } & Impure =
+    use Result.flatMap;
+    let step = () -> {
+        let path = "e:/coding/flix/factio/data/colours.utf16le.txt";
+        let* src = FactIO/LinesImport.newLinesStream(path, System/Charset.utf_16le());
+        let* relns = FactIO/LinesImport.importRows(getColour, src);
+        Ok (solve relns)
+    };
+    step() |> runResult   
 
