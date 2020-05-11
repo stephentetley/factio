@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-use System.Charset;
-use System.Charset.{Charset};
+use Text.Charset.{Charset};
 
 use FactIO.Error.{Generic};
 
@@ -34,7 +33,7 @@ namespace FactIO/LinesImport {
     ///
     /// Returns a new string line Stream.
     ///
-    pub def newLinesStream(filepath: String, cs: Charset): Result[Stream[TextLine], FactIO.Error] & Impure=
+    pub def newLinesStream(filepath: String, cs: Text.Charset): Result[Stream[TextLine], FactIO.Error] & Impure=
         import new flix.runtime.factio.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
         import flix.runtime.factio.LinesIterator.hasNext() as ffiHasNext;
         import flix.runtime.factio.LinesIterator.getLine() as ffiNext;

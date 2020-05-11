@@ -37,12 +37,12 @@ Factio Flix modules, i.e. add this code to the list of libraries:
 
 ~~~
 
-**Caution** Factio now depends on `flix-system` that is an incubator
-project towards adding more IO related modules to Flix. 
+**Caution** Factio depends on `flix-sandbox` that is an incubator
+project towards adding more "base" modules to Flix. 
 
 Add at least the Charset module from here:
 
-https://github.com/stephentetley/flix-system
+https://github.com/stephentetley/flix-sandbox
 
 Build / rebuild the Flix compiler.
 

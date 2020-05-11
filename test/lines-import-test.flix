@@ -20,7 +20,7 @@ pub def test01(): #{ Colour } & Impure =
     use Result.flatMap;
     let step = () -> {
         let path = "e:/coding/flix/factio/data/colours.txt";
-        let* src = FactIO/LinesImport.newLinesStream(path, System/Charset.utf_8());
+        let* src = FactIO/LinesImport.newLinesStream(path, Text/Charset.utf_8());
         let* relns = FactIO/LinesImport.importRows(getColour, src);
         Ok(solve relns)
     };
@@ -30,7 +30,7 @@ pub def test02(): #{ Colour } & Impure =
     use Result.flatMap;
     let step = () -> {
         let path = "e:/coding/flix/factio/data/colours.utf16le.txt";
-        let* src = FactIO/LinesImport.newLinesStream(path, System/Charset.utf_16le());
+        let* src = FactIO/LinesImport.newLinesStream(path, Text/Charset.utf_16le());
         let* relns = FactIO/LinesImport.importRows(getColour, src);
         Ok (solve relns)
     };

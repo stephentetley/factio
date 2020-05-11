@@ -52,7 +52,7 @@ pub def lines01(): #{ Direction } & Impure =
     use Result.flatMap;
     let step = () -> {
         let path = "e:/coding/flix/factio/data/compass.txt";
-        let* src = FactIO/LinesImport.newLinesStream(path, System/Charset.utf_8());
+        let* src = FactIO/LinesImport.newLinesStream(path, Text/Charset.utf_8());
         let* relns =  FactIO/LinesImport.importRows(lineDirection1, src);
         Ok(solve relns)
     };

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-use System.Charset;
-use System.Charset.{Charset};
+use Text.Charset.{Charset};
 
 use FactIO.CsvFormat;
 use FactIO.Error.{ReadFieldByIndex, ReadFieldByLabel, Generic};
@@ -56,7 +55,7 @@ namespace FactIO/CsvImport {
     ///
     /// Returns a new Csv Stream from a file with a BOM.
     ///
-    pub def newCsvStreamWithBOM(filepath: String, cs: Charset, hasHeaders: Bool): Result[Stream[CsvRow], FactIO.Error] & Impure =
+    pub def newCsvStreamWithBOM(filepath: String, cs: Text.Charset, hasHeaders: Bool): Result[Stream[CsvRow], FactIO.Error] & Impure =
         import new flix.runtime.factio.CsvIterator(String, ##java.nio.charset.Charset, Bool) as newCsvIterator;
         import flix.runtime.factio.CsvIterator.hasNext() as ffiHasNext;
         import flix.runtime.factio.CsvIterator.next() as ffiNext;
