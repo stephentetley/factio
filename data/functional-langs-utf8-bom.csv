@@ -1,14 +1,14 @@
-﻿Lang Name
-Ocaml
-Scheme
-Haskell
-Scala
-Flix
-Fsharp
-Erlang
-Standard ML
-Clean
-Clojure
-Links
-Koko
-Datafun
+﻿Lang Name, Typing
+Ocaml, Static
+Scheme, Dynamic
+Haskell, Static
+Scala, Static
+Flix, Static
+Fsharp, Static
+Erlang, Dynamic
+Standard ML, Static
+Clean, Static
+Clojure, Dynamic
+Links, Static
+Koko, Static
+Datafun, Static

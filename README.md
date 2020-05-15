@@ -37,8 +37,8 @@ Factio Flix modules, i.e. add this code to the list of libraries:
 
 ~~~
 
-**Caution** Factio depends on `flix-sandbox` that is an incubator
-project towards adding more "base" modules to Flix. 
+**Caution** Factio depends on `flix-sandbox` an incubator project geared towards adding 
+more "base" modules to Flix. 
 
 Add at least the Charset module from here:
 
