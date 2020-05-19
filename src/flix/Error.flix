@@ -19,6 +19,7 @@ use FactIO.Error.{IteratorError, ReadFieldByIndex, ReadFieldByLabel, Generic};
 
 namespace FactIO {
 
+    /// TODO - change to more regular errors...
     pub enum Error {
         case IteratorError(Int32, Error),
         case ReadFieldByIndex(Int32, String),
