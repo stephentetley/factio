@@ -1,8 +1,8 @@
 use FactIO/CsvImport.{CsvRow, CsvResult};
 
-def runResult(r: Result[reln, FactIO.Error]): reln & Impure = match r {
+def runResult(r: Result[reln, System.Error]): reln & Impure = match r {
     case Ok(reln) => reln
-    case Err(e) => { Console.printLine(FactIO/Error.toString(e)); #{ }}
+    case Err(e) => { Console.printLine(System/Error.toString(e)); #{ }}
 }
 
     

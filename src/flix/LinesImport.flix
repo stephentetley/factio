@@ -16,7 +16,7 @@
 
 use Text.Charset.{Charset};
 
-use FactIO.Error.{Generic};
+use System.Error.{IOException, Generic};
 
 namespace FactIO/LinesImport {
 
@@ -26,14 +26,14 @@ namespace FactIO/LinesImport {
     pub opaque type TextLine = String
 
 
-    type alias LineResult[t] = Result[t, FactIO.Error]
+    type alias LineResult[t] = Result[t, System.Error]
 
 
 
     ///
     /// Returns a new string line Stream.
     ///
-    pub def newLinesStream(filepath: String, cs: Text.Charset): Result[Stream[TextLine], FactIO.Error] & Impure=
+    pub def newLinesStream(filepath: String, cs: Text.Charset): Result[Stream[TextLine], System.Error] & Impure=
         import new flix.runtime.factio.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
         import flix.runtime.factio.LinesIterator.hasNext() as ffiHasNext;
         import flix.runtime.factio.LinesIterator.getLine() as ffiNext;
@@ -48,8 +48,8 @@ namespace FactIO/LinesImport {
             };
             Ok(Stream.fromIterator(streamiter))
         } catch {
-            case _: ##java.io.FileNotFoundException => Err(Generic("newLinesStream - file not found"))
-            case _: ##java.io.IOException => Err(Generic("newLinesStream - io exception"))
+            case _: ##java.io.FileNotFoundException => Err(Generic("IO"))
+            case _: ##java.io.IOException => Err(IOException)
         }
 
 
@@ -58,7 +58,7 @@ namespace FactIO/LinesImport {
     ///
     /// Note - a `relation` is naturally monoidal - a line can generate zero, one or many facts.
     ///
-    pub def importRows(rowreader: TextLine -> LineResult[reln] & Impure, src: Stream[TextLine]): Result[reln, FactIO.Error] & Impure =
+    pub def importRows(rowreader: TextLine -> LineResult[reln] & Impure, src: Stream[TextLine]): Result[reln, System.Error] & Impure =
         FactIO/ImportStrategies.importRows(rowreader, src)
 
     ///
@@ -66,7 +66,7 @@ namespace FactIO/LinesImport {
     ///
     /// Note - a `relation` is naturally monoidal - a line can generate zero, one or many facts.
     ///
-    pub def importRowsWithCount(rowreader: (TextLine, Int32) -> LineResult[reln] & Impure, src: Stream[TextLine]): Result[reln, FactIO.Error] & Impure =
+    pub def importRowsWithCount(rowreader: (TextLine, Int32) -> LineResult[reln] & Impure, src: Stream[TextLine]): Result[reln, System.Error] & Impure =
         FactIO/ImportStrategies.importRowsWithCount(rowreader, src)
 
     ///
@@ -74,7 +74,7 @@ namespace FactIO/LinesImport {
     ///
     /// Note - a `relation` is naturally monoidal - a line can generate zero, one or many facts.
     ///
-    pub def importRowsWithAccum(rowreader: (TextLine, st) -> LineResult[(reln, st)] & Impure, state: st, src: Stream[TextLine]): Result[(reln, st), FactIO.Error] & Impure =    
+    pub def importRowsWithAccum(rowreader: (TextLine, st) -> LineResult[(reln, st)] & Impure, state: st, src: Stream[TextLine]): Result[(reln, st), System.Error] & Impure =    
         FactIO/ImportStrategies.importRowsWithAccum(rowreader, state, src)
 
     ///
@@ -82,7 +82,7 @@ namespace FactIO/LinesImport {
     ///
     /// Note - a `relation` is naturally monoidal - a line can generate zero, one or many facts.
     ///
-    pub def importRowsWithCountAndAccum(rowreader: (TextLine, st, Int32) -> LineResult[(reln, st)] & Impure, state: st, src: Stream[TextLine]): Result[(reln, st), FactIO.Error] & Impure =
+    pub def importRowsWithCountAndAccum(rowreader: (TextLine, st, Int32) -> LineResult[(reln, st)] & Impure, state: st, src: Stream[TextLine]): Result[(reln, st), System.Error] & Impure =
         FactIO/ImportStrategies.importRowsWithCountAndAccum(rowreader, state, src)
 
 
@@ -96,7 +96,7 @@ namespace FactIO/LinesImport {
         let TextLine(s) = line;
         Ok(f(s))
 
-    pub def applyRes(f: String -> Result[a, FactIO.Error] & e, line: TextLine): LineResult[a] & e=
+    pub def applyRes(f: String -> Result[a, System.Error] & e, line: TextLine): LineResult[a] & e=
         let TextLine(s) = line;
         f(s)
 

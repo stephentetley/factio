@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+use System.Error.{IOException, Generic};
 use Text.Charset.{Charset};
 
-use FactIO.Error.{Generic};
+
 use FactIO.CsvWriter;
 use FactIO.CsvWriter.{CsvWriter};
 use FactIO.CsvBuilder;
@@ -39,7 +40,7 @@ namespace FactIO/CsvExport {
     ///
     /// Returns a new CsvWriter.
     ///
-    pub def new(filename: String, cs: Text.Charset, headers: Array[String]): Result[CsvWriter, FactIO.Error] & Impure =
+    pub def new(filename: String, cs: Text.Charset, headers: Array[String]): Result[CsvWriter, System.Error] & Impure =
         import new flix.runtime.factio.CsvWriter(String, ##java.nio.charset.Charset) as newCsvWriter;
         use Result.flatMap;
         try {
@@ -60,7 +61,7 @@ namespace FactIO/CsvExport {
 
 
     /// Note - row must not be empty.
-    pub def writeRow(w: CsvWriter, row: Array[String]): Result[Unit, FactIO.Error] & Impure =
+    pub def writeRow(w: CsvWriter, row: Array[String]): Result[Unit, System.Error] & Impure =
         import flix.runtime.factio.CsvWriter.writeRow(##flix.runtime.factio.marshal.MarshalRow);
         try {
             let CsvWriter(w1) = w;
@@ -68,8 +69,8 @@ namespace FactIO/CsvExport {
             w1.writeRow(mrow);
             Ok()
         } catch {
-            case _: ##java.io.IOException => Err(Generic("writeRow - io exception"))
-            case _: ##java.lang.Exception => Err(Generic("writeRow - java.lang.Exception"))
+            case _: ##java.io.IOException => Err(IOException)
+            case _: ##java.lang.Exception => Err(Generic("Exception"))
         }
 
     pub def close(w: CsvWriter): Unit & Impure =
@@ -85,7 +86,7 @@ namespace FactIO/CsvExport {
             w1 :: ws
 
 
-    pub def outputCsv(filepath: String, cs: Text.Charset, headers: Array[String], builder: CsvBuilder): Result[Unit, FactIO.Error] & Impure =
+    pub def outputCsv(filepath: String, cs: Text.Charset, headers: Array[String], builder: CsvBuilder): Result[Unit, System.Error] & Impure =
         use Result.flatMap;
         let* w = new(filepath, cs, headers);
         List.foreach(f -> f(w),  builder);

@@ -1,9 +1,9 @@
 use FactIO/SQLiteImport.{SQLiteRow, SQLiteResult};
 
-def runResult(r1: Result[reln, FactIO.Error]): reln & Impure = match r1 {
+def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     case Ok(reln) => reln
     case Err(e) => {
-        Console.printLine(FactIO/Error.toString(e));
+        Console.printLine(System/Error.toString(e));
         #{ }
     }
 }

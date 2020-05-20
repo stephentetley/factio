@@ -7,10 +7,10 @@ Imports CSV, SQLite and flat text files, exports CSV.
 
 I currently build factio within a Flix compiler project in IntelliJ.
 
-Acquire `sqlite-jdbc-3.27.2.1.jar` and Apache `commons-csv-1.8.jar`
+Acquire `sqlite-jdbc-3.31.1.jar` and Apache `commons-csv-1.8.jar`
 and Apache `commons-io-2.6.jar` and drop them in Flix's `lib` folder.
 
-https://bitbucket.org/xerial/sqlite-jdbc/downloads/
+https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/
 
 https://commons.apache.org/proper/commons-csv/download_csv.cgi
 
@@ -27,20 +27,19 @@ Factio Flix modules, i.e. add this code to the list of libraries:
 
 ~~~ {.Scala}
 
-    "FactIOBase.flix" -> LocalResource.get("/library/factio/FactIOBase.flix"),
-    "ValidationExtras.flix" -> LocalResource.get("/library/factio/ValidationExtras.flix"),
-    "Strategies.flix" -> LocalResource.get("/library/factio/Strategies.flix"),
-    "CsvImport.flix" -> LocalResource.get("/library/factio/CsvImport.flix"),
-    "SQLiteImport.flix" -> LocalResource.get("/library/factio/SQLiteImport.flix"),
-    "LinesImport.flix" -> LocalResource.get("/library/factio/LinesImport.flix"),
-    "CsvExport.flix" -> LocalResource.get("/library/factio/CsvExport.flix"),
+    "spt/factio/ImportStrategies.flix" -> LocalResource.get("/library/spt/factio/ImportStrategies.flix"),
+    "spt/factio/CsvFormat.flix" -> LocalResource.get("/library/spt/factio/CsvFormat.flix"),
+    "spt/factio/CsvImport.flix" -> LocalResource.get("/library/spt/factio/CsvImport.flix"),
+    "spt/factio/CsvExport.flix" -> LocalResource.get("/library/spt/factio/CsvExport.flix"),
+    "spt/factio/SQLiteImport.flix" -> LocalResource.get("/library/spt/factio/SQLiteImport.flix"),
+    "spt/factio/LinesImport.flix" -> LocalResource.get("/library/spt/factio/LinesImport.flix"),
 
 ~~~
 
 **Caution** Factio depends on `flix-sandbox` an incubator project geared towards adding 
 more "base" modules to Flix. 
 
-Add at least the Charset module from here:
+Add at least the Text/Charset and System/Error modules from here:
 
 https://github.com/stephentetley/flix-sandbox
 

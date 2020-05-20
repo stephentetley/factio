@@ -2,8 +2,8 @@
 @test
 def stations01(): Unit & Impure =     
     let dest = "e:/coding/flix/factio/data/output/stations_export.csv";
-    match FactIO/CsvExport.new(dest, System/Charset.utf_8(), ["Name", "Grid_Ref"]) {
-        case Err(msg) => Console.printLine(msg)
+    match FactIO/CsvExport.new(dest, Text/Charset.utf_8(), ["Name", "Grid_Ref"]) {
+        case Err(e) => Console.printLine(System/Error.toString(e))
         case Ok(writer) => {
             FactIO/CsvExport.writeRow(writer, ["Bradford Interchange", "SE1657832808"]);
             FactIO/CsvExport.writeRow(writer, ["Halifax", "SE0973324980"]);
@@ -32,12 +32,12 @@ def dummyCells(src: (String,Int)): Array[String] & Impure =
 
 
 @test
-def test01(): Result[Unit, String] & Impure = 
+def test01(): Result[Unit, System.Error] & Impure = 
     let dest = "e:/coding/flix/factio/data/output/dummy_export.csv";
     let headers = ["name", "intval"];
     let buildStep = FactIO/CsvExport.makeBuildStep(dummyCells); 
     let builder: FactIO.CsvBuilder = fold Dummy FactIO/CsvExport.emptyCsvBuilder() buildStep dummyRelations();
-    FactIO/CsvExport.outputCsv(dest, System/Charset.utf_8(), headers, builder)
+    FactIO/CsvExport.outputCsv(dest, Text/Charset.utf_8(), headers, builder)
 
 ///
 /// Because fixpoint fold is not first class we cannot abstract over Dummy
@@ -47,12 +47,12 @@ def test01(): Result[Unit, String] & Impure =
 /// by name.
 ///
 @test
-def test02(): Result[Unit, String] & Impure = 
+def test02(): Result[Unit, System.Error] & Impure = 
     let dest = "e:/coding/flix/factio/data/output/dummy_export2.csv";
     let headers = ["name", "intval"];
     let buildStep = FactIO/CsvExport.makeBuildStep(dummyCells); 
     { fold Dummy FactIO/CsvExport.emptyCsvBuilder() buildStep dummyRelations() } 
-        |> FactIO/CsvExport.outputCsv(dest, System/Charset.utf_8(), headers)
+        |> FactIO/CsvExport.outputCsv(dest, Text/Charset.utf_8(), headers)
 
 
 

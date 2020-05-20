@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+use System.Error.{ArrayIndexOutOfBoundsException, IllegalArgumentException, IllegalStateException, IOException, Generic};
 use Text.Charset.{Charset};
 
 use FactIO.CsvFormat;
-use FactIO.Error.{ReadFieldByIndex, ReadFieldByLabel, Generic};
 
 namespace FactIO/CsvImport {
 
@@ -27,13 +27,13 @@ namespace FactIO/CsvImport {
     pub opaque type CsvRow = ##flix.runtime.factio.CsvRow
 
     
-    type alias CsvResult[t] = Result[t, FactIO.Error]
+    type alias CsvResult[t] = Result[t, System.Error]
 
 
     ///
     /// Returns a new Csv Stream.
     ///
-    pub def newCsvStream(filepath: String, format: CsvFormat, hasHeaders: Bool): Result[Stream[CsvRow], FactIO.Error] & Impure=
+    pub def newCsvStream(filepath: String, format: CsvFormat, hasHeaders: Bool): Result[Stream[CsvRow], System.Error] & Impure=
         import new flix.runtime.factio.CsvIterator(String, Int32, Bool) as newCsvIterator;
         import flix.runtime.factio.CsvIterator.hasNext() as ffiHasNext;
         import flix.runtime.factio.CsvIterator.next() as ffiNext;
@@ -49,13 +49,13 @@ namespace FactIO/CsvImport {
             Ok(Stream.fromIterator(streamiter))
         } catch {
             case _: ##java.io.FileNotFoundException => Err(Generic("newCsvStream - file not found"))
-            case _: ##java.io.IOException => Err(Generic("newCsvStream - io exception"))
+            case _: ##java.io.IOException => Err(Generic("IOException"))
         }
 
     ///
     /// Returns a new Csv Stream from a file with a BOM.
     ///
-    pub def newCsvStreamWithBOM(filepath: String, cs: Text.Charset, hasHeaders: Bool): Result[Stream[CsvRow], FactIO.Error] & Impure =
+    pub def newCsvStreamWithBOM(filepath: String, cs: Text.Charset, hasHeaders: Bool): Result[Stream[CsvRow], System.Error] & Impure =
         import new flix.runtime.factio.CsvIterator(String, ##java.nio.charset.Charset, Bool) as newCsvIterator;
         import flix.runtime.factio.CsvIterator.hasNext() as ffiHasNext;
         import flix.runtime.factio.CsvIterator.next() as ffiNext;
@@ -79,7 +79,7 @@ namespace FactIO/CsvImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRows(rowreader: CsvRow -> CsvResult[reln] & Impure, src: Stream[CsvRow]): Result[reln, FactIO.Error] & Impure =
+    pub def importRows(rowreader: CsvRow -> CsvResult[reln] & Impure, src: Stream[CsvRow]): Result[reln, System.Error] & Impure =
         FactIO/ImportStrategies.importRows(rowreader, src)
 
 
@@ -89,7 +89,7 @@ namespace FactIO/CsvImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCount(rowreader: (CsvRow, Int32) -> CsvResult[reln] & Impure, src: Stream[CsvRow]): Result[reln, FactIO.Error] & Impure =
+    pub def importRowsWithCount(rowreader: (CsvRow, Int32) -> CsvResult[reln] & Impure, src: Stream[CsvRow]): Result[reln, System.Error] & Impure =
         FactIO/ImportStrategies.importRowsWithCount(rowreader, src)
 
     ///
@@ -97,7 +97,7 @@ namespace FactIO/CsvImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithAccum(rowreader: (CsvRow, st) -> CsvResult[(reln, st)] & Impure, state: st, src: Stream[CsvRow]): Result[(reln, st), FactIO.Error] & Impure =
+    pub def importRowsWithAccum(rowreader: (CsvRow, st) -> CsvResult[(reln, st)] & Impure, state: st, src: Stream[CsvRow]): Result[(reln, st), System.Error] & Impure =
         FactIO/ImportStrategies.importRowsWithAccum(rowreader, state, src)
 
     ///
@@ -105,173 +105,189 @@ namespace FactIO/CsvImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCountAndAccum(rowreader: (CsvRow, Int32, st) -> CsvResult[(reln, st)] & Impure, state: st, src: Stream[CsvRow]): Result[(reln, st), FactIO.Error] & Impure =
+    pub def importRowsWithCountAndAccum(rowreader: (CsvRow, Int32, st) -> CsvResult[(reln, st)] & Impure, state: st, src: Stream[CsvRow]): Result[(reln, st), System.Error] & Impure =
         FactIO/ImportStrategies.importRowsWithCountAndAccum(rowreader, state, src)
 
 
     // Cell readers
 
     pub def getStringByIndex(row: CsvRow, ix: Int32): CsvResult[String] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getStringByIndex(Int32);
         try {
-            import flix.runtime.factio.CsvRow.getStringByIndex(Int32);
+            let CsvRow(r1) = row;
             let a = r1.getStringByIndex(ix) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByIndex(ix, "String"))
+            case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
+            case _: ##java.lang.Exception => Err(Generic("Exception"))
         }
 
     ///
     /// Get a string by its column name / label.
     ///
     pub def getStringByLabel(row: CsvRow, label: String): CsvResult[String] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getStringByLabel(String);
         try {
-            import flix.runtime.factio.CsvRow.getStringByLabel(String);
+            let CsvRow(r1) = row;
             let a = r1.getStringByLabel(label) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByLabel(label, "String"))
+            case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
+            case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
         }
 
     pub def getInt8ByIndex(row: CsvRow, ix: Int32): CsvResult[Int8] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getByteByIndex(Int32);
         try {
-            import flix.runtime.factio.CsvRow.getByteByIndex(Int32);
+            let CsvRow(r1) = row;
             let a = r1.getByteByIndex(ix) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByIndex(ix, "Int8"))
+            case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
+            case _: ##java.lang.Exception => Err(Generic("Exception"))
         }
 
     pub def getInt8ByLabel(row: CsvRow, label: String): CsvResult[Int8] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getByteByLabel(String);
         try {
-            import flix.runtime.factio.CsvRow.getByteByLabel(String);
+            let CsvRow(r1) = row;
             let a = r1.getByteByLabel(label) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByLabel(label, "Int8"))
+            case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
+            case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
         }
 
     pub def getInt16ByIndex(row: CsvRow, ix: Int32): CsvResult[Int16] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getShortByIndex(Int32);
         try {
-            import flix.runtime.factio.CsvRow.getShortByIndex(Int32);
+            let CsvRow(r1) = row;
             let a = r1.getShortByIndex(ix) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByIndex(ix, "Int16"))
+            case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
+            case _: ##java.lang.Exception => Err(Generic("Exception"))
         }
 
     pub def getInt16ByLabel(row: CsvRow, label: String): CsvResult[Int16] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getShortByLabel(String);
         try {
-            import flix.runtime.factio.CsvRow.getShortByLabel(String);
+            let CsvRow(r1) = row;
             let a = r1.getShortByLabel(label) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByLabel(label, "Int16"))
+            case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
+            case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
         }
 
     pub def getInt32ByIndex(row: CsvRow, ix: Int32): CsvResult[Int32] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getIntByIndex(Int32);
         try {
-            import flix.runtime.factio.CsvRow.getIntByIndex(Int32);
+            let CsvRow(r1) = row;
             let a = r1.getIntByIndex(ix) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByIndex(ix, "Int32"))
+            case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
+            case _: ##java.lang.Exception => Err(Generic("Exception"))
         }
 
     pub def getInt32ByLabel(row: CsvRow, label: String): CsvResult[Int32] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getIntByLabel(String);
         try {
-            import flix.runtime.factio.CsvRow.getIntByLabel(String);
+            let CsvRow(r1) = row;
             let a = r1.getIntByLabel(label) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByLabel(label, "Int32"))
+            case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
+            case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
         }
 
     pub def getInt64ByIndex(row: CsvRow, ix: Int32): CsvResult[Int64] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getLongByIndex(Int32);
         try {
-            import flix.runtime.factio.CsvRow.getLongByIndex(Int32);
+            let CsvRow(r1) = row;
             let a = r1.getLongByIndex(ix) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByIndex(ix, "Int64"))
+            case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
+            case _: ##java.lang.Exception => Err(Generic("Exception"))
         }
 
     pub def getInt64ByLabel(row: CsvRow, label: String): CsvResult[Int64] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getLongByLabel(String);
         try {
-            import flix.runtime.factio.CsvRow.getLongByLabel(String);
+            let CsvRow(r1) = row;
             let a = r1.getLongByLabel(label) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByLabel(label, "Int64"))
+            case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
+            case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
         }
 
     pub def getFloat32ByIndex(row: CsvRow, ix: Int32): CsvResult[Float32] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getFloatByIndex(Int32);
         try {
-            import flix.runtime.factio.CsvRow.getFloatByIndex(Int32);
+            let CsvRow(r1) = row;
             let a = r1.getFloatByIndex(ix) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByIndex(ix, "Float32"))
+            case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
+            case _: ##java.lang.Exception => Err(Generic("Exception"))
         }
 
     pub def getFloat32ByLabel(row: CsvRow, label: String): CsvResult[Float32] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getFloatByLabel(String);
         try {
-            import flix.runtime.factio.CsvRow.getFloatByLabel(String);
+            let CsvRow(r1) = row;
             let a = r1.getFloatByLabel(label) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByLabel(label, "Float32"))
+            case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
+            case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
         }
 
     pub def getFloat64ByIndex(row: CsvRow, ix: Int32): CsvResult[Float64] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getDoubleByIndex(Int32);
         try {
-            import flix.runtime.factio.CsvRow.getDoubleByIndex(Int32);
+            let CsvRow(r1) = row;
             let a = r1.getDoubleByIndex(ix) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByIndex(ix, "Float64"))
+            case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
+            case _: ##java.lang.Exception => Err(Generic("Exception"))
         }
 
     pub def getFloat64ByLabel(row: CsvRow, label: String): CsvResult[Float64] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getDoubleByLabel(String);
         try {
-            import flix.runtime.factio.CsvRow.getDoubleByLabel(String);
+            let CsvRow(r1) = row;
             let a = r1.getDoubleByLabel(label) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByLabel(label, "Float64"))
+            case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
+            case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
         }
 
     pub def getBigIntByIndex(row: CsvRow, ix: Int32): CsvResult[BigInt] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getBigIntegerByIndex(Int32);
         try {
-            import flix.runtime.factio.CsvRow.getBigIntegerByIndex(Int32);
+            let CsvRow(r1) = row;
             let a = r1.getBigIntegerByIndex(ix) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByIndex(ix, "BigInt"))
+            case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
+            case _: ##java.lang.Exception => Err(Generic("Exception"))
         }
 
     pub def getBigIntByLabel(row: CsvRow, label: String): CsvResult[BigInt] & e =
-        let CsvRow(r1) = row;
+        import flix.runtime.factio.CsvRow.getBigIntegerByLabel(String);        
         try {
-            import flix.runtime.factio.CsvRow.getBigIntegerByLabel(String);
+            let CsvRow(r1) = row;
             let a = r1.getBigIntegerByLabel(label) as & e;
             Ok(a)
         } catch {
-            case _: ##java.lang.Exception => Err(ReadFieldByLabel(label, "BigInt"))
+            case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
+            case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
         }
 
 }
