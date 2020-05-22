@@ -1,0 +1,79 @@
+/*
+ * Copyright 2020 Stephen Tetley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+use Text.Charset.{Charset};
+
+use System.Error.{IOException, IllegalStateException, Generic};
+
+use FactIO/Internal.LinesIterator;
+use FactIO/Internal.LinesIterator.{LinesIterator};
+
+namespace FactIO/Internal { 
+    
+    pub opaque type LinesIterator = ##flix.runtime.factio.LinesIterator
+
+}
+
+
+namespace FactIO/LinesImport {
+
+    
+    pub def newLinesIterator(filepath: String, cs: Text.Charset): Result[LinesIterator, System.Error] & Impure=
+        import new flix.runtime.factio.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
+        try {
+            let Charset(cs1) = cs;
+            let iter = newLinesIterator(filepath, cs1);
+            Ok(LinesIterator(iter))
+        } catch {
+            case _: ##java.io.FileNotFoundException => Err(Generic("FileNotFoundException"))
+            case _: ##java.io.IOException => Err(IOException)
+        }
+
+    
+    pub def getLine(x: LinesIterator): Result[String, System.Error] & Impure = 
+        import flix.runtime.factio.LinesIterator.getLine();
+        let LinesIterator(x1) = x;
+        let s = x1.getLine();
+        if (isNull(s))
+            Err(IllegalStateException)
+        else
+            Ok(s)
+
+
+    pub def hasNext(x: LinesIterator): Result[Bool, System.Error] & Impure = 
+        import flix.runtime.factio.LinesIterator.hasNext();
+        try { 
+            let LinesIterator(x1) = x;
+            let b = x1.hasNext();
+            Ok(b)
+        } catch { 
+            case _:##java.io.IOException => Err(IOException)
+        }
+
+    ///
+    /// Returns a new string line Stream.
+    ///
+    pub def close(x: LinesIterator): Result[Unit, System.Error] & Impure=
+        import flix.runtime.factio.LinesIterator.close();
+        try {
+            let LinesIterator(x1) = x;
+            let _ = x1.close();
+            Ok()
+        } catch {
+            case _: ##java.io.IOException => Err(IOException)
+        }
+
+}
