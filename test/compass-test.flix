@@ -1,6 +1,6 @@
 use FactIO/CsvImport.{CsvRow, CsvResult};
-use FactIO/LinesImport.{TextLine, LineResult};
 use FactIO/SQLiteImport.{SQLiteRow, SQLiteResult};
+use FactIO.LineEvaluator;
 
 def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     case Ok(reln) => reln
@@ -43,17 +43,18 @@ pub def sqlite01(): #{Direction} & Impure =
     };
     step() |> runResult
 
-def lineDirection1(line: TextLine): LineResult[#{Direction}] & Impure = 
-    Result.map(makeDirection, FactIO/LinesImport.nonempty(line)) as & Impure
+def lineDirection1(): LineEvaluator[#{ Direction }] = 
+    use FactIO/LineEvaluator.{flatMap, content, map};
+    map(makeDirection, content())
 
 
 
 pub def lines01(): #{ Direction } & Impure =
     use Result.flatMap;
+    use FactIO/LinesImporter.{lines};
     let step = () -> {
         let path = "e:/coding/flix/factio/data/compass.txt";
-        let* src = FactIO/LinesImport.newLinesStream(path, Text/Charset.utf_8());
-        let* relns =  FactIO/LinesImport.importRows(lineDirection1, src);
+        let* relns = FactIO/LinesImporter.runLinesImporter(lines(lineDirection1()), path, Text/Charset.utf_8());
         Ok(solve relns)
     };
     step() |> runResult

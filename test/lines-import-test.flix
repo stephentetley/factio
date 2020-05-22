@@ -1,4 +1,5 @@
-use FactIO/LinesImport.{TextLine, LineResult};
+use FactIO.LineEvaluator;
+use FactIO.LinesImporter;
 
 def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     case Ok(reln) => reln
@@ -10,18 +11,23 @@ def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
 
 rel Colour(name: String)
 
-def makeColour(name: String): #{ Colour } = 
-    Colour(name).
+def makeColour(name: String): #{ Colour } = Colour(name).
 
-def getColour(line: TextLine): LineResult[#{ Colour }] & e = 
-    Result.map(makeColour, FactIO/LinesImport.nonempty(line))
+def getColour1(): LineEvaluator[#{ Colour }] = 
+    use FactIO/LineEvaluator.{flatMap, content, return};
+    let* str = content();
+    let ans = makeColour(str);
+    return(ans)
     
+def getColours(): LinesImporter[#{ Colour }] = 
+    use FactIO/LinesImporter.{lines};
+    lines(getColour1())
+
 pub def test01(): #{ Colour } & Impure =
     use Result.flatMap;
     let step = () -> {
         let path = "e:/coding/flix/factio/data/colours.txt";
-        let* src = FactIO/LinesImport.newLinesStream(path, Text/Charset.utf_8());
-        let* relns = FactIO/LinesImport.importRows(getColour, src);
+        let* relns = FactIO/LinesImporter.runLinesImporter(getColours(), path, Text/Charset.utf_8());
         Ok(solve relns)
     };
     step() |> runResult
@@ -30,8 +36,7 @@ pub def test02(): #{ Colour } & Impure =
     use Result.flatMap;
     let step = () -> {
         let path = "e:/coding/flix/factio/data/colours.utf16le.txt";
-        let* src = FactIO/LinesImport.newLinesStream(path, Text/Charset.utf_16le());
-        let* relns = FactIO/LinesImport.importRows(getColour, src);
+        let* relns = FactIO/LinesImporter.runLinesImporter(getColours(), path, Text/Charset.utf_16le());
         Ok (solve relns)
     };
     step() |> runResult   

@@ -18,36 +18,32 @@ package flix.runtime.factio;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 public class LinesIterator {
 
     private BufferedReader bufreader;
-    private String currentLine;
+    private Iterator<String> iter;
 
     public LinesIterator(String filepath, Charset cs) throws Exception {
-        try {
-            Path path = Paths.get(filepath, new String[0]);
-            this.bufreader = Files.newBufferedReader(path, cs);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            throw new IOException();
-        }
+        Path path = Paths.get(filepath);
+        bufreader = Files.newBufferedReader(path, cs);
+        Stream<String> stream = bufreader.lines();
+        this.iter = stream.iterator();
+
     }
 
-    public boolean hasNext() throws Exception {
-        this.currentLine = bufreader.readLine();
-        return(this.currentLine != null);
+    public boolean hasNext() {
+        return this.iter.hasNext();
     }
 
-    public String getLine() {
-        return this.currentLine;
-    }
+    public String next() throws Exception { return this.iter.next(); }
 
-    public void close() throws Exception {
-        this.bufreader.close();
-        return;
-    }
+    public void close() throws Exception { bufreader.close(); }
+
 }

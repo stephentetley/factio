@@ -28,7 +28,7 @@ namespace FactIO/Internal {
 }
 
 
-namespace FactIO/LinesImport {
+namespace FactIO/Internal/LinesIterator {
 
     
     pub def newLinesIterator(filepath: String, cs: Text.Charset): Result[LinesIterator, System.Error] & Impure=
@@ -43,26 +43,24 @@ namespace FactIO/LinesImport {
         }
 
     
-    pub def getLine(x: LinesIterator): Result[String, System.Error] & Impure = 
-        import flix.runtime.factio.LinesIterator.getLine();
-        let LinesIterator(x1) = x;
-        let s = x1.getLine();
-        if (isNull(s))
-            Err(IllegalStateException)
-        else
-            Ok(s)
-
-
-    pub def hasNext(x: LinesIterator): Result[Bool, System.Error] & Impure = 
-        import flix.runtime.factio.LinesIterator.hasNext();
+    pub def readLine(x: LinesIterator): Result[String, System.Error] & Impure = 
+        import flix.runtime.factio.LinesIterator.next();
         try { 
             let LinesIterator(x1) = x;
-            let b = x1.hasNext();
-            Ok(b)
+            let s = x1.next();
+            if (isNull(s))
+                Err(IllegalStateException)
+            else
+                Ok(s)
         } catch { 
             case _:##java.io.IOException => Err(IOException)
         }
 
+    pub def hasNext(x: LinesIterator): Bool & Impure = 
+        import flix.runtime.factio.LinesIterator.hasNext();
+        let LinesIterator(x1) = x;
+        x1.hasNext()
+        
     ///
     /// Returns a new string line Stream.
     ///
