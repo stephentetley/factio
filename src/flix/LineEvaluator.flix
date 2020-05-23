@@ -91,8 +91,16 @@ namespace FactIO/LineEvaluator {
     pub def content(): LineEvaluator[String] =
         LineEvaluator(s -> Ok(s) as & Impure)
 
+    pub def matchRegex(pattern: String, eval: Text/Regex.MatchEvaluator[a]): LineEvaluator[a] =
+        use Result.flatMap;
+        use Text/Regex.{evaluateMatch};
+        LineEvaluator(s ->
+            let* patt = Text/Regex/Pattern.compile(pattern);
+            let* ans = evaluateMatch(patt, eval, s);
+            Ok(ans)
+        )
 
-    pub def matchRegex(pattern: String, eval: Text/Regex.MatchEvaluator[a]): LineEvaluator[a] = 
+    pub def findRegex(pattern: String, eval: Text/Regex.MatchEvaluator[a]): LineEvaluator[a] =
         use Result.flatMap;
         use Text/Regex/Match.{tryFindMatch, evaluate};
         LineEvaluator(s -> 
