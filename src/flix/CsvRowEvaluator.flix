@@ -75,6 +75,9 @@ namespace FactIO/CsvRowEvaluator {
     def liftPrimRowReader(eval: ##flix.runtime.factio.CsvRow ~> Result[a, System.Error]): CsvRowEvaluator[a] = 
         CsvRowEvaluator(r -> eval(r))
 
+    pub def liftResult(x: Result[a, System.Error]): CsvRowEvaluator[a] = 
+        CsvRowEvaluator(_ -> x as & Impure)
+
     // Cell readers
 
     pub def getStringByIndex(ix: Int32): CsvRowEvaluator[String] =

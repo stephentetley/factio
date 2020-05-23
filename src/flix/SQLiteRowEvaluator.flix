@@ -71,6 +71,9 @@ namespace FactIO/SQLiteRowEvaluator {
     def liftPrimRowReader(eval: ##flix.runtime.factio.SQLiteRow ~> Result[a, System.Error]): SQLiteRowEvaluator[a] = 
         SQLiteRowEvaluator(r -> eval(r))
     
+    pub def liftResult(x: Result[a, System.Error]): SQLiteRowEvaluator[a] = 
+        SQLiteRowEvaluator(_ -> x as & Impure)
+
     // Cell readers
 
     pub def getStringByIndex(ix: Int32): SQLiteRowEvaluator[String] =

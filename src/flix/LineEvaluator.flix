@@ -66,6 +66,8 @@ namespace FactIO/LineEvaluator {
 
     pub def flatMap(k: a -> LineEvaluator[b], x: LineEvaluator[a]): LineEvaluator[b] = bind(x, k)
 
+    pub def liftResult(x: Result[a, System.Error]): LineEvaluator[a] = 
+        LineEvaluator(_ -> x as & Impure)
 
     /// Line readers
 
