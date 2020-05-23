@@ -2,6 +2,7 @@ use FactIO/CsvImport.{CsvRow, CsvResult};
 use FactIO/SQLiteImport.{SQLiteRow, SQLiteResult};
 use FactIO.LineEvaluator;
 use FactIO.CsvRowEvaluator;
+use FactIO.SQLiteRowEvaluator;
 
 def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     case Ok(reln) => reln
@@ -30,8 +31,9 @@ pub def csv01(): #{Direction} & Impure =
     };
     step() |> runResult
     
-def sqliteDirection1(row: SQLiteRow): SQLiteResult[#{Direction}] & e = 
-    Result.map(makeDirection, FactIO/SQLiteImport.getStringByLabel(row, "cardinal_name"))
+def sqliteDirection1(): SQLiteRowEvaluator[#{Direction}] = 
+    use FactIO/SQLiteRowEvaluator.{map, getStringByLabel};
+    map(makeDirection, getStringByLabel("cardinal_name"))
     
 
 pub def sqlite01(): #{Direction} & Impure =
@@ -40,7 +42,7 @@ pub def sqlite01(): #{Direction} & Impure =
         let path = "e:/coding/flix/factio/data/compass.sqlite";
         let query = "SELECT cardinal_name FROM cardinals";
         let* src = FactIO/SQLiteImport.newSQLiteStream(path, query);
-        let* relns = FactIO/SQLiteImport.importRows(sqliteDirection1, src);
+        let* relns = FactIO/SQLiteImport.importRows(sqliteDirection1(), src);
         Ok(solve relns)
     };
     step() |> runResult

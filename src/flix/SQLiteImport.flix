@@ -16,15 +16,15 @@
 
 use System.Error.{IOException, Generic};
 
+use FactIO.SQLiteRowEvaluator;
+use FactIO.SQLiteRowEvaluator.{SQLiteRowEvaluator};
 
 namespace FactIO/SQLiteImport {
 
     ///
     /// Represents a SQLite row.
     ///
-    pub opaque type SQLiteRow = ##flix.runtime.factio.SQLiteRow
-
-    type alias SQLiteResult[t] = Result[t, System.Error]
+    type alias SQLiteRow = ##flix.runtime.factio.SQLiteRow
 
     ///
     /// Returns a new SQLite Stream.
@@ -38,7 +38,7 @@ namespace FactIO/SQLiteImport {
             let iter = newSQLiteIterator(filepath, query);
             let streamiter =  {
                   hasNext = () -> ffiHasNext(iter)
-                , next = () -> { let a = ffiNext(iter); SQLiteRow(a) }
+                , next = () -> ffiNext(iter)
                 , finalize = () -> ffiClose(iter)
             };
             Ok(Stream.fromIterator(streamiter))
@@ -52,187 +52,36 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRows(rowreader: SQLiteRow -> SQLiteResult[reln] & Impure, src: Stream[SQLiteRow]): Result[reln, System.Error] & Impure =
-        FactIO/Internal/ImportStrategies.importRows(rowreader, src)
+    pub def importRows(eval: SQLiteRowEvaluator[reln], src: Stream[SQLiteRow]): Result[reln, System.Error] & Impure =
+        let SQLiteRowEvaluator(mf) = eval;
+        FactIO/Internal/ImportStrategies.importRows(mf, src)
 
     ///
     /// Process all rows of the input with a zero indexed row count.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCount(rowreader: (SQLiteRow, Int32) -> SQLiteResult[reln] & Impure, src: Stream[SQLiteRow]): Result[reln, System.Error] & Impure =
-        FactIO/Internal/ImportStrategies.importRowsWithCount(rowreader, src)
+    pub def importRowsWithCount(eval: Int32 -> SQLiteRowEvaluator[reln], src: Stream[SQLiteRow]): Result[reln, System.Error] & Impure =
+        let mf = (row, ix) -> { let SQLiteRowEvaluator(r1) = eval(ix); r1(row) };
+        FactIO/Internal/ImportStrategies.importRowsWithCount(mf, src)
 
     ///
     /// Process all rows of the input with a threaded state.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithAccum(rowreader: (SQLiteRow, st) -> SQLiteResult[(reln, st)] & Impure, state: st, src: Stream[SQLiteRow]): Result[(reln, st), System.Error] & Impure =
-        FactIO/Internal/ImportStrategies.importRowsWithAccum(rowreader, state, src)
+    pub def importRowsWithAccum(eval: st -> SQLiteRowEvaluator[(reln, st)], state: st, src: Stream[SQLiteRow]): Result[(reln, st), System.Error] & Impure =
+        let mf = (row, st) -> { let SQLiteRowEvaluator(r1) = eval(st); r1(row) };
+        FactIO/Internal/ImportStrategies.importRowsWithAccum(mf, state, src)
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCountAndAccum(rowreader: (SQLiteRow, Int32, st) -> SQLiteResult[(reln, st)] & Impure, state: st, src: Stream[SQLiteRow]): Result[(reln, st), System.Error] & Impure =
-        FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(rowreader, state, src)
+    pub def importRowsWithCountAndAccum(eval: (Int32, st) -> SQLiteRowEvaluator[(reln, st)], state: st, src: Stream[SQLiteRow]): Result[(reln, st), System.Error] & Impure =
+        let mf = (row, ix, st) -> { let SQLiteRowEvaluator(r1) = eval(ix, st); r1(row) };
+        FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(mf, state, src)
 
-    // Cell readers
-
-    pub def getStringByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[String] & e =
-        import flix.runtime.factio.SQLiteRow.getStringByIndex(Int32);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getStringByIndex(ix) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getStringByLabel(row: SQLiteRow, label: String): SQLiteResult[String] & e =
-        import flix.runtime.factio.SQLiteRow.getStringByLabel(String);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getStringByLabel(label) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getInt8ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int8] & e =
-        import flix.runtime.factio.SQLiteRow.getByteByIndex(Int32);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getByteByIndex(ix) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getInt8ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int8] & e =
-        import flix.runtime.factio.SQLiteRow.getByteByLabel(String);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getByteByLabel(label) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getInt16ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int16] & e =
-        import flix.runtime.factio.SQLiteRow.getShortByIndex(Int32);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getShortByIndex(ix) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getInt16ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int16] & e =
-        import flix.runtime.factio.SQLiteRow.getShortByLabel(String);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getShortByLabel(label) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getInt32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int32] & e =
-        import flix.runtime.factio.SQLiteRow.getIntByIndex(Int32);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getIntByIndex(ix) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getInt32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int32] & e =
-        import flix.runtime.factio.SQLiteRow.getIntByLabel(String);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getIntByLabel(label) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getInt64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Int64] & e =
-        import flix.runtime.factio.SQLiteRow.getLongByIndex(Int32);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getLongByIndex(ix) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getInt64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Int64] & e =
-        import flix.runtime.factio.SQLiteRow.getLongByLabel(String);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getLongByLabel(label) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getFloat32ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float32] & e =
-        import flix.runtime.factio.SQLiteRow.getFloatByIndex(Int32);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getFloatByIndex(ix) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getFloat32ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float32] & e =
-        import flix.runtime.factio.SQLiteRow.getFloatByLabel(String);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getFloatByLabel(label) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getFloat64ByIndex(row: SQLiteRow, ix: Int32): SQLiteResult[Float64] & e =
-        import flix.runtime.factio.SQLiteRow.getDoubleByIndex(Int32);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getDoubleByIndex(ix) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
-
-    pub def getFloat64ByLabel(row: SQLiteRow, label: String): SQLiteResult[Float64] & e =
-        import flix.runtime.factio.SQLiteRow.getDoubleByLabel(String);
-        try {
-            let SQLiteRow(r1) = row;
-            let a = r1.getDoubleByLabel(label) as & e;
-            Ok(a)
-        } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
 
 }
