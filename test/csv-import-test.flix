@@ -1,4 +1,4 @@
-use FactIO/CsvImport.{CsvRow, CsvResult};
+use FactIO.CsvRowEvaluator;
 
 def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     case Ok(reln) => reln
@@ -14,8 +14,9 @@ rel Name(name: String)
 def makeName(name: String): #{ Name } = 
     Name(name).
 
-def getName(row: CsvRow): CsvResult[#{Name}] & Impure = 
-    Result.map(makeName, FactIO/CsvImport.getStringByLabel(row, "Name"))
+def getName(): CsvRowEvaluator[#{Name}] = 
+    use FactIO/CsvRowEvaluator.{map, getStringByLabel};
+    map(makeName, getStringByLabel("Name"))
 
 
 pub def test01(): #{Name} & Impure =
@@ -23,7 +24,7 @@ pub def test01(): #{Name} & Impure =
     let step = () -> {
         let path = "e:/coding/flix/factio/data/stations.csv";
         let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.Default, true);
-        let* ans = FactIO/CsvImport.importRows(getName, src);
+        let* ans = FactIO/CsvImport.importRows(getName(), src);
         Ok(solve ans)        
     };
     step() |> runResult
@@ -32,11 +33,11 @@ pub def test01(): #{Name} & Impure =
 rel Station(name: String, gridref: String)
 
 
-def getStation(row: CsvRow): CsvResult[#{Station}] & Impure = 
-    use Result.flatMap;
-    let* x = FactIO/CsvImport.getStringByLabel(row, "Name");
-    let* y = FactIO/CsvImport.getStringByLabel(row, "Grid_Ref");
-    Ok({ Station(x, y). })
+def getStation(): CsvRowEvaluator[#{Station}] = 
+    use FactIO/CsvRowEvaluator.{flatMap, getStringByLabel, return};
+    let* x = getStringByLabel("Name");
+    let* y = getStringByLabel("Grid_Ref");
+    return({ Station(x, y). })
     
 
 pub def test02(): #{Station} & Impure =
@@ -44,7 +45,7 @@ pub def test02(): #{Station} & Impure =
     let step = () -> {
         let path = "e:/coding/flix/factio/data/stations.csv";
         let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.Default, true);
-        let* relns = FactIO/CsvImport.importRows(getStation, src);
+        let* relns = FactIO/CsvImport.importRows(getStation(), src);
         Ok(solve relns)
     };
     step() |> runResult

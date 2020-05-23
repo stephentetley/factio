@@ -16,7 +16,7 @@
 
 
 
-namespace FactIO/ImportStrategies {
+namespace FactIO/Internal/ImportStrategies {
 
     type alias RowResult[t] = Result[t, System.Error]
 

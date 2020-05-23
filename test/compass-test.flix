@@ -1,6 +1,7 @@
 use FactIO/CsvImport.{CsvRow, CsvResult};
 use FactIO/SQLiteImport.{SQLiteRow, SQLiteResult};
 use FactIO.LineEvaluator;
+use FactIO.CsvRowEvaluator;
 
 def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     case Ok(reln) => reln
@@ -15,15 +16,16 @@ rel Direction(name: String)
 def makeDirection(name: String): #{ Direction } = 
     Direction(name).
     
-def csvDirection1(row: CsvRow): CsvResult[#{Direction}] & e = 
-    Result.map(makeDirection, FactIO/CsvImport.getStringByIndex(row, 0))
+def csvDirection1(): CsvRowEvaluator[#{Direction}] = 
+    use FactIO/CsvRowEvaluator.{map, getStringByIndex};
+    map(makeDirection, getStringByIndex(0))
 
 pub def csv01(): #{Direction} & Impure =
     use Result.flatMap;
     let step = () -> {
         let path = "e:/coding/flix/factio/data/compass.csv";
         let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.Default, true);
-        let* relns = FactIO/CsvImport.importRows(csvDirection1, src);
+        let* relns = FactIO/CsvImport.importRows(csvDirection1(), src);
         Ok(solve relns)
     };
     step() |> runResult

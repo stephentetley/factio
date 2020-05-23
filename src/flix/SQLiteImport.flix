@@ -53,7 +53,7 @@ namespace FactIO/SQLiteImport {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRows(rowreader: SQLiteRow -> SQLiteResult[reln] & Impure, src: Stream[SQLiteRow]): Result[reln, System.Error] & Impure =
-        FactIO/ImportStrategies.importRows(rowreader, src)
+        FactIO/Internal/ImportStrategies.importRows(rowreader, src)
 
     ///
     /// Process all rows of the input with a zero indexed row count.
@@ -61,7 +61,7 @@ namespace FactIO/SQLiteImport {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRowsWithCount(rowreader: (SQLiteRow, Int32) -> SQLiteResult[reln] & Impure, src: Stream[SQLiteRow]): Result[reln, System.Error] & Impure =
-        FactIO/ImportStrategies.importRowsWithCount(rowreader, src)
+        FactIO/Internal/ImportStrategies.importRowsWithCount(rowreader, src)
 
     ///
     /// Process all rows of the input with a threaded state.
@@ -69,7 +69,7 @@ namespace FactIO/SQLiteImport {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRowsWithAccum(rowreader: (SQLiteRow, st) -> SQLiteResult[(reln, st)] & Impure, state: st, src: Stream[SQLiteRow]): Result[(reln, st), System.Error] & Impure =
-        FactIO/ImportStrategies.importRowsWithAccum(rowreader, state, src)
+        FactIO/Internal/ImportStrategies.importRowsWithAccum(rowreader, state, src)
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
@@ -77,7 +77,7 @@ namespace FactIO/SQLiteImport {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRowsWithCountAndAccum(rowreader: (SQLiteRow, Int32, st) -> SQLiteResult[(reln, st)] & Impure, state: st, src: Stream[SQLiteRow]): Result[(reln, st), System.Error] & Impure =
-        FactIO/ImportStrategies.importRowsWithCountAndAccum(rowreader, state, src)
+        FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(rowreader, state, src)
 
     // Cell readers
 
