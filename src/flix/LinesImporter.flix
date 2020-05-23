@@ -96,6 +96,15 @@ namespace FactIO/LinesImporter {
                 Err(IllegalStateException) 
         )
 
+
+    pub def skipLines(n: Int32): LinesImporter[Unit] = 
+        if (n <= 0)
+            return()
+        else {
+            let _ = skipLine();
+            skipLines(n - 1)
+        }
+
     pub def line(x: LineEvaluator[a]): LinesImporter[a] = 
         use Result.flatMap;
         use FactIO/Internal/LinesIterator.{readLine, hasNext};
@@ -126,5 +135,18 @@ namespace FactIO/LinesImporter {
             let* a1 = line(x);
             linesHelper(x, ac <+> a1)
         }
+
+    pub def count(n: Int32, x: LineEvaluator[a]): LinesImporter[a] = 
+        countHelper(n, x, #{ })
+
+    pub def countHelper(n: Int32, x: LineEvaluator[a], ac: a): LinesImporter[a] =         
+        if (n <= 0)
+            return(ac)
+        else { 
+            let* a1 = line(x);
+            countHelper(n - 1, x, ac <+> a1)
+        }
+
+
 
 }
