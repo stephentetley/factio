@@ -97,11 +97,11 @@ namespace FactIO/LinesImporter {
         )
 
 
-    pub def skipLines(n: Int32): LinesImporter[Unit] = 
+    pub def skipLines(n: Int32): LinesImporter[Unit] =
         if (n <= 0)
             return()
         else {
-            let _ = skipLine();
+            let* _ = skipLine();
             skipLines(n - 1)
         }
 
