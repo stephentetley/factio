@@ -71,6 +71,9 @@ namespace FactIO/LineEvaluator {
     pub def liftResult(x: Result[a, System.Error]): LineEvaluator[a] = 
         LineEvaluator(_ -> x as & Impure)
 
+    pub def liftAction(f: Unit ~> Result[a, System.Error]): LineEvaluator[a] =
+        LineEvaluator(_ -> f())
+
     pub def throwError(err: System.Error): LineEvaluator[a] =
         LineEvaluator(_ -> Err(err) as & Impure)
 

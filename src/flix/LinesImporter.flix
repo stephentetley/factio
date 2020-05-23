@@ -147,6 +147,22 @@ namespace FactIO/LinesImporter {
             countHelper(n - 1, x, ac <+> a1)
         }
 
+    pub def skipTill(x: LineEvaluator[a]): LinesImporter[a] =
+        let LineEvaluator(f1) = x;
+        LinesImporter(s -> skipTillHelper(f1, s))
+
+
+    def skipTillHelper(f1: String ~> Result[a, System.Error], s: LinesIterator): Result[a, System.Error] & Impure=
+        use FactIO/Internal/LinesIterator.{readLine, hasNext};
+        use Result.flatMap;
+        if (s.hasNext()) {
+            let* str = s.readLine();
+            match f1(str) {
+                case Ok(a) => Ok(a)
+                case Err(_) => skipTillHelper(f1, s)
+            }
+        } else
+            Err(IllegalStateException)
 
 
 }
