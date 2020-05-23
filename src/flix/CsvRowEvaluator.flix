@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-use System.Error.{ArrayIndexOutOfBoundsException, IllegalArgumentException, IllegalStateException, IOException, Generic};
+use System.Error.{ArrayIndexOutOfBoundsException,
+        IllegalArgumentException,
+        IllegalStateException,
+        InputMismatchException,
+        IOException,
+        Generic};
+
 use Text.Charset.{Charset};
 
 use FactIO.CsvFormat;
@@ -77,6 +83,21 @@ namespace FactIO/CsvRowEvaluator {
 
     pub def liftResult(x: Result[a, System.Error]): CsvRowEvaluator[a] = 
         CsvRowEvaluator(_ -> x as & Impure)
+
+    pub def throwError(err: System.Error): CsvRowEvaluator[a] =
+        CsvRowEvaluator(_ -> Err(err) as & Impure)
+
+    pub def choice(xs: List[CsvRowEvaluator[a]]): CsvRowEvaluator[a] =
+        CsvRowEvaluator(r -> choiceHelper(r, xs))
+
+    def choiceHelper(r: ##flix.runtime.factio.CsvRow, xs: List[CsvRowEvaluator[a]]): Result[a, System.Error] & Impure =
+        match xs {
+            case Nil => Err(InputMismatchException) as & Impure
+            case x1 :: rs => match apply1(x1, r) {
+                case Ok(a) => Ok(a)
+                case Err(_) => choiceHelper(r, rs)
+            }
+        }
 
     // Cell readers
 

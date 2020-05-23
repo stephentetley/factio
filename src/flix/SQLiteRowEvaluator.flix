@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-use System.Error.{IOException, Generic};
+use System.Error.{InputMismatchException, IOException, Generic};
 
 use FactIO.SQLiteRowEvaluator;
 use FactIO.SQLiteRowEvaluator.{SQLiteRowEvaluator};
@@ -73,6 +73,21 @@ namespace FactIO/SQLiteRowEvaluator {
     
     pub def liftResult(x: Result[a, System.Error]): SQLiteRowEvaluator[a] = 
         SQLiteRowEvaluator(_ -> x as & Impure)
+
+    pub def throwError(err: System.Error): SQLiteRowEvaluator[a] =
+        SQLiteRowEvaluator(_ -> Err(err) as & Impure)
+
+    pub def choice(xs: List[SQLiteRowEvaluator[a]]): SQLiteRowEvaluator[a] =
+        SQLiteRowEvaluator(r -> choiceHelper(r, xs))
+
+    def choiceHelper(r: ##flix.runtime.factio.SQLiteRow, xs: List[SQLiteRowEvaluator[a]]): Result[a, System.Error] & Impure =
+        match xs {
+            case Nil => Err(InputMismatchException) as & Impure
+            case x1 :: rs => match apply1(x1, r) {
+                case Ok(a) => Ok(a)
+                case Err(_) => choiceHelper(r, rs)
+            }
+        }
 
     // Cell readers
 

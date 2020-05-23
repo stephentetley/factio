@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+use System.Error.{InputMismatchException};
+
 use FactIO.LineEvaluator;
 use FactIO.LineEvaluator.{LineEvaluator};
 
@@ -68,6 +70,21 @@ namespace FactIO/LineEvaluator {
 
     pub def liftResult(x: Result[a, System.Error]): LineEvaluator[a] = 
         LineEvaluator(_ -> x as & Impure)
+
+    pub def throwError(err: System.Error): LineEvaluator[a] =
+        LineEvaluator(_ -> Err(err) as & Impure)
+
+    pub def choice(xs: List[LineEvaluator[a]]): LineEvaluator[a] =
+        LineEvaluator(r -> choiceHelper(r, xs))
+
+    def choiceHelper(r: String, xs: List[LineEvaluator[a]]): Result[a, System.Error] & Impure =
+        match xs {
+            case Nil => Err(InputMismatchException) as & Impure
+            case x1 :: rs => match apply1(x1, r) {
+                case Ok(a) => Ok(a)
+                case Err(_) => choiceHelper(r, rs)
+            }
+        }
 
     /// Line readers
 
