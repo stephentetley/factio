@@ -21,7 +21,7 @@ use FactIO.SQLiteRowEvaluator.{SQLiteRowEvaluator};
 
 namespace FactIO { 
 
-    pub opaque type SQLiteRowEvaluator[a] = ##flix.runtime.factio.SQLiteRow ~> Result[a, System.Error]
+    pub opaque type SQLiteRowEvaluator[a] = ##flix.runtime.spt.factio.SQLiteRow ~> Result[a, System.Error]
 }
 
 
@@ -30,7 +30,7 @@ namespace FactIO/SQLiteRowEvaluator {
     pub def return(x: a): SQLiteRowEvaluator[a] = 
         SQLiteRowEvaluator(_ -> Ok(x) as & Impure)
 
-    def apply1(x: SQLiteRowEvaluator[a], r: ##flix.runtime.factio.SQLiteRow): Result[a, System.Error] & Impure =
+    def apply1(x: SQLiteRowEvaluator[a], r: ##flix.runtime.spt.factio.SQLiteRow): Result[a, System.Error] & Impure =
         let SQLiteRowEvaluator(f) = x;
         f(r)
 
@@ -68,7 +68,7 @@ namespace FactIO/SQLiteRowEvaluator {
 
     pub def flatMap(k: a -> SQLiteRowEvaluator[b], x: SQLiteRowEvaluator[a]): SQLiteRowEvaluator[b] = bind(x, k)
 
-    def liftPrimRowReader(eval: ##flix.runtime.factio.SQLiteRow ~> Result[a, System.Error]): SQLiteRowEvaluator[a] = 
+    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.SQLiteRow ~> Result[a, System.Error]): SQLiteRowEvaluator[a] =
         SQLiteRowEvaluator(r -> eval(r))
     
     pub def liftResult(x: Result[a, System.Error]): SQLiteRowEvaluator[a] = 
@@ -80,7 +80,7 @@ namespace FactIO/SQLiteRowEvaluator {
     pub def choice(xs: List[SQLiteRowEvaluator[a]]): SQLiteRowEvaluator[a] =
         SQLiteRowEvaluator(r -> choiceHelper(r, xs))
 
-    def choiceHelper(r: ##flix.runtime.factio.SQLiteRow, xs: List[SQLiteRowEvaluator[a]]): Result[a, System.Error] & Impure =
+    def choiceHelper(r: ##flix.runtime.spt.factio.SQLiteRow, xs: List[SQLiteRowEvaluator[a]]): Result[a, System.Error] & Impure =
         match xs {
             case Nil => Err(InputMismatchException) as & Impure
             case x1 :: rs => match apply1(x1, r) {
@@ -92,7 +92,7 @@ namespace FactIO/SQLiteRowEvaluator {
     // Cell readers
 
     pub def getStringByIndex(ix: Int32): SQLiteRowEvaluator[String] =
-        import flix.runtime.factio.SQLiteRow.getStringByIndex(Int32);
+        import flix.runtime.spt.factio.SQLiteRow.getStringByIndex(Int32);
         liftPrimRowReader(row ->
             try {
                 let a = row.getStringByIndex(ix);
@@ -104,7 +104,7 @@ namespace FactIO/SQLiteRowEvaluator {
         ) 
 
     pub def getStringByLabel(label: String): SQLiteRowEvaluator[String] =
-        import flix.runtime.factio.SQLiteRow.getStringByLabel(String);
+        import flix.runtime.spt.factio.SQLiteRow.getStringByLabel(String);
         liftPrimRowReader(row ->
             try {
                 let a = row.getStringByLabel(label);
@@ -116,7 +116,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getInt8ByIndex(ix: Int32): SQLiteRowEvaluator[Int8] =
-        import flix.runtime.factio.SQLiteRow.getByteByIndex(Int32);
+        import flix.runtime.spt.factio.SQLiteRow.getByteByIndex(Int32);
         liftPrimRowReader(row ->
             try {
                 let a = row.getByteByIndex(ix);
@@ -128,7 +128,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getInt8ByLabel(label: String): SQLiteRowEvaluator[Int8] =
-        import flix.runtime.factio.SQLiteRow.getByteByLabel(String);
+        import flix.runtime.spt.factio.SQLiteRow.getByteByLabel(String);
         liftPrimRowReader(row ->
             try {
                 let a = row.getByteByLabel(label);
@@ -140,7 +140,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getInt16ByIndex(ix: Int32): SQLiteRowEvaluator[Int16] =
-        import flix.runtime.factio.SQLiteRow.getShortByIndex(Int32);
+        import flix.runtime.spt.factio.SQLiteRow.getShortByIndex(Int32);
         liftPrimRowReader(row ->
             try {
                 let a = row.getShortByIndex(ix);
@@ -152,7 +152,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getInt16ByLabel(label: String): SQLiteRowEvaluator[Int16] =
-        import flix.runtime.factio.SQLiteRow.getShortByLabel(String);
+        import flix.runtime.spt.factio.SQLiteRow.getShortByLabel(String);
         liftPrimRowReader(row ->
             try {
                 let a = row.getShortByLabel(label);
@@ -164,7 +164,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getInt32ByIndex(ix: Int32): SQLiteRowEvaluator[Int32] =
-        import flix.runtime.factio.SQLiteRow.getIntByIndex(Int32);
+        import flix.runtime.spt.factio.SQLiteRow.getIntByIndex(Int32);
         liftPrimRowReader(row ->
             try {
                 let a = row.getIntByIndex(ix);
@@ -176,7 +176,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getInt32ByLabel(label: String): SQLiteRowEvaluator[Int32] =
-        import flix.runtime.factio.SQLiteRow.getIntByLabel(String);
+        import flix.runtime.spt.factio.SQLiteRow.getIntByLabel(String);
         liftPrimRowReader(row ->
             try {
                 let a = row.getIntByLabel(label);
@@ -188,7 +188,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getInt64ByIndex(ix: Int32): SQLiteRowEvaluator[Int64] =
-        import flix.runtime.factio.SQLiteRow.getLongByIndex(Int32);
+        import flix.runtime.spt.factio.SQLiteRow.getLongByIndex(Int32);
         liftPrimRowReader(row ->
             try {
                 let a = row.getLongByIndex(ix);
@@ -200,7 +200,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getInt64ByLabel(label: String): SQLiteRowEvaluator[Int64] =
-        import flix.runtime.factio.SQLiteRow.getLongByLabel(String);
+        import flix.runtime.spt.factio.SQLiteRow.getLongByLabel(String);
         liftPrimRowReader(row ->
             try {
                 let a = row.getLongByLabel(label);
@@ -212,7 +212,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getFloat32ByIndex(ix: Int32): SQLiteRowEvaluator[Float32] =
-        import flix.runtime.factio.SQLiteRow.getFloatByIndex(Int32);
+        import flix.runtime.spt.factio.SQLiteRow.getFloatByIndex(Int32);
         liftPrimRowReader(row ->
             try {
                 let a = row.getFloatByIndex(ix);
@@ -224,7 +224,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getFloat32ByLabel(label: String): SQLiteRowEvaluator[Float32] =
-        import flix.runtime.factio.SQLiteRow.getFloatByLabel(String);
+        import flix.runtime.spt.factio.SQLiteRow.getFloatByLabel(String);
         liftPrimRowReader(row ->
             try {
                 let a = row.getFloatByLabel(label);
@@ -236,7 +236,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getFloat64ByIndex(ix: Int32): SQLiteRowEvaluator[Float64] =
-        import flix.runtime.factio.SQLiteRow.getDoubleByIndex(Int32);
+        import flix.runtime.spt.factio.SQLiteRow.getDoubleByIndex(Int32);
         liftPrimRowReader(row ->
             try {
                 let a = row.getDoubleByIndex(ix);
@@ -248,7 +248,7 @@ namespace FactIO/SQLiteRowEvaluator {
         )
 
     pub def getFloat64ByLabel(label: String): SQLiteRowEvaluator[Float64] =
-        import flix.runtime.factio.SQLiteRow.getDoubleByLabel(String);
+        import flix.runtime.spt.factio.SQLiteRow.getDoubleByLabel(String);
         liftPrimRowReader(row ->       
             try {
                 let a = row.getDoubleByLabel(label);

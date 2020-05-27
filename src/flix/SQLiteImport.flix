@@ -24,16 +24,16 @@ namespace FactIO/SQLiteImport {
     ///
     /// Represents a SQLite row.
     ///
-    type alias SQLiteRow = ##flix.runtime.factio.SQLiteRow
+    type alias SQLiteRow = ##flix.runtime.spt.factio.SQLiteRow
 
     ///
     /// Returns a new SQLite Stream.
     ///
     pub def newSQLiteStream(filepath: String, query: String): Result[Stream[SQLiteRow], System.Error] & Impure=
-        import new flix.runtime.factio.SQLiteIterator(String, String) as newSQLiteIterator;
-        import flix.runtime.factio.SQLiteIterator.next() as ffiHasNext;
-        import flix.runtime.factio.SQLiteIterator.getRow() as ffiNext;
-        import flix.runtime.factio.SQLiteIterator.close() as ffiClose;
+        import new flix.runtime.spt.factio.SQLiteIterator(String, String) as newSQLiteIterator;
+        import flix.runtime.spt.factio.SQLiteIterator.next() as ffiHasNext;
+        import flix.runtime.spt.factio.SQLiteIterator.getRow() as ffiNext;
+        import flix.runtime.spt.factio.SQLiteIterator.close() as ffiClose;
         try {
             let iter = newSQLiteIterator(filepath, query);
             let streamiter =  {

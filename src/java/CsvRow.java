@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package flix.runtime.factio;
+package flix.runtime.spt.factio;
 
 import java.math.BigInteger;
 import org.apache.commons.csv.CSVRecord;

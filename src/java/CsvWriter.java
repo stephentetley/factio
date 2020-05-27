@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package flix.runtime.factio;
+package flix.runtime.spt.factio;
 
-
-import flix.runtime.factio.marshal.MarshalRow;
+import flix.runtime.spt.factio.marshal.MarshalRow;
 import org.apache.commons.csv.*;
-
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.io.FileWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 

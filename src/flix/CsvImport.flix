@@ -26,16 +26,16 @@ namespace FactIO/CsvImport {
     ///
     /// Represents a CSV row.
     ///
-    type alias CsvRow = ##flix.runtime.factio.CsvRow
+    type alias CsvRow = ##flix.runtime.spt.factio.CsvRow
 
     ///
     /// Returns a new Csv Stream.
     ///
     pub def newCsvStream(filepath: String, format: CsvFormat, hasHeaders: Bool): Result[Stream[CsvRow], System.Error] & Impure=
-        import new flix.runtime.factio.CsvIterator(String, Int32, Bool) as newCsvIterator;
-        import flix.runtime.factio.CsvIterator.hasNext() as ffiHasNext;
-        import flix.runtime.factio.CsvIterator.next() as ffiNext;
-        import flix.runtime.factio.CsvIterator.close() as ffiClose;
+        import new flix.runtime.spt.factio.CsvIterator(String, Int32, Bool) as newCsvIterator;
+        import flix.runtime.spt.factio.CsvIterator.hasNext() as ffiHasNext;
+        import flix.runtime.spt.factio.CsvIterator.next() as ffiNext;
+        import flix.runtime.spt.factio.CsvIterator.close() as ffiClose;
         try {
             let fmt = FactIO/CsvFormat.toInt32(format);
             let iter = newCsvIterator(filepath, fmt, hasHeaders);
@@ -54,10 +54,10 @@ namespace FactIO/CsvImport {
     /// Returns a new Csv Stream from a file with a BOM.
     ///
     pub def newCsvStreamWithBOM(filepath: String, cs: Text.Charset, hasHeaders: Bool): Result[Stream[CsvRow], System.Error] & Impure =
-        import new flix.runtime.factio.CsvIterator(String, ##java.nio.charset.Charset, Bool) as newCsvIterator;
-        import flix.runtime.factio.CsvIterator.hasNext() as ffiHasNext;
-        import flix.runtime.factio.CsvIterator.next() as ffiNext;
-        import flix.runtime.factio.CsvIterator.close() as ffiClose;
+        import new flix.runtime.spt.factio.CsvIterator(String, ##java.nio.charset.Charset, Bool) as newCsvIterator;
+        import flix.runtime.spt.factio.CsvIterator.hasNext() as ffiHasNext;
+        import flix.runtime.spt.factio.CsvIterator.next() as ffiNext;
+        import flix.runtime.spt.factio.CsvIterator.close() as ffiClose;
         try {
             let Charset(cs1) = cs;
             let iter = newCsvIterator(filepath, cs1, hasHeaders);
