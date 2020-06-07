@@ -15,47 +15,126 @@
  */
 
 use FactIO.CsvFormat;
+use FactIO.CsvFormat.{CsvFormat};
 
 namespace FactIO {
 
     ///
-    /// See Apache Commons CSV User Guide for details:
-    /// http://commons.apache.org/proper/commons-csv/user-guide.html
+    /// Represents a CSVFormat.
     ///
-    pub enum CsvFormat {
-        case Default,
-        case Excel,
-        case InformixUnload,
-        case InformixUnloadCsv,
-        case MongodbCsv,
-        case MongodbTsv,
-        case Mysql,
-        case Rfc4180,
-        case Oracle,
-        case PostgresqlCsv,
-        case PostgresqlText,
-        case Tdf
-    }
-
+    pub opaque type CsvFormat = ##org.apache.commons.csv.CSVFormat
 
 }
+
 
 namespace FactIO/CsvFormat {
 
 
-    pub def toInt32(format: CsvFormat): Int32 = match format {
-        case CsvFormat.Default => 0
-        case CsvFormat.Excel => 1
-        case CsvFormat.InformixUnload => 2
-        case CsvFormat.InformixUnloadCsv => 3
-        case CsvFormat.MongodbCsv => 4
-        case CsvFormat.MongodbTsv => 5
-        case CsvFormat.Mysql => 6
-        case CsvFormat.Rfc4180 => 7
-        case CsvFormat.Oracle => 8
-        case CsvFormat.PostgresqlCsv => 9
-        case CsvFormat.PostgresqlText => 10
-        case CsvFormat.Tdf => 11
+    pub enum QuoteMode {
+        case All,
+        case AllNonNull,
+        case Minimal,
+        case NonNumeric,
+        case NoQuote
     }
+
+    pub def default(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:DEFAULT as get_DEFAULT;
+        CsvFormat(get_DEFAULT()) as & Pure
+
+    pub def excel(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:EXCEL as get_EXCEL;
+        CsvFormat(get_EXCEL()) as & Pure
+
+    pub def informix_unload(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:INFORMIX_UNLOAD as get_INFORMIX_UNLOAD;
+        CsvFormat(get_INFORMIX_UNLOAD()) as & Pure
+
+    pub def informix_unload_csv(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:INFORMIX_UNLOAD_CSV as get_INFORMIX_UNLOAD_CSV;
+        CsvFormat(get_INFORMIX_UNLOAD_CSV()) as & Pure
+
+    pub def mongodb_csv(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:MONGODB_CSV as get_MONGODB_CSV;
+        CsvFormat(get_MONGODB_CSV()) as & Pure
+
+    pub def mongodb_tsv(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:MONGODB_TSV as get_MONGODB_TSV;
+        CsvFormat(get_MONGODB_TSV()) as & Pure
+
+    pub def mysql(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:MYSQL as get_MYSQL;
+        CsvFormat(get_MYSQL()) as & Pure
+
+    pub def oracle(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:ORACLE as get_ORACLE;
+        CsvFormat(get_ORACLE()) as & Pure
+
+    pub def postgresql_csv(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:POSTGRESQL_CSV as get_POSTGRESQL_CSV;
+        CsvFormat(get_POSTGRESQL_CSV()) as & Pure
+
+    pub def postgresql_text(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:POSTGRESQL_TEXT as get_POSTGRESQL_TEXT;
+        CsvFormat(get_POSTGRESQL_TEXT()) as & Pure
+
+    pub def rfc4180(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:RFC4180 as get_RFC4180;
+        CsvFormat(get_RFC4180()) as & Pure
+
+    pub def tdf(): CsvFormat =
+        import get org.apache.commons.csv.CSVFormat:TDF as get_TDF;
+        CsvFormat(get_TDF()) as & Pure
+
+
+    pub def toString(x: CsvFormat): String =
+        import org.apache.commons.csv.CSVFormat.toString();
+        let CsvFormat(x1) = x;
+        x1.toString() as & Pure
+
+    pub def getAllowMissingColumnNames(x: CsvFormat): Bool =
+        import org.apache.commons.csv.CSVFormat.getAllowMissingColumnNames();
+        let CsvFormat(x1) = x;
+        x1.getAllowMissingColumnNames() as & Pure
+
+    pub def putAllowMissingColumnNames(x: CsvFormat, allow: Bool): CsvFormat =
+        import org.apache.commons.csv.CSVFormat.withAllowMissingColumnNames(Bool);
+        let CsvFormat(x1) = x;
+        CsvFormat(x1.withAllowMissingColumnNames(allow)) as & Pure
+
+    pub def getIgnoreEmptyLines(x: CsvFormat): Bool =
+        import org.apache.commons.csv.CSVFormat.getIgnoreEmptyLines();
+        let CsvFormat(x1) = x;
+        x1.getIgnoreEmptyLines() as & Pure
+
+    pub def putIgnoreEmptyLines(x: CsvFormat, ignore: Bool): CsvFormat =
+        import org.apache.commons.csv.CSVFormat.withIgnoreEmptyLines(Bool);
+        let CsvFormat(x1) = x;
+        CsvFormat(x1.withIgnoreEmptyLines(ignore)) as & Pure
+
+    pub def getSkipHeaderRecord(x: CsvFormat): Bool =
+        import org.apache.commons.csv.CSVFormat.getSkipHeaderRecord();
+        let CsvFormat(x1) = x;
+        x1.getSkipHeaderRecord() as & Pure
+
+    pub def putSkipHeaderRecord(x: CsvFormat, skip: Bool): CsvFormat =
+        import org.apache.commons.csv.CSVFormat.withSkipHeaderRecord(Bool);
+        let CsvFormat(x1) = x;
+        CsvFormat(x1.withSkipHeaderRecord(skip)) as & Pure
+
+    pub def getTrim(x: CsvFormat): Bool =
+        import org.apache.commons.csv.CSVFormat.getTrim();
+        let CsvFormat(x1) = x;
+        x1.getTrim() as & Pure
+
+    pub def putTrim(x: CsvFormat, trim: Bool): CsvFormat =
+        import org.apache.commons.csv.CSVFormat.withTrim(Bool);
+        let CsvFormat(x1) = x;
+        CsvFormat(x1.withTrim(trim)) as & Pure
+
+    pub def withFirstRecordAsHeader(x: CsvFormat): CsvFormat =
+        import org.apache.commons.csv.CSVFormat.withFirstRecordAsHeader();
+        let CsvFormat(x1) = x;
+        CsvFormat(x1.withFirstRecordAsHeader()) as & Pure
 
 }

@@ -21,9 +21,10 @@ def getName(): CsvRowEvaluator[#{Name}] =
 
 pub def test01(): #{Name} & Impure =
     use Result.flatMap;
+    use FactIO/CsvFormat.{putSkipHeaderRecord};
     let step = () -> {
         let path = "e:/coding/flix/factio/data/stations.csv";
-        let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.Default, true);
+        let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* ans = FactIO/CsvImport.importRows(getName(), src);
         Ok(solve ans)        
     };
@@ -42,13 +43,15 @@ def getStation(): CsvRowEvaluator[#{Station}] =
 
 pub def test02(): #{Station} & Impure =
     use Result.flatMap;
+    use FactIO/CsvFormat.{withFirstRecordAsHeader};
     let step = () -> {
         let path = "e:/coding/flix/factio/data/stations.csv";
-        let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.Default, true);
+        let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows(getStation(), src);
         Ok(solve relns)
     };
     step() |> runResult
 
-
+def main(): #{Station} & Impure =
+    test02()
 

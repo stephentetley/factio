@@ -23,9 +23,10 @@ def csvDirection1(): CsvRowEvaluator[#{Direction}] =
 
 pub def csv01(): #{Direction} & Impure =
     use Result.flatMap;
+    use FactIO/CsvFormat.{withFirstRecordAsHeader};
     let step = () -> {
         let path = "e:/coding/flix/factio/data/compass.csv";
-        let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.Default, true);
+        let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows(csvDirection1(), src);
         Ok(solve relns)
     };
@@ -64,3 +65,5 @@ pub def lines01(): #{ Direction } & Impure =
     step() |> runResult
     
 
+def main(): #{ Direction } & Impure =
+    csv01()

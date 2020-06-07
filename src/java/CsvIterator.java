@@ -70,30 +70,24 @@ public class CsvIterator {
         }
     }
 
-    /// TODO - more options than hasHeaders...
-    public CsvIterator(String filepath, int format, boolean hasHeaders) throws Exception {
-        inputReader = new FileReader(filepath);
-        Iterable<CSVRecord> iterable;
-        CSVFormat csvformat = selectFormat(format);
-        if (hasHeaders) {
-            iterable = csvformat.withFirstRecordAsHeader().parse(inputReader);
-        } else {
-            iterable = csvformat.parse(inputReader);
-        }
+    public CsvIterator(Reader reader, CSVFormat format) throws Exception {
+        inputReader = reader;
+        Iterable<CSVRecord> iterable = format.parse(inputReader);
         csvIterator = iterable.iterator();
     }
 
-    /// Call this constructor for Excel created files...
-    public CsvIterator(String filepath, Charset cs, boolean hasHeaders) throws Exception {
+
+    public static CsvIterator createIteratorforFile(String filepath, CSVFormat format, Charset cs) throws Exception {
         FileInputStream instream = new FileInputStream(filepath);
-        inputReader = new InputStreamReader(new BOMInputStream(instream), cs);
-        Iterable<CSVRecord> iterable;
-        if (hasHeaders) {
-            iterable = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(inputReader);
-        } else {
-            iterable = CSVFormat.EXCEL.parse(inputReader);
-        }
-        csvIterator = iterable.iterator();
+        Reader reader = new InputStreamReader(instream, cs);
+        return new CsvIterator(reader, format);
+    }
+
+    /// Call this factory method for Excel created files...
+    public static CsvIterator createIteratorforBOMFile(String filepath, CSVFormat format, Charset cs) throws Exception {
+        FileInputStream instream = new FileInputStream(filepath);
+        Reader reader = new InputStreamReader(new BOMInputStream(instream), cs);
+        return new CsvIterator(reader, format);
     }
 
     public boolean hasNext() {

@@ -18,6 +18,7 @@ use System.Error.{ArrayIndexOutOfBoundsException, IllegalArgumentException, Ille
 use Text.Charset.{Charset};
 
 use FactIO.CsvFormat;
+use FactIO.CsvFormat.{CsvFormat};
 use FactIO.CsvRowEvaluator;
 use FactIO.CsvRowEvaluator.{CsvRowEvaluator};
 
@@ -31,14 +32,15 @@ namespace FactIO/CsvImport {
     ///
     /// Returns a new Csv Stream.
     ///
-    pub def newCsvStream(filepath: String, format: CsvFormat, hasHeaders: Bool): Result[Stream[CsvRow], System.Error] & Impure=
-        import new flix.runtime.spt.factio.CsvIterator(String, Int32, Bool) as newCsvIterator;
+    pub def newCsvStream(filepath: String, format: CsvFormat, cs: Text.Charset): Result[Stream[CsvRow], System.Error] & Impure=
+        import flix.runtime.spt.factio.CsvIterator:createIteratorforFile(String, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset) as newCsvIterator;
         import flix.runtime.spt.factio.CsvIterator.hasNext() as ffiHasNext;
         import flix.runtime.spt.factio.CsvIterator.next() as ffiNext;
         import flix.runtime.spt.factio.CsvIterator.close() as ffiClose;
         try {
-            let fmt = FactIO/CsvFormat.toInt32(format);
-            let iter = newCsvIterator(filepath, fmt, hasHeaders);
+            let CsvFormat(fmt1) = format;
+            let Charset(cs1) = cs;
+            let iter = newCsvIterator(filepath, fmt1, cs1);
             let streamiter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = () -> ffiNext(iter)
@@ -53,14 +55,15 @@ namespace FactIO/CsvImport {
     ///
     /// Returns a new Csv Stream from a file with a BOM.
     ///
-    pub def newCsvStreamWithBOM(filepath: String, cs: Text.Charset, hasHeaders: Bool): Result[Stream[CsvRow], System.Error] & Impure =
-        import new flix.runtime.spt.factio.CsvIterator(String, ##java.nio.charset.Charset, Bool) as newCsvIterator;
+    pub def newCsvStreamWithBOM(filepath: String, format: CsvFormat, cs: Text.Charset): Result[Stream[CsvRow], System.Error] & Impure =
+        import flix.runtime.spt.factio.CsvIterator:createIteratorforBOMFile(String, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset) as newCsvIterator;
         import flix.runtime.spt.factio.CsvIterator.hasNext() as ffiHasNext;
         import flix.runtime.spt.factio.CsvIterator.next() as ffiNext;
         import flix.runtime.spt.factio.CsvIterator.close() as ffiClose;
         try {
+            let CsvFormat(fmt1) = format;
             let Charset(cs1) = cs;
-            let iter = newCsvIterator(filepath, cs1, hasHeaders);
+            let iter = newCsvIterator(filepath, fmt1, cs1);
             let streamiter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = () -> ffiNext(iter)
