@@ -65,5 +65,3 @@ pub def test04(): #{Lang} & Impure =
     step() |> runResult
     
 
-pub def main(): #{Lang} & Impure = 
-    test02()

@@ -21,7 +21,7 @@ def getName(): CsvRowEvaluator[#{Name}] =
 
 pub def test01(): #{Name} & Impure =
     use Result.flatMap;
-    use FactIO/CsvFormat.{putSkipHeaderRecord};
+    use FactIO/CsvFormat.{withFirstRecordAsHeader};
     let step = () -> {
         let path = "e:/coding/flix/factio/data/stations.csv";
         let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
@@ -52,6 +52,5 @@ pub def test02(): #{Station} & Impure =
     };
     step() |> runResult
 
-def main(): #{Station} & Impure =
-    test02()
+
 

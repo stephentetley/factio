@@ -102,6 +102,28 @@ namespace FactIO/CsvFormat {
         let CsvFormat(x1) = x;
         CsvFormat(x1.withAllowMissingColumnNames(allow)) as & Pure
 
+    pub def getDelimiter(x: CsvFormat): Char =
+        import org.apache.commons.csv.CSVFormat.getDelimiter();
+        let CsvFormat(x1) = x;
+        x1.getDelimiter() as & Pure
+
+    pub def putDelimiter(x: CsvFormat, delimiter: Char): CsvFormat =
+        import org.apache.commons.csv.CSVFormat.withDelimiter(Char);
+        let CsvFormat(x1) = x;
+        CsvFormat(x1.withDelimiter(delimiter)) as & Pure
+
+    pub def getEscapeChar(x: CsvFormat): Char =
+        import org.apache.commons.csv.CSVFormat.getEscapeCharacter();
+        import java.lang.Character.charValue();
+        let CsvFormat(x1) = x;
+        x1.getEscapeCharacter().charValue() as & Pure
+
+    pub def putEscapeChar(x: CsvFormat, escape: Char): CsvFormat =
+        import org.apache.commons.csv.CSVFormat.withEscape(Char);
+        let CsvFormat(x1) = x;
+        CsvFormat(x1.withEscape(escape)) as & Pure
+
+
     pub def getIgnoreEmptyLines(x: CsvFormat): Bool =
         import org.apache.commons.csv.CSVFormat.getIgnoreEmptyLines();
         let CsvFormat(x1) = x;
@@ -111,6 +133,18 @@ namespace FactIO/CsvFormat {
         import org.apache.commons.csv.CSVFormat.withIgnoreEmptyLines(Bool);
         let CsvFormat(x1) = x;
         CsvFormat(x1.withIgnoreEmptyLines(ignore)) as & Pure
+
+
+    pub def getQuoteChar(x: CsvFormat): Char =
+        import org.apache.commons.csv.CSVFormat.getQuoteCharacter();
+        import java.lang.Character.charValue();
+        let CsvFormat(x1) = x;
+        x1.getQuoteCharacter().charValue() as & Pure
+
+    pub def putQuoteChar(x: CsvFormat, quote: Char): CsvFormat =
+        import org.apache.commons.csv.CSVFormat.withQuote(Char);
+        let CsvFormat(x1) = x;
+        CsvFormat(x1.withQuote(quote)) as & Pure
 
     pub def getSkipHeaderRecord(x: CsvFormat): Bool =
         import org.apache.commons.csv.CSVFormat.getSkipHeaderRecord();
