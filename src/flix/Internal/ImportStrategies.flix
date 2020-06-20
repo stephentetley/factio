@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-
+use Data.Stream;
 
 namespace FactIO/Internal/ImportStrategies {
 
@@ -31,7 +31,7 @@ namespace FactIO/Internal/ImportStrategies {
             case Ok(a1) => Ok(ac <+> a1)
             case Err(e) => Err(e)
         };        
-        Stream.foldResult(step, #{ }, s)
+        Data/Stream.foldResult(step, #{ }, s)
 
 
     ///
@@ -47,7 +47,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };        
-        Stream.foldResult(step, (#{ }, 0), s) 
+        Data/Stream.foldResult(step, (#{ }, 0), s)
             |> Result.map(fst)
 
 
@@ -64,7 +64,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };        
-        Stream.foldResult(step, (#{ }, st), s) 
+        Data/Stream.foldResult(step, (#{ }, st), s)
     
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
@@ -79,7 +79,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };        
-        Stream.foldResult(step, (#{ }, 0, st), s) 
+        Data/Stream.foldResult(step, (#{ }, 0, st), s)
             |> Result.map(xyz -> let (x, _, z) = xyz; (x,z))
 
  }

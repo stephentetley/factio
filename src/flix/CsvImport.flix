@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+use Data.Stream;
 use System.Error.{ArrayIndexOutOfBoundsException, IllegalArgumentException, IllegalStateException, IOException, Generic};
 use Text.Charset.{Charset};
 
@@ -46,7 +47,7 @@ namespace FactIO/CsvImport {
                 , next = () -> ffiNext(iter)
                 , finalize = () -> ffiClose(iter)
             };
-            Ok(Stream.fromIterator(streamiter))
+            Ok(Data/Stream.fromIterator(streamiter))
         } catch {
             case _: ##java.io.FileNotFoundException => Err(Generic("newCsvStream - file not found"))
             case _: ##java.io.IOException => Err(Generic("IOException"))
@@ -69,7 +70,7 @@ namespace FactIO/CsvImport {
                 , next = () -> ffiNext(iter)
                 , finalize = () -> ffiClose(iter)
             };
-            Ok(Stream.fromIterator(streamiter))
+            Ok(Data/Stream.fromIterator(streamiter))
         } catch {
             case _: ##java.io.FileNotFoundException => Err(Generic("newCsvStream - file not found"))
             case _: ##java.io.IOException => Err(Generic("newCsvStream - io exception"))

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+use Data.Stream;
 use System.Error.{IOException, Generic};
 
 use FactIO.SQLiteRowEvaluator;
@@ -41,7 +42,7 @@ namespace FactIO/SQLiteImport {
                 , next = () -> ffiNext(iter)
                 , finalize = () -> ffiClose(iter)
             };
-            Ok(Stream.fromIterator(streamiter))
+            Ok(Data/Stream.fromIterator(streamiter))
         } catch {
             case _: ##java.io.FileNotFoundException => Err(IOException)
             case _: ##java.io.IOException => Err(IOException)
