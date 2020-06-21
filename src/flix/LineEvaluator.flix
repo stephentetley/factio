@@ -96,20 +96,19 @@ namespace FactIO/LineEvaluator {
 
     pub def matchRegex(pattern: String, eval: Text/Regex.MatchEvaluator[a]): LineEvaluator[a] =
         use Result.flatMap;
-        use Text/Regex.{evaluateMatch};
+        use Text/Regex.{evalMatches};
         LineEvaluator(s ->
             let* patt = Text/Regex/Pattern.compile(pattern);
-            let* ans = evaluateMatch(patt, eval, s);
+            let* ans = evalMatches(s, patt, eval);
             Ok(ans)
         )
 
     pub def findRegex(pattern: String, eval: Text/Regex.MatchEvaluator[a]): LineEvaluator[a] =
         use Result.flatMap;
-        use Text/Regex/Match.{tryFindMatch, evaluate};
+        use Text/Regex.{evalContains};
         LineEvaluator(s -> 
             let* patt = Text/Regex/Pattern.compile(pattern);
-            let* m1 = tryFindMatch(patt, s);
-            let* ans = m1.evaluate(eval);    
+            let* ans = evalContains(s, patt, eval);
             Ok(ans)
         )
 
