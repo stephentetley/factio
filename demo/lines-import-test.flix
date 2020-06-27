@@ -1,5 +1,5 @@
 use FactIO.LineEvaluator;
-use FactIO.LinesImporter;
+use FactIO.LinesParser;
 
 def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     case Ok(reln) => reln
@@ -19,25 +19,28 @@ def getColour1(): LineEvaluator[#{ Colour }] =
     let ans = makeColour(str);
     return(ans)
     
-def getColours(): LinesImporter[#{ Colour }] = 
-    use FactIO/LinesImporter.{lines};
+def getColours(): LinesParser[#{ Colour }, Unit] = 
+    use FactIO/LinesParser.{lines};
     lines(getColour1())
 
 pub def test01(): #{ Colour } & Impure =
     use Result.flatMap;
     let step = () -> {
         let path = "e:/coding/flix/factio/data/colours.txt";
-        let* relns = FactIO/LinesImporter.runLinesImporter(getColours(), path, Text/Charset.utf_8());
+        let* relns = FactIO/LinesParser.runLinesParser(getColours(), (), path, Text/Charset.utf_8());
         Ok(solve relns)
     };
     step() |> runResult
 
-pub def test02(): #{ Colour } & Impure =
-    use Result.flatMap;
-    let step = () -> {
-        let path = "e:/coding/flix/factio/data/colours.utf16le.txt";
-        let* relns = FactIO/LinesImporter.runLinesImporter(getColours(), path, Text/Charset.utf_16le());
-        Ok (solve relns)
-    };
-    step() |> runResult   
+// pub def test02(): #{ Colour } & Impure =
+//     use Result.flatMap;
+//     let step = () -> {
+//         let path = "e:/coding/flix/factio/data/colours.utf16le.txt";
+//         let* relns = FactIO/LinesParser.runLinesParser(getColours(), path, Text/Charset.utf_16le());
+//         Ok (solve relns)
+//     };
+//     step() |> runResult   
+
+def main(): #{ Colour } & Impure = test01()
+
 
