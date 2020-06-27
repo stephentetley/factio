@@ -16,15 +16,15 @@
 
 use System.Error.{InputMismatchException};
 
-use FactIO.LineEvaluator;
-use FactIO.LineEvaluator.{LineEvaluator};
+use FactIO/FlatFile.LineEvaluator;
+use FactIO/FlatFile.LineEvaluator.{LineEvaluator};
 
-namespace FactIO { 
+namespace FactIO/FlatFile {
 
     pub opaque type LineEvaluator[a] = String ~> Result[a, System.Error]
 }
 
-namespace FactIO/LineEvaluator {
+namespace FactIO/FlatFile/LineEvaluator {
 
 
     pub def return(x: a): LineEvaluator[a] = 

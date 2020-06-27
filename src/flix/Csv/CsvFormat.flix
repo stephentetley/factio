@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-use FactIO.CsvFormat;
-use FactIO.CsvFormat.{CsvFormat};
+use FactIO/Csv.CsvFormat;
+use FactIO/Csv.CsvFormat.{CsvFormat};
 
-namespace FactIO {
+namespace FactIO/Csv {
 
     ///
     /// Represents a CSVFormat.
@@ -27,7 +27,7 @@ namespace FactIO {
 }
 
 
-namespace FactIO/CsvFormat {
+namespace FactIO/Csv/CsvFormat {
 
 
     pub enum QuoteMode {

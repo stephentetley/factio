@@ -18,11 +18,11 @@ use System.Error.{IOException, Generic};
 use Text.Charset.{Charset};
 
 
-use FactIO.CsvWriter;
-use FactIO.CsvWriter.{CsvWriter};
-use FactIO.CsvBuilder;
+use FactIO/Csv.CsvWriter;
+use FactIO/Csv.CsvWriter.{CsvWriter};
+use FactIO/Csv.CsvBuilder;
 
-namespace FactIO {
+namespace FactIO/Csv {
 
     ///
     /// Represents a CsvWriter.
@@ -33,7 +33,7 @@ namespace FactIO {
 
 }
 
-namespace FactIO/CsvExport {
+namespace FactIO/Csv/Export {
 
     type alias MarshalRow = ##flix.runtime.spt.factio.marshal.MarshalRow
 
@@ -49,7 +49,7 @@ namespace FactIO/CsvExport {
             let* _ = w1.writeRow(headers);
             Ok(w1)
         } catch {
-            case _: ##java.lang.Exception => Err(Generic("new CsvWriter"))
+            case _: ##java.lang.Exception => Err(Generic("new Csv.Writer"))
         }
 
     def serializeRow(cells: Array[String]): MarshalRow & Impure =
@@ -80,7 +80,7 @@ namespace FactIO/CsvExport {
 
     pub def emptyCsvBuilder(): CsvBuilder = Nil
 
-    pub def makeBuildStep(f: x -> Array[String] & e): (x,CsvBuilder) -> CsvBuilder =
+    pub def makeCsvBuildStep(f: x -> Array[String] & e): (x, CsvBuilder) -> CsvBuilder =
         (x, ws) ->
             let w1 = { w ->  let cells = f(x) as & Impure; writeRow(w, cells); () };
             w1 :: ws

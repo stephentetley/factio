@@ -23,18 +23,18 @@ use System.Error.{ArrayIndexOutOfBoundsException,
 
 use Text.Charset.{Charset};
 
-use FactIO.CsvFormat;
+use FactIO/Csv.CsvFormat;
 
-use FactIO.CsvRowEvaluator;
-use FactIO.CsvRowEvaluator.{CsvRowEvaluator};
+use FactIO/Csv.CsvRowEvaluator;
+use FactIO/Csv.CsvRowEvaluator.{CsvRowEvaluator};
 
-namespace FactIO { 
+namespace FactIO/Csv {
 
     pub opaque type CsvRowEvaluator[a] = ##flix.runtime.spt.factio.CsvRow ~> Result[a, System.Error]
 }
 
 
-namespace FactIO/CsvRowEvaluator {
+namespace FactIO/Csv/RowEvaluator {
 
 
     pub def return(x: a): CsvRowEvaluator[a] = 

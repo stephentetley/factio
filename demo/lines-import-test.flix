@@ -1,5 +1,5 @@
-use FactIO.LineEvaluator;
-use FactIO.LinesParser;
+use FactIO/FlatFile.LineEvaluator;
+use FactIO/FlatFile.Parser;
 
 def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     case Ok(reln) => reln
@@ -14,20 +14,20 @@ rel Colour(name: String)
 def makeColour(name: String): #{ Colour } = Colour(name).
 
 def getColour1(): LineEvaluator[#{ Colour }] = 
-    use FactIO/LineEvaluator.{flatMap, content, return};
+    use FactIO/FlatFile/LineEvaluator.{flatMap, content, return};
     let* str = content();
     let ans = makeColour(str);
     return(ans)
     
-def getColours(): LinesParser[#{ Colour }, Unit] = 
-    use FactIO/LinesParser.{lines};
+def getColours(): Parser[#{ Colour }, Unit] = 
+    use FactIO/FlatFile/Parser.{lines};
     lines(getColour1())
 
 pub def test01(): #{ Colour } & Impure =
     use Result.flatMap;
     let step = () -> {
         let path = "e:/coding/flix/factio/data/colours.txt";
-        let* relns = FactIO/LinesParser.runLinesParser(getColours(), (), path, Text/Charset.utf_8());
+        let* relns = FactIO/FlatFile/Parser.runParser(getColours(), (), path, Text/Charset.utf_8());
         Ok(solve relns)
     };
     step() |> runResult

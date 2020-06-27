@@ -22,8 +22,8 @@ namespace TestCsvFormat {
 
 @test
 def toString01(): String =
-    use FactIO/CsvFormat.{toString};
-    FactIO/CsvFormat.default() |> toString
+    use FactIO/Csv/CsvFormat.{toString};
+    FactIO/Csv/CsvFormat.default() |> toString
 
 /////////////////////////////////////////////////////////////////////////////
 // compare                                                                 //
@@ -31,8 +31,8 @@ def toString01(): String =
 
 //@test
 //def compare01(): Bool =
-//    use FactIO/CsvFormat.{compare};
-//    compare(FactIO/CsvFormat.Default, FactIO/CsvFormat.Default) == 0
+//    use FactIO/Csv/CsvFormat.{compare};
+//    compare(FactIO/Csv/CsvFormat.Default, FactIO/Csv/CsvFormat.Default) == 0
 
 
 }
