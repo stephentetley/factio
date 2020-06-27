@@ -28,7 +28,7 @@ namespace FactIO/FlatFile {
 
 namespace FactIO/FlatFile/RowEvaluator {
 
-    pub def toLineEvaluator(splitter: String -> Array[String], eval: RowEvaluator[a]): LineEvaluator[a] =
+    pub def toLineEvaluator(splitter: String ~> Array[String], eval: RowEvaluator[a]): LineEvaluator[a] =
         let RowEvaluator(f) = eval;
         LineEvaluator(s -> let arr = splitter(s); f(arr))
 
