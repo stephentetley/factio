@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-use System.Error.{InputMismatchException};
+use System.Error.{InputMismatchException, Generic};
 
 use FactIO/FlatFile.LineEvaluator;
 use FactIO/FlatFile.LineEvaluator.{LineEvaluator};
@@ -111,6 +111,11 @@ namespace FactIO/FlatFile/LineEvaluator {
             let* ans = evalContains(s, patt, eval);
             Ok(ans)
         )
+
+    pub def ifThen(cond: LineEvaluator[Bool], eval: LineEvaluator[a]): LineEvaluator[Option[a]] =
+        bind(cond, b -> if (b) map(Some, eval) else return(None))
+
+
 
     ///
     /// Applies the binary function `f` to the values in `o1` and `o2`.
