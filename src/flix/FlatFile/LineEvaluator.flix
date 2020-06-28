@@ -94,23 +94,29 @@ namespace FactIO/FlatFile/LineEvaluator {
     pub def content(): LineEvaluator[String] =
         LineEvaluator(s -> Ok(s) as & Impure)
 
-    pub def matchRegex(pattern: String, eval: Text/Regex.MatchEvaluator[a]): LineEvaluator[a] =
+    pub def matches(patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): LineEvaluator[a] =
         use Result.flatMap;
         use Text/Regex.{evalMatches};
         LineEvaluator(s ->
-            let* patt = Text/Regex/Pattern.compile(pattern);
             let* ans = evalMatches(s, patt, eval);
             Ok(ans)
         )
 
-    pub def findRegex(pattern: String, eval: Text/Regex.MatchEvaluator[a]): LineEvaluator[a] =
+    pub def matchesRegex(regex: String, eval: Text/Regex.MatchEvaluator[a]): LineEvaluator[a] =
+        let* patt = liftResult(Text/Regex/Pattern.compile(regex));
+        matches(patt, eval)
+
+    pub def find(patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): LineEvaluator[a] =
         use Result.flatMap;
         use Text/Regex.{evalContains};
-        LineEvaluator(s -> 
-            let* patt = Text/Regex/Pattern.compile(pattern);
+        LineEvaluator(s ->
             let* ans = evalContains(s, patt, eval);
             Ok(ans)
         )
+
+    pub def findRegex(regex: String, eval: Text/Regex.MatchEvaluator[a]): LineEvaluator[a] =
+        let* patt = liftResult(Text/Regex/Pattern.compile(regex));
+        find(patt, eval)
 
     pub def ifThen(cond: LineEvaluator[Bool], eval: LineEvaluator[a]): LineEvaluator[Option[a]] =
         bind(cond, b -> if (b) map(Some, eval) else return(None))
