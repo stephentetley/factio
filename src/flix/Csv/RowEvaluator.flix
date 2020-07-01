@@ -84,6 +84,9 @@ namespace FactIO/Csv/RowEvaluator {
     pub def liftResult(x: Result[a, System.Error]): CsvRowEvaluator[a] = 
         CsvRowEvaluator(_ -> x as & Impure)
 
+    def liftAction(fn: Unit ~> Result[a, System.Error]): CsvRowEvaluator[a] =
+        CsvRowEvaluator(_ -> fn())
+
     pub def throwError(err: System.Error): CsvRowEvaluator[a] =
         CsvRowEvaluator(_ -> Err(err) as & Impure)
 
@@ -295,6 +298,16 @@ namespace FactIO/Csv/RowEvaluator {
                 case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
             }
         )
+
+    pub def evalMatchesByLabel(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+        let* input = getStringByLabel(label);
+        let* ans = liftAction(_ -> Text/Regex.evalMatches(input, patt, eval));
+        return(ans)
+
+    pub def evalContainsByLabel(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+        let* input = getStringByLabel(label);
+        let* ans = liftAction(_ -> Text/Regex.evalContains(input, patt, eval));
+        return(ans)
 
     ///
     /// Applies the binary function `f` to the values in `o1` and `o2`.

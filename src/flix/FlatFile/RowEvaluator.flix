@@ -76,7 +76,10 @@ namespace FactIO/FlatFile/RowEvaluator {
     def liftResult(x: Result[a, System.Error]): RowEvaluator[a] =
         RowEvaluator(_ -> x as & Impure)
 
-     // Cell readers, by label only
+    def liftAction(fn: Unit ~> Result[a, System.Error] ): RowEvaluator[a] =
+        RowEvaluator(_ -> fn())
+
+    // Cell readers, by index only
 
     pub def getString(ix: Int32): RowEvaluator[String] =
         RowEvaluator(row ->
@@ -87,6 +90,17 @@ namespace FactIO/FlatFile/RowEvaluator {
                 Err(IllegalArgumentException)
             }
         )
+
+
+    pub def evalMatches(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): RowEvaluator[a] =
+        let* input = getString(ix);
+        let* ans = liftAction(_ -> Text/Regex.evalMatches(input, patt, eval));
+        return(ans)
+
+    pub def evalContains(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): RowEvaluator[a] =
+        let* input = getString(ix);
+        let* ans = liftAction(_ -> Text/Regex.evalContains(input, patt, eval));
+        return(ans)
 
     pub def getInt8(ix: Int32): RowEvaluator[Int8] =
         let* s = getString(ix);
