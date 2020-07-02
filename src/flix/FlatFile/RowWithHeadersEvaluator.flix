@@ -78,10 +78,10 @@ namespace FactIO/FlatFile/RowWithHeadersEvaluator {
 
     pub def flatMap(k: a -> RowWithHeadersEvaluator[b], x: RowWithHeadersEvaluator[a]): RowWithHeadersEvaluator[b] = bind(x, k)
 
-    def liftResult(x: Result[a, System.Error]): RowWithHeadersEvaluator[a] =
+    pub def liftResult(x: Result[a, System.Error]): RowWithHeadersEvaluator[a] =
         RowWithHeadersEvaluator((_,_) -> x as & Impure)
 
-    def liftAction(fn: Unit ~> Result[a, System.Error] ): RowWithHeadersEvaluator[a] =
+    pub def liftOperation(fn: Unit ~> Result[a, System.Error] ): RowWithHeadersEvaluator[a] =
         RowWithHeadersEvaluator((_,_) -> fn())
 
      // Cell readers, by label only
@@ -101,12 +101,12 @@ namespace FactIO/FlatFile/RowWithHeadersEvaluator {
 
     pub def evalMatches(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): RowWithHeadersEvaluator[a] =
         let* input = getString(label);
-        let* ans = liftAction(_ -> Text/Regex.evalMatches(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
         return(ans)
 
     pub def evalContains(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): RowWithHeadersEvaluator[a] =
         let* input = getString(label);
-        let* ans = liftAction(_ -> Text/Regex.evalContains(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
         return(ans)
 
     pub def getInt8(label: String): RowWithHeadersEvaluator[Int8] =

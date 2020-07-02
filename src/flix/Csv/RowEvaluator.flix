@@ -84,7 +84,7 @@ namespace FactIO/Csv/RowEvaluator {
     pub def liftResult(x: Result[a, System.Error]): CsvRowEvaluator[a] = 
         CsvRowEvaluator(_ -> x as & Impure)
 
-    def liftAction(fn: Unit ~> Result[a, System.Error]): CsvRowEvaluator[a] =
+    pub def liftOperation(fn: Unit ~> Result[a, System.Error]): CsvRowEvaluator[a] =
         CsvRowEvaluator(_ -> fn())
 
     pub def throwError(err: System.Error): CsvRowEvaluator[a] =
@@ -301,22 +301,22 @@ namespace FactIO/Csv/RowEvaluator {
 
     pub def evalMatchesByIndex(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
         let* input = getStringByIndex(ix);
-        let* ans = liftAction(_ -> Text/Regex.evalMatches(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
         return(ans)
 
     pub def evalMatchesByLabel(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
         let* input = getStringByLabel(label);
-        let* ans = liftAction(_ -> Text/Regex.evalMatches(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
         return(ans)
 
     pub def evalContainsByIndex(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
         let* input = getStringByIndex(ix);
-        let* ans = liftAction(_ -> Text/Regex.evalContains(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
         return(ans)
 
     pub def evalContainsByLabel(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
         let* input = getStringByLabel(label);
-        let* ans = liftAction(_ -> Text/Regex.evalContains(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
         return(ans)
 
     pub def getLocalDateByIndex(ix: Int32, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =

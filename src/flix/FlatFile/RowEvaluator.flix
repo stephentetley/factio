@@ -73,10 +73,10 @@ namespace FactIO/FlatFile/RowEvaluator {
 
     pub def flatMap(k: a -> RowEvaluator[b], x: RowEvaluator[a]): RowEvaluator[b] = bind(x, k)
 
-    def liftResult(x: Result[a, System.Error]): RowEvaluator[a] =
+    pub def liftResult(x: Result[a, System.Error]): RowEvaluator[a] =
         RowEvaluator(_ -> x as & Impure)
 
-    def liftAction(fn: Unit ~> Result[a, System.Error] ): RowEvaluator[a] =
+    pub def liftOperation(fn: Unit ~> Result[a, System.Error]): RowEvaluator[a] =
         RowEvaluator(_ -> fn())
 
     // Cell readers, by index only
@@ -94,12 +94,12 @@ namespace FactIO/FlatFile/RowEvaluator {
 
     pub def evalMatches(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): RowEvaluator[a] =
         let* input = getString(ix);
-        let* ans = liftAction(_ -> Text/Regex.evalMatches(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
         return(ans)
 
     pub def evalContains(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): RowEvaluator[a] =
         let* input = getString(ix);
-        let* ans = liftAction(_ -> Text/Regex.evalContains(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
         return(ans)
 
     pub def getInt8(ix: Int32): RowEvaluator[Int8] =
