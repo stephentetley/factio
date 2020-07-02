@@ -133,5 +133,19 @@ namespace FactIO/FlatFile/RowWithHeadersEvaluator {
         let* s = getString(label);
         liftResult(Float64.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
 
+    pub def getLocalDate(label: String, formatter: Time/Format.DateFormatter): RowWithHeadersEvaluator[Time.LocalDate] =
+        let* input = getString(label);
+        let* ans = liftResult(Time/LocalDate.parse(input, formatter));
+        return(ans)
+
+    pub def getLocalDateTime(label: String, formatter: Time/Format.DateTimeFormatter): RowWithHeadersEvaluator[Time.LocalDateTime] =
+        let* input = getString(label);
+        let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
+        return(ans)
+
+    pub def getLocalTime(label: String, formatter: Time/Format.TimeFormatter): RowWithHeadersEvaluator[Time.LocalTime] =
+        let* input = getString(label);
+        let* ans = liftResult(Time/LocalTime.parse(input, formatter));
+        return(ans)
 
 }

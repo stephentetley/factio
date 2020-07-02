@@ -126,5 +126,21 @@ namespace FactIO/FlatFile/RowEvaluator {
         let* s = getString(ix);
         liftResult(Float64.fromString(s) |> Result.mapErr(_ -> InputMismatchException))
 
+    pub def getLocalDate(ix: Int32, formatter: Time/Format.DateFormatter): RowEvaluator[Time.LocalDate] =
+        let* input = getString(ix);
+        let* ans = liftResult(Time/LocalDate.parse(input, formatter));
+        return(ans)
+
+
+    pub def getLocalDateTime(ix: Int32, formatter: Time/Format.DateTimeFormatter): RowEvaluator[Time.LocalDateTime] =
+        let* input = getString(ix);
+        let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
+        return(ans)
+
+
+    pub def getLocalTime(ix: Int32, formatter: Time/Format.TimeFormatter): RowEvaluator[Time.LocalTime] =
+        let* input = getString(ix);
+        let* ans = liftResult(Time/LocalTime.parse(input, formatter));
+        return(ans)
 
 }

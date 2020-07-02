@@ -299,14 +299,54 @@ namespace FactIO/Csv/RowEvaluator {
             }
         )
 
+    pub def evalMatchesByIndex(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+        let* input = getStringByIndex(ix);
+        let* ans = liftAction(_ -> Text/Regex.evalMatches(input, patt, eval));
+        return(ans)
+
     pub def evalMatchesByLabel(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
         let* input = getStringByLabel(label);
         let* ans = liftAction(_ -> Text/Regex.evalMatches(input, patt, eval));
         return(ans)
 
+    pub def evalContainsByIndex(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+        let* input = getStringByIndex(ix);
+        let* ans = liftAction(_ -> Text/Regex.evalContains(input, patt, eval));
+        return(ans)
+
     pub def evalContainsByLabel(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
         let* input = getStringByLabel(label);
         let* ans = liftAction(_ -> Text/Regex.evalContains(input, patt, eval));
+        return(ans)
+
+    pub def getLocalDateByIndex(ix: Int32, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
+        let* input = getStringByIndex(ix);
+        let* ans = liftResult(Time/LocalDate.parse(input, formatter));
+        return(ans)
+
+    pub def getLocalDateByLabel(label: String, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
+        let* input = getStringByLabel(label);
+        let* ans = liftResult(Time/LocalDate.parse(input, formatter));
+        return(ans)
+
+    pub def getLocalDateTimeByIndex(ix: Int32, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
+        let* input = getStringByIndex(ix);
+        let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
+        return(ans)
+
+    pub def getLocalDateTimeByLabel(label: String, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
+        let* input = getStringByLabel(label);
+        let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
+        return(ans)
+
+    pub def getLocalTimeByIndex(ix: Int32, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
+        let* input = getStringByIndex(ix);
+        let* ans = liftResult(Time/LocalTime.parse(input, formatter));
+        return(ans)
+
+    pub def getLocalTimeByLabel(label: String, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
+        let* input = getStringByLabel(label);
+        let* ans = liftResult(Time/LocalTime.parse(input, formatter));
         return(ans)
 
     ///
