@@ -84,5 +84,11 @@ namespace FactIO/SQLite/Import {
         let mf = (row, ix, st) -> { let SQLiteRowEvaluator(r1) = eval(ix, st); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(mf, state, src)
 
+    ///
+    /// Returns a list of applying `eval` to all rows in the input stream `src`.
+    ///
+    pub def getRows(eval: SQLiteRowEvaluator[a], src: Stream[SQLiteRow]): Result[List[a], System.Error] & Impure =
+        let SQLiteRowEvaluator(mf) = eval;
+        FactIO/Internal/ImportStrategies.getRows(mf, src)
 
 }
