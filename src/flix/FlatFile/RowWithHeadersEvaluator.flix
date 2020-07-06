@@ -84,9 +84,13 @@ namespace FactIO/FlatFile/RowWithHeadersEvaluator {
     pub def liftOperation(fn: Unit ~> Result[a, System.Error] ): RowWithHeadersEvaluator[a] =
         RowWithHeadersEvaluator((_,_) -> fn())
 
-     // Cell readers, by label only
+    // Cell readers, by label only
 
+    /// Note - answer is trimmed, use `getCell` if you need exact contents
     pub def getString(label: String): RowWithHeadersEvaluator[String] =
+        map(String.trim, getCell(label))
+
+    pub def getCell(label: String): RowWithHeadersEvaluator[String] =
         RowWithHeadersEvaluator((ixs, row) -> match Map.get(label, ixs) {
             case None => Err(IllegalArgumentException)
             case Some(ix) => {

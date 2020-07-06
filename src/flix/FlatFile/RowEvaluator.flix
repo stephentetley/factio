@@ -81,7 +81,11 @@ namespace FactIO/FlatFile/RowEvaluator {
 
     // Cell readers, by index only
 
+    /// Note - answer is trimmed, use `getCell` if you need exact contents
     pub def getString(ix: Int32): RowEvaluator[String] =
+        map(String.trim, getCell(ix))
+
+    pub def getCell(ix: Int32): RowEvaluator[String] =
         RowEvaluator(row ->
             if (ix >= 0 && ix < Array.length(row)) {
                 let s = row[ix];
