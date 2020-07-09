@@ -44,7 +44,7 @@ namespace FactIO/FlatFile/RowWithHeadersEvaluator {
         let RowWithHeadersEvaluator(f) = x;
         f(indices, row)
 
-    pub def map(f: a -> b & e, x: RowWithHeadersEvaluator[a]): RowWithHeadersEvaluator[b] =
+    pub def map(f: a -> b & ef, x: RowWithHeadersEvaluator[a]): RowWithHeadersEvaluator[b] =
         RowWithHeadersEvaluator((ixs, row) ->
             match apply1(x, ixs, row) {
                 case Ok(a) => {
@@ -55,12 +55,12 @@ namespace FactIO/FlatFile/RowWithHeadersEvaluator {
             }
         )        
 
-    pub def ap(mf: RowWithHeadersEvaluator[a -> b], ma: RowWithHeadersEvaluator[a]): RowWithHeadersEvaluator[b] =
+    pub def ap(mf: RowWithHeadersEvaluator[a -> b & ef], ma: RowWithHeadersEvaluator[a]): RowWithHeadersEvaluator[b] =
         RowWithHeadersEvaluator((ixs, row) ->
             match apply1(mf, ixs, row) {
                 case Ok(f) => { 
                     match apply1(ma, ixs, row) {
-                        case Ok(a) => Ok(f(a))
+                        case Ok(a) => Ok(f(a) as & Impure)
                         case Err(e2) => Err(e2)
                     }
                 }
@@ -151,5 +151,149 @@ namespace FactIO/FlatFile/RowWithHeadersEvaluator {
         let* input = getString(label);
         let* ans = liftResult(Time/LocalTime.parse(input, formatter));
         return(ans)
+
+    ///
+    /// Applies the binary function `f` to the values in `o1` and `o2`.
+    ///
+    /// Returns an error if either `o1` or `o2` are errors.
+    ///
+    pub def lift2(f: (t1, t2) -> u & ef, o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2]): RowWithHeadersEvaluator[u] =
+        ap(map(f, o1), o2)
+        
+    ///
+    /// Applies the ternary function `f` to the values in `o1`, `o2` and `o3`.
+    ///
+    /// Returns an error if any of `o1`, `o2` and `o3` are errors.
+    ///
+    pub def lift3(f: (t1, t2, t3) -> u & ef, o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3]): RowWithHeadersEvaluator[u] =
+        ap(lift2(f, o1, o2), o3)
+
+    ///
+    /// Applies the 4-ary function `f` to the values in `o1`, `o2`, `o3` and `o4`.
+    ///
+    /// Returns an error if any of `o1`, `o2`, `o3` and `o4` are errors.
+    ///
+    pub def lift4(f: (t1, t2, t3, t4) -> u & ef, o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4]): RowWithHeadersEvaluator[u] =
+        ap(lift3(f, o1, o2, o3), o4)
+
+    ///
+    /// Applies the 5-ary function `f` to the values in `o1`, `o2`, ... `o5`.
+    ///
+    /// Returns an error if any of `o1`, `o2`, ... `o5` are errors.
+    ///
+    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef, o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5]): RowWithHeadersEvaluator[u] =
+        ap(lift4(f, o1, o2, o3, o4), o5)
+
+    ///
+    /// Applies the 6-ary function `f` to the values in `o1`, `o2`, ... `o6`.
+    ///
+    /// Returns an error if any of `o1`, `o2`, ... `o6` are errors.
+    ///
+    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef, o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5], o6: RowWithHeadersEvaluator[t6]): RowWithHeadersEvaluator[u] =
+        ap(lift5(f, o1, o2, o3, o4, o5), o6)
+
+    ///
+    /// Applies the 7-ary function `f` to the values in `o1`, `o2`, ... `o7`.
+    ///
+    /// Returns an error if any of `o1`, `o2`, ... `o7` are errors.
+    ///
+    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef, o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5], o6: RowWithHeadersEvaluator[t6], o7: RowWithHeadersEvaluator[t7]): RowWithHeadersEvaluator[u] =
+        ap(lift6(f, o1, o2, o3, o4, o5, o6), o7)
+
+    ///
+    /// Applies the 8-ary function `f` to the values in `o1`, `o2`, ... `o8`.
+    ///
+    /// Returns an error if any of `o1`, `o2`, ... `o8` are errors.
+    ///
+    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef, o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5], o6: RowWithHeadersEvaluator[t6], o7: RowWithHeadersEvaluator[t7], o8: RowWithHeadersEvaluator[t8]): RowWithHeadersEvaluator[u] =
+        ap(lift7(f, o1, o2, o3, o4, o5, o6, o7), o8)
+
+    ///
+    /// Applies the 9-ary function `f` to the values in `o1`, `o2`, ... `o9`.
+    ///
+    /// Returns an error if any of `o1`, `o2`, ... `o9` are errors.
+    ///
+    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef, o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5], o6: RowWithHeadersEvaluator[t6], o7: RowWithHeadersEvaluator[t7], o8: RowWithHeadersEvaluator[t8], o9: RowWithHeadersEvaluator[t9]): RowWithHeadersEvaluator[u] =
+        ap(lift8(f, o1, o2, o3, o4, o5, o6, o7, o8), o9)
+
+    ///
+    /// Applies the 10-ary function `f` to the values in `o1`, `o2`, ... `o10`.
+    ///
+    /// Returns an error if any of `o1`, `o2`, ... `o10` are errors.
+    ///
+    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef, o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5], o6: RowWithHeadersEvaluator[t6], o7: RowWithHeadersEvaluator[t7], o8: RowWithHeadersEvaluator[t8], o9: RowWithHeadersEvaluator[t9], o10: RowWithHeadersEvaluator[t10]): RowWithHeadersEvaluator[u] =
+        ap(lift9(f, o1, o2, o3, o4, o5, o6, o7, o8, o9), o10)
+
+    ///
+    /// Returns a 2 element tuple with the results of applying the evaluators `o1` and `o2`.
+    ///
+    /// Returns an error if evaluating either `o1` or `o2` is an error.
+    ///
+    pub def tuple2(o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2]): RowWithHeadersEvaluator[(t1, t2)] =
+        lift2((x,y) -> (x,y), o1, o2)
+
+    ///
+    /// Returns a 3 element tuple with the results of applying the evaluators `o1`, `o2` and `o3`.
+    ///
+    /// Returns an error if evaluating any of `o1`, `o2` and `o3` is an error.
+    ///
+    pub def tuple3(o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3]): RowWithHeadersEvaluator[(t1, t2, t3)] =
+        lift3((x1, x2, x3) -> (x1, x2, x3), o1, o2, o3)
+
+    ///
+    /// Returns a 4 element tuple with the results of applying the evaluators `o1`, `o2`, `o3` and `o4`.
+    ///
+    /// Returns an error if evaluating any of `o1`, `o2`, `o3` and `o4` is an error.
+    ///
+    pub def tuple4(o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4]): RowWithHeadersEvaluator[(t1, t2, t3, t4)]  =
+        lift4((x1, x2, x3, x4) -> (x1, x2, x3, x4), o1, o2, o3, o4)
+
+    ///
+    /// Returns a 5 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o5`.
+    ///
+    /// Returns an error if evaluating any of `o1`, `o2`, ... `o5` is an error.
+    ///
+    pub def tuple5(o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5]): RowWithHeadersEvaluator[(t1, t2, t3, t4, t5)]  =
+        lift5((x1, x2, x3, x4, x5) -> (x1, x2, x3, x4, x5), o1, o2, o3, o4, o5)
+
+    ///
+    /// Returns a 6 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o6`.
+    ///
+    /// Returns an error if evaluating any of `o1`, `o2`, ... `o6` is an error.
+    ///
+    pub def tuple6(o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5], o6: RowWithHeadersEvaluator[t6]): RowWithHeadersEvaluator[(t1, t2, t3, t4, t5, t6)]  =
+        lift6((x1, x2, x3, x4, x5, x6) -> (x1, x2, x3, x4, x5, x6), o1, o2, o3, o4, o5, o6)
+
+    ///
+    /// Returns a 7 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o7`.
+    ///
+    /// Returns an error if evaluating any of `o1`, `o2`, ... `o7` is an error.
+    ///
+    pub def tuple7(o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5], o6: RowWithHeadersEvaluator[t6], o7: RowWithHeadersEvaluator[t7]): RowWithHeadersEvaluator[(t1, t2, t3, t4, t5, t6, t7)]  =
+        lift7((x1, x2, x3, x4, x5, x6, x7) -> (x1, x2, x3, x4, x5, x6, x7), o1, o2, o3, o4, o5, o6, o7)
+
+    ///
+    /// Returns a 8 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o8`.
+    ///
+    /// Returns an error if evaluating any of `o1`, `o2`, ... `o8` is an error.
+    ///
+    pub def tuple8(o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5], o6: RowWithHeadersEvaluator[t6], o7: RowWithHeadersEvaluator[t7], o8: RowWithHeadersEvaluator[t8]): RowWithHeadersEvaluator[(t1, t2, t3, t4, t5, t6, t7, t8)]  =
+        lift8((x1, x2, x3, x4, x5, x6, x7, x8) -> (x1, x2, x3, x4, x5, x6, x7, x8), o1, o2, o3, o4, o5, o6, o7, o8)
+
+    ///
+    /// Returns a 9 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o9`.
+    ///
+    /// Returns an error if evaluating any of `o1`, `o2`, ... `o9` is an error.
+    ///
+    pub def tuple9(o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5], o6: RowWithHeadersEvaluator[t6], o7: RowWithHeadersEvaluator[t7], o8: RowWithHeadersEvaluator[t8], o9: RowWithHeadersEvaluator[t9]): RowWithHeadersEvaluator[(t1, t2, t3, t4, t5, t6, t7, t8, t9)]  =
+        lift9((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> (x1, x2, x3, x4, x5, x6, x7, x8, x9), o1, o2, o3, o4, o5, o6, o7, o8, o9)
+
+    ///
+    /// Returns a 10 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o10`.
+    ///
+    /// Returns an error if evaluating any of `o1`, `o2`, ... `o10` is an error.
+    ///
+    pub def tuple10(o1: RowWithHeadersEvaluator[t1], o2: RowWithHeadersEvaluator[t2], o3: RowWithHeadersEvaluator[t3], o4: RowWithHeadersEvaluator[t4], o5: RowWithHeadersEvaluator[t5], o6: RowWithHeadersEvaluator[t6], o7: RowWithHeadersEvaluator[t7], o8: RowWithHeadersEvaluator[t8], o9: RowWithHeadersEvaluator[t9], o10: RowWithHeadersEvaluator[t10]): RowWithHeadersEvaluator[(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10)]  =
+        lift10((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) -> (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10), o1, o2, o3, o4, o5, o6, o7, o8, o9, o10)
 
 }
