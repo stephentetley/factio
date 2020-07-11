@@ -68,6 +68,14 @@ namespace FactIO/SQLite/RowEvaluator {
 
     pub def flatMap(k: a -> SQLiteRowEvaluator[b], x: SQLiteRowEvaluator[a]): SQLiteRowEvaluator[b] = bind(x, k)
 
+    pub def optional(x: SQLiteRowEvaluator[a]): SQLiteRowEvaluator[Option[a]] =
+        SQLiteRowEvaluator(r ->
+            match apply1(x, r) {
+                case Ok(a) => Ok(Some(a))
+                case Err(_) => Ok(None)
+            }
+        )
+
     def liftPrimRowReader(eval: ##flix.runtime.spt.factio.SQLiteRow ~> Result[a, System.Error]): SQLiteRowEvaluator[a] =
         SQLiteRowEvaluator(r -> eval(r))
     

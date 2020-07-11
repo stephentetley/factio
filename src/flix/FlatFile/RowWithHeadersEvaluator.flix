@@ -78,6 +78,14 @@ namespace FactIO/FlatFile/RowWithHeadersEvaluator {
 
     pub def flatMap(k: a -> RowWithHeadersEvaluator[b], x: RowWithHeadersEvaluator[a]): RowWithHeadersEvaluator[b] = bind(x, k)
 
+    pub def optional(x: RowWithHeadersEvaluator[a]): RowWithHeadersEvaluator[Option[a]] =
+        RowWithHeadersEvaluator((ixs, row) ->
+            match apply1(x, ixs, row) {
+                case Ok(a) => Ok(Some(a))
+                case Err(_) => Ok(None)
+            }
+        )
+
     pub def liftResult(x: Result[a, System.Error]): RowWithHeadersEvaluator[a] =
         RowWithHeadersEvaluator((_,_) -> x as & Impure)
 

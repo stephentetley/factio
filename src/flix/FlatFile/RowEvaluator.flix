@@ -73,6 +73,14 @@ namespace FactIO/FlatFile/RowEvaluator {
 
     pub def flatMap(k: a -> RowEvaluator[b], x: RowEvaluator[a]): RowEvaluator[b] = bind(x, k)
 
+    pub def optional(x: RowEvaluator[a]): RowEvaluator[Option[a]] =
+        RowEvaluator(r ->
+            match apply1(x, r) {
+                case Ok(a) => Ok(Some(a))
+                case Err(_) => Ok(None)
+            }
+        )
+
     pub def liftResult(x: Result[a, System.Error]): RowEvaluator[a] =
         RowEvaluator(_ -> x as & Impure)
 

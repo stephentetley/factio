@@ -78,6 +78,15 @@ namespace FactIO/Csv/RowEvaluator {
 
     pub def flatMap(k: a -> CsvRowEvaluator[b], x: CsvRowEvaluator[a]): CsvRowEvaluator[b] = bind(x, k)
 
+    pub def optional(x: CsvRowEvaluator[a]): CsvRowEvaluator[Option[a]] =
+        CsvRowEvaluator(r ->
+            match apply1(x, r) {
+                case Ok(a) => Ok(Some(a))
+                case Err(_) => Ok(None)
+            }
+        )
+
+
     def liftPrimRowReader(eval: ##flix.runtime.spt.factio.CsvRow ~> Result[a, System.Error]): CsvRowEvaluator[a] =
         CsvRowEvaluator(r -> eval(r))
 

@@ -68,6 +68,14 @@ namespace FactIO/FlatFile/LineEvaluator {
 
     pub def flatMap(k: a -> LineEvaluator[b], x: LineEvaluator[a]): LineEvaluator[b] = bind(x, k)
 
+    pub def optional(x: LineEvaluator[a]): LineEvaluator[Option[a]] =
+        LineEvaluator(s ->
+            match apply1(x, s) {
+                case Ok(a) => Ok(Some(a))
+                case Err(_) => Ok(None)
+            }
+        )
+
     pub def liftResult(x: Result[a, System.Error]): LineEvaluator[a] = 
         LineEvaluator(_ -> x as & Impure)
 
