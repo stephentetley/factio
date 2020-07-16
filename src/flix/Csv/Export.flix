@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
+use Data/Transient.DList;
 use System.Error.{IOException, Generic};
 use Text.Charset.{Charset};
 
 
 use FactIO/Csv.CsvWriter;
 use FactIO/Csv.CsvWriter.{CsvWriter};
-use FactIO/Csv.CsvBuilder;
+use FactIO/Csv.CsvWriteList;
+use FactIO/Csv.CsvWriteList.{CsvWriteList};
 
 namespace FactIO/Csv {
 
@@ -29,7 +31,12 @@ namespace FactIO/Csv {
     ///
     pub opaque type CsvWriter = ##flix.runtime.spt.factio.CsvWriter
 
-    type alias CsvBuilder = List[CsvWriter -> Unit & Impure]
+
+    /// CsvWriteList is a workaround because fixpoint fold is our only way of
+    /// extract data from a relation and the step function of fixpoint fold
+    /// must be pure - solution we build a list of impure "write" functions
+    /// to be invoked after the fold.
+    pub opaque type CsvWriteList = DList[CsvWriter -> Unit & Impure]
 
 }
 
@@ -73,23 +80,33 @@ namespace FactIO/Csv/Export {
             case _: ##java.lang.Exception => Err(Generic("Exception"))
         }
 
-    pub def close(w: CsvWriter): Unit & Impure =
+    pub def close(w: CsvWriter): Result[Unit, System.Error] & Impure =
         import flix.runtime.spt.factio.CsvWriter.close();
-        let CsvWriter(w1) = w;
-        w1.close()
+        try {
+            let CsvWriter(w1) = w;
+            w1.close();
+            Ok()
+        } catch {
+            case _: ##java.io.IOException => Err(IOException)
+            case _: ##java.lang.Exception => Err(Generic("Exception"))
+        }
 
-    pub def emptyCsvBuilder(): CsvBuilder = Nil
+    pub def emptyCsvWriteList(): CsvWriteList =
+        use Data/Transient/DList.{empty};
+        CsvWriteList(empty())
 
-    pub def makeCsvBuildStep(f: x -> Array[String] & e): (x, CsvBuilder) -> CsvBuilder =
+    pub def makeCsvWriteStep(f: x -> Array[String] & e): (x, CsvWriteList) -> CsvWriteList =
         (x, ws) ->
+            let CsvWriteList(ws1) = ws;
             let w1 = { w ->  let cells = f(x) as & Impure; writeRow(w, cells); () };
-            w1 :: ws
+            CsvWriteList(Data/Transient/DList.snoc(ws1, w1))
 
-
-    pub def outputCsv(filepath: String, cs: Text.Charset, headers: Array[String], builder: CsvBuilder): Result[Unit, System.Error] & Impure =
+    pub def outputCsv(filepath: String, cs: Text.Charset, headers: Array[String], writeList: CsvWriteList): Result[Unit, System.Error] & Impure =
         use Result.flatMap;
         let* w = new(filepath, cs, headers);
-        List.foreach(f -> f(w),  builder);
+        let CsvWriteList(ws1) = writeList;
+        let xs = Data/Transient/DList.toList(ws1);
+        List.foreach(f -> f(w),  xs);
         close(w);
         Ok()
 
