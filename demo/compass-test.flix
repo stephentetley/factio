@@ -2,8 +2,8 @@ use FactIO/CsvImport.{CsvRow, CsvResult};
 use FactIO.CsvRowEvaluator;
 use FactIO/SQLiteImport.{SQLiteRow, SQLiteResult};
 use FactIO.SQLiteRowEvaluator;
-use FactIO/FlatFile.SimpleParser;
-use FactIO/FlatFile.LineEvaluator;
+// use FactIO/FlatFile.SimpleParser;
+use FactIO.FlatFileLineEvaluator;
 
 def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
     case Ok(reln) => reln
@@ -49,19 +49,17 @@ pub def sqlite01(): #{Direction} & Impure =
     };
     step() |> runResult
 
-def lineDirection1(): LineEvaluator[#{ Direction }] = 
-    use FactIO/FlatFile/LineEvaluator.{flatMap, content, map};
+def flatfileDirection1(): FlatFileLineEvaluator[#{ Direction }] = 
+    use FactIO/FlatFileLineEvaluator.{flatMap, content, map};
     map(makeDirection, content())
 
-def linesImporter(): SimpleParser[#{ Direction }] = 
-    use FactIO/FlatFile/SimpleParser.{linesTillEnd};
-    linesTillEnd(lineDirection1())
 
 pub def lines01(): #{ Direction } & Impure =
     use Result.flatMap;    
     let step = () -> {
         let path = "e:/coding/flix/factio/data/compass.txt";
-        let* relns = FactIO/FlatFile/SimpleParser.runSimpleParser(linesImporter(), path, Text/Charset.utf_8());
+        let* src = FactIO/FlatFileImport.newFlatFileStream(path, Text/Charset.utf_8());
+        let* relns = FactIO/FlatFileImport.importRows(flatfileDirection1(), src);
         Ok(solve relns)
     };
     step() |> runResult

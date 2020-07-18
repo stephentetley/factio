@@ -1,7 +1,7 @@
 # factio
 
 Fact importing and exporting for the Flix programming language.
-Imports CSV, SQLite and flat text files, and exports CSV and SQLite.
+Imports and exports CSV and SQLite.
 
 ## Build instructions
 
@@ -33,13 +33,7 @@ Factio Flix modules, i.e. add this code to the list of libraries:
     "Csv/Export.flix" -> LocalResource.get("/src/library/spt/factio/Csv/Export.flix"),
     "Csv/Import.flix" -> LocalResource.get("/src/library/spt/factio/Csv/Import.flix"),
     "Csv/RowEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/Csv/RowEvaluator.flix"),
-    "FlatFile/Internal/LinesIterator.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/Internal/LinesIterator.flix"),
-    "FlatFile/LineEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/LineEvaluator.flix"),
-    "FlatFile/RowEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/RowEvaluator.flix"),
-    "FlatFile/RowWithHeadersEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/RowWithHeadersEvaluator.flix"),
-    "FlatFile/SimpleParser.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/SimpleParser.flix"),
-    "FlatFile/Split.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/Split.flix"),
-    "SQLite/Internal/Output.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Internal/Output.flix"),
+    "Internal/SQLite/Output.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Internal/Output.flix"),
     "SQLite/Internal/PreparedStatement.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Internal/PreparedStatement.flix"),
     "SQLite/RowWriter.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/RowWriter.flix"),
     "SQLite/Export.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Export.flix"),
