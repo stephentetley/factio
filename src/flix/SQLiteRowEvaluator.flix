@@ -16,16 +16,16 @@
 
 use System.Error.{InputMismatchException, IOException, Generic};
 
-use FactIO/SQLite.SQLiteRowEvaluator;
-use FactIO/SQLite.SQLiteRowEvaluator.{SQLiteRowEvaluator};
+use FactIO.SQLiteRowEvaluator;
+use FactIO.SQLiteRowEvaluator.{SQLiteRowEvaluator};
 
-namespace FactIO/SQLite {
+namespace FactIO {
 
     pub opaque type SQLiteRowEvaluator[a] = ##flix.runtime.spt.factio.sqlite.SQLiteRow ~> Result[a, System.Error]
 }
 
 
-namespace FactIO/SQLite/RowEvaluator {
+namespace FactIO/SQLiteRowEvaluator {
 
     pub def return(x: a): SQLiteRowEvaluator[a] = 
         SQLiteRowEvaluator(_ -> Ok(x) as & Impure)

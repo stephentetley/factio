@@ -3,13 +3,13 @@
 def stations01(): Result[Unit, System.Error] & Impure =
     use Result.flatMap;
     let dest    = "e:/coding/flix/factio/data/output/stations_export.csv";
-    let* writer = FactIO/Csv/Export.new(dest, Text/Charset.utf_8(), ["Name", "Grid_Ref"]);
-    let* _      = FactIO/Csv/Export.writeRow(writer, ["Bradford Interchange", "SE1657832808"]);
-    let* _      = FactIO/Csv/Export.writeRow(writer, ["Halifax", "SE0973324980"]);
-    let* _      = FactIO/Csv/Export.writeRow(writer, ["Low Moor", "SE1633428224"]);
-    let* _      = FactIO/Csv/Export.writeRow(writer, ["Mytholmroyd", "SE0127125846"]);
-    let* _      = FactIO/Csv/Export.writeRow(writer, ["Sowerby Bridge", "SE0624023505"]);
-    let* _      = FactIO/Csv/Export.close(writer);
+    let* writer = FactIO/CsvExport.new(dest, Text/Charset.utf_8(), ["Name", "Grid_Ref"]);
+    let* _      = FactIO/CsvExport.writeRow(writer, ["Bradford Interchange", "SE1657832808"]);
+    let* _      = FactIO/CsvExport.writeRow(writer, ["Halifax", "SE0973324980"]);
+    let* _      = FactIO/CsvExport.writeRow(writer, ["Low Moor", "SE1633428224"]);
+    let* _      = FactIO/CsvExport.writeRow(writer, ["Mytholmroyd", "SE0127125846"]);
+    let* _      = FactIO/CsvExport.writeRow(writer, ["Sowerby Bridge", "SE0624023505"]);
+    let* _      = FactIO/CsvExport.close(writer);
     Ok()
 
 
@@ -34,9 +34,9 @@ def dummyCells(src: (String,Int)): Array[String] & Impure =
 def test01(): Result[Unit, System.Error] & Impure = 
     let dest = "e:/coding/flix/factio/data/output/dummy_export.csv";
     let headers = ["name", "intval"];
-    let writeStep = FactIO/Csv/Export.makeCsvWriteStep(dummyCells); 
-    let writes: FactIO/Csv.CsvWriteList = fold Dummy FactIO/Csv/Export.emptyCsvWriteList() writeStep dummyRelations();
-    FactIO/Csv/Export.outputCsv(dest, Text/Charset.utf_8(), headers, writes)
+    let writeStep = FactIO/CsvExport.makeCsvWriteStep(dummyCells); 
+    let writes: FactIO.CsvWriteList = fold Dummy FactIO/CsvExport.emptyCsvWriteList() writeStep dummyRelations();
+    FactIO/CsvExport.outputCsv(dest, Text/Charset.utf_8(), headers, writes)
 
 ///
 /// Because fixpoint fold is not first class we cannot abstract over Dummy
@@ -49,9 +49,9 @@ def test01(): Result[Unit, System.Error] & Impure =
 def test02(): Result[Unit, System.Error] & Impure = 
     let dest = "e:/coding/flix/factio/data/output/dummy_export2.csv";
     let headers = ["name", "intval"];
-    let writeStep = FactIO/Csv/Export.makeCsvWriteStep(dummyCells); 
-    { fold Dummy FactIO/Csv/Export.emptyCsvWriteList() writeStep dummyRelations() } 
-        |> FactIO/Csv/Export.outputCsv(dest, Text/Charset.utf_8(), headers)
+    let writeStep = FactIO/CsvExport.makeCsvWriteStep(dummyCells); 
+    { fold Dummy FactIO/CsvExport.emptyCsvWriteList() writeStep dummyRelations() } 
+        |> FactIO/CsvExport.outputCsv(dest, Text/Charset.utf_8(), headers)
 
 def main(): Result[Unit, System.Error] & Impure = stations01()
 

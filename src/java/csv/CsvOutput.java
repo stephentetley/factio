@@ -25,18 +25,18 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 
-public class CsvWriter {
+public class CsvOutput {
 
     private final Writer outw;
     private final CSVPrinter printer;
 
-    public CsvWriter(String filename, Charset cs) throws Exception {
+    public CsvOutput(String filename, Charset cs) throws Exception {
         outw = new OutputStreamWriter(new FileOutputStream(filename), cs);
         printer = CSVFormat.DEFAULT.print(outw);
     }
 
 
-    public CsvWriter(String filename, Charset cs, int format) throws Exception {
+    public CsvOutput(String filename, Charset cs, int format) throws Exception {
         outw = new OutputStreamWriter(new FileOutputStream(filename), cs);
         switch (format) {
             case 1:

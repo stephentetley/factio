@@ -1,6 +1,6 @@
-use FactIO/SQLite.SQLiteExport;
-use FactIO/SQLite.SQLiteWriteList;
-use FactIO/SQLite.RowWriter;
+use FactIO.SQLiteExport;
+use FactIO.SQLiteWriteList;
+use FactIO.SQLiteRowWriter;
 
 
 rel Dbms(name: String, year: Int32)
@@ -15,11 +15,11 @@ def databases(): #{Dbms} = #{
 /// Weird - making this a top level definition (with a type signature) seems 
 /// to stop the program crashing.
 def writeStep(): ((String, Int32), SQLiteWriteList) -> SQLiteWriteList = 
-    FactIO/SQLite/Export.makeSQLiteWriteStep(writeCells)
+    FactIO/SQLiteExport.makeSQLiteWriteStep(writeCells)
 
 
 def writeOutput(): SQLiteExport[Unit] =
-    use FactIO/SQLite/Export.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, setAutoCommit, commit, close};
+    use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, setAutoCommit, commit, close};
     let* _          = execute("CREATE TABLE IF NOT EXISTS dbms (name text PRIMARY KEY NOT NULL, year int);");
     let* _          = execute("DELETE FROM dbms;");
     let stmt        = "INSERT INTO dbms(name, year) VALUES(?,?)";
@@ -32,8 +32,8 @@ def writeOutput(): SQLiteExport[Unit] =
 
 
 /// A "cell printer" for the body of Dbms.
-def writeCells(src: (String, Int32)): RowWriter[Unit] = 
-    use FactIO/SQLite/RowWriter.{flatMap, return, putString!, putInt32!};
+def writeCells(src: (String, Int32)): SQLiteRowWriter[Unit] = 
+    use FactIO/SQLiteRowWriter.{flatMap, return, putString!, putInt32!};
     let (name,year) = src;
     let* _ = putString!(0, name);
     let* _ = putInt32!(1, year);
@@ -42,7 +42,7 @@ def writeCells(src: (String, Int32)): RowWriter[Unit] =
 
 def main(): Result[Bool, System.Error] & Impure =
     use Result.flatMap;
-    use FactIO/SQLite/Export.{runSQLiteExport};
+    use FactIO/SQLiteExport.{runSQLiteExport};
     let str = "e:/coding/flix/factio/data/output/db1.sqlite";
     let path = System/FilePath.new(str);    
     let* _ = System/File.deleteIfExists(path);

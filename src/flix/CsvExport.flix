@@ -19,17 +19,17 @@ use System.Error.{IOException, Generic};
 use Text.Charset.{Charset};
 
 
-use FactIO/Csv.CsvWriter;
-use FactIO/Csv.CsvWriter.{CsvWriter};
-use FactIO/Csv.CsvWriteList;
-use FactIO/Csv.CsvWriteList.{CsvWriteList};
+use FactIO.CsvWriter;
+use FactIO.CsvWriter.{CsvWriter};
+use FactIO.CsvWriteList;
+use FactIO.CsvWriteList.{CsvWriteList};
 
-namespace FactIO/Csv {
+namespace FactIO {
 
     ///
     /// Represents a CsvWriter.
     ///
-    pub opaque type CsvWriter = ##flix.runtime.spt.factio.csv.CsvWriter
+    pub opaque type CsvWriter = ##flix.runtime.spt.factio.csv.CsvOutput
 
 
     /// CsvWriteList is a workaround because fixpoint fold is our only way of
@@ -40,7 +40,7 @@ namespace FactIO/Csv {
 
 }
 
-namespace FactIO/Csv/Export {
+namespace FactIO/CsvExport {
 
     type alias MarshalRow = ##flix.runtime.spt.factio.csv.marshal.MarshalRow
 
@@ -48,7 +48,7 @@ namespace FactIO/Csv/Export {
     /// Returns a new CsvWriter.
     ///
     pub def new(filename: String, cs: Text.Charset, headers: Array[String]): Result[CsvWriter, System.Error] & Impure =
-        import new flix.runtime.spt.factio.csv.CsvWriter(String, ##java.nio.charset.Charset) as newCsvWriter;
+        import new flix.runtime.spt.factio.csv.CsvOutput(String, ##java.nio.charset.Charset) as newCsvWriter;
         use Result.flatMap;
         try {
             let Charset(cs1) = cs;
@@ -69,7 +69,7 @@ namespace FactIO/Csv/Export {
 
     /// Note - row must not be empty.
     pub def writeRow(w: CsvWriter, row: Array[String]): Result[Unit, System.Error] & Impure =
-        import flix.runtime.spt.factio.csv.CsvWriter.writeRow(##flix.runtime.spt.factio.csv.marshal.MarshalRow);
+        import flix.runtime.spt.factio.csv.CsvOutput.writeRow(##flix.runtime.spt.factio.csv.marshal.MarshalRow);
         try {
             let CsvWriter(w1) = w;
             let mrow = serializeRow(row);
@@ -81,7 +81,7 @@ namespace FactIO/Csv/Export {
         }
 
     pub def close(w: CsvWriter): Result[Unit, System.Error] & Impure =
-        import flix.runtime.spt.factio.csv.CsvWriter.close();
+        import flix.runtime.spt.factio.csv.CsvOutput.close();
         try {
             let CsvWriter(w1) = w;
             w1.close();

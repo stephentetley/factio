@@ -16,15 +16,15 @@
 
 use System.Error.{Generic};
 
-use FactIO/SQLite/Internal.PreparedStatement;
-use FactIO/SQLite/Internal.PreparedStatement.{PreparedStatement};
+use FactIO/Internal/SQLite.PreparedStatement;
+use FactIO/Internal/SQLite.PreparedStatement.{PreparedStatement};
 
-namespace FactIO/SQLite/Internal {
+namespace FactIO/Internal/SQLite {
 
      pub opaque type PreparedStatement = ##java.sql.PreparedStatement
 }
 
-namespace FactIO/SQLite/Internal/PreparedStatement {
+namespace FactIO/Internal/SQLite/PreparedStatement {
 
     pub def clearParameters!(x: PreparedStatement): Result[Unit, System.Error] & Impure =
         import java.sql.PreparedStatement.clearParameters();

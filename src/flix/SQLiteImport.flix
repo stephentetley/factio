@@ -17,10 +17,10 @@
 use Data.Stream;
 use System.Error.{IOException, Generic};
 
-use FactIO/SQLite.SQLiteRowEvaluator;
-use FactIO/SQLite.SQLiteRowEvaluator.{SQLiteRowEvaluator};
+use FactIO.SQLiteRowEvaluator;
+use FactIO.SQLiteRowEvaluator.{SQLiteRowEvaluator};
 
-namespace FactIO/SQLite/Import {
+namespace FactIO/SQLiteImport {
 
     ///
     /// Represents a SQLite row.

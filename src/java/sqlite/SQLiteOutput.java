@@ -19,11 +19,11 @@ package flix.runtime.spt.factio.sqlite;
 
 import java.sql.*;
 
-public class Output {
+public class SQLiteOutput {
 
     private Connection conn;
 
-    public Output(String url) throws SQLException  {
+    public SQLiteOutput(String url) throws SQLException  {
         conn = DriverManager.getConnection(url);
     }
 

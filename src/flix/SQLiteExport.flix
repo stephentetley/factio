@@ -18,36 +18,38 @@ use Data/Transient.DList;
 use System.Error.{IOException, Generic};
 use Text.Charset.{Charset};
 
-use FactIO/SQLite.SQLiteExport;
-use FactIO/SQLite.SQLiteExport.{SQLiteExport};
-use FactIO/SQLite.SQLiteWriteList;
-use FactIO/SQLite.SQLiteWriteList.{SQLiteWriteList};
+use FactIO.SQLiteExport;
+use FactIO.SQLiteExport.{SQLiteExport};
+use FactIO.SQLiteWriteList;
+use FactIO.SQLiteWriteList.{SQLiteWriteList};
 
-use FactIO/SQLite.RowWriter;
-use FactIO/SQLite.RowWriter.{RowWriter};
-use FactIO/SQLite/Internal.PreparedStatement;
+use FactIO.SQLiteRowWriter;
+use FactIO.SQLiteRowWriter.{SQLiteRowWriter};
+use FactIO/Internal/SQLite.PreparedStatement;
 
 
-namespace FactIO/SQLite {
+namespace FactIO {
 
-    pub opaque type SQLiteExport[a] = FactIO/SQLite/Internal.Output ~> Result[a, System.Error]
+    pub opaque type SQLiteExport[a] = FactIO/Internal/SQLite.Output ~> Result[a, System.Error]
 
+    ///
     /// CsvWriteList is a workaround because fixpoint fold is our only way of
     /// extracting data from a relation and the step function of fixpoint fold
     /// must be pure - solution we build a list of impure "write" functions
     /// to be invoked after the fold.
-    pub opaque type SQLiteWriteList = DList[RowWriter[Unit]]
+    ///
+    pub opaque type SQLiteWriteList = DList[SQLiteRowWriter[Unit]]
 
 }
 
-namespace FactIO/SQLite/Export {
+namespace FactIO/SQLiteExport {
 
     def makeConnectString(dbpath: String): String = "jdbc:sqlite:" + dbpath
 
     pub def runSQLiteExport(mx: SQLiteExport[a], dbpath: System.FilePath): Result[a, System.Error] & Impure =
         use Result.flatMap;
         use System/FilePath.{normalize, toString};
-        use FactIO/SQLite/Internal/Output.{new => newOutput};
+        use FactIO/Internal/SQLite/Output.{new => newOutput};
         let url = makeConnectString(dbpath.normalize().toString());
         let* store = newOutput(url);
         apply1(mx, store)
@@ -57,7 +59,7 @@ namespace FactIO/SQLite/Export {
     pub def return(x: a): SQLiteExport[a] =
         SQLiteExport(_ -> Ok(x) as & Impure)
 
-    def apply1(x: SQLiteExport[a], r: FactIO/SQLite/Internal.Output): Result[a, System.Error] & Impure =
+    def apply1(x: SQLiteExport[a], r: FactIO/Internal/SQLite.Output): Result[a, System.Error] & Impure =
         let SQLiteExport(f) = x;
         f(r)
 
@@ -100,35 +102,35 @@ namespace FactIO/SQLite/Export {
         SQLiteExport(_ -> fn())
 
 
-    def liftPrim(prim: FactIO/SQLite/Internal.Output ~> Result[a, System.Error]): SQLiteExport[a] =
+    def liftPrim(prim: FactIO/Internal/SQLite.Output ~> Result[a, System.Error]): SQLiteExport[a] =
         SQLiteExport(r -> prim(r))
 
     pub def close(): SQLiteExport[Unit] =
-        use FactIO/SQLite/Internal/Output.{close};
+        use FactIO/Internal/SQLite/Output.{close};
         liftPrim(x -> x.close())
 
     pub def setAutoCommit(autoCommit: Bool): SQLiteExport[Unit] =
-        use FactIO/SQLite/Internal/Output.{setAutoCommit};
+        use FactIO/Internal/SQLite/Output.{setAutoCommit};
         liftPrim(x -> x.setAutoCommit(autoCommit))
 
     pub def commit(): SQLiteExport[Unit] =
-        use FactIO/SQLite/Internal/Output.{commit};
+        use FactIO/Internal/SQLite/Output.{commit};
         liftPrim(x -> x.commit())
 
     pub def execute(sql: String): SQLiteExport[Bool] =
-        use FactIO/SQLite/Internal/Output.{execute};
+        use FactIO/Internal/SQLite/Output.{execute};
         liftPrim(x -> x.execute(sql))
 
     /// Don't export...
     def prepareStatement(sql: String): SQLiteExport[PreparedStatement] =
-        use FactIO/SQLite/Internal/Output.{prepareStatement};
+        use FactIO/Internal/SQLite/Output.{prepareStatement};
         liftPrim(x -> x.prepareStatement(sql))
 
     pub def emptySQLiteWriteList(): SQLiteWriteList =
         use Data/Transient/DList.{empty};
         SQLiteWriteList(empty())
 
-    pub def makeSQLiteWriteStep(f: x -> RowWriter[Unit]): (x, SQLiteWriteList) -> SQLiteWriteList =
+    pub def makeSQLiteWriteStep(f: x -> SQLiteRowWriter[Unit]): (x, SQLiteWriteList) -> SQLiteWriteList =
         (x, ws) ->
             let SQLiteWriteList(ws1) = ws;
             let w1 = f(x);
@@ -140,7 +142,7 @@ namespace FactIO/SQLite/Export {
         let* stmt = prepareStatement(sql);
         execWriteListHelper(stmt, writes)
 
-    def execWriteListHelper(stmt: PreparedStatement, xs: List[RowWriter[Unit]]): SQLiteExport[Unit] = match xs {
+    def execWriteListHelper(stmt: PreparedStatement, xs: List[SQLiteRowWriter[Unit]]): SQLiteExport[Unit] = match xs {
         case Nil => return()
         case mx :: rs => {
             let* _ = execWriteList1(stmt, mx);
@@ -148,11 +150,11 @@ namespace FactIO/SQLite/Export {
         }
     }
 
-    def execWriteList1(stmt: PreparedStatement, mx: RowWriter[a]): SQLiteExport[Unit] =
-        let RowWriter(mf) = mx;
-        let* _ = liftAction(_ -> FactIO/SQLite/Internal/PreparedStatement.clearParameters!(stmt));
+    def execWriteList1(stmt: PreparedStatement, mx: SQLiteRowWriter[a]): SQLiteExport[Unit] =
+        let SQLiteRowWriter(mf) = mx;
+        let* _ = liftAction(_ -> FactIO/Internal/SQLite/PreparedStatement.clearParameters!(stmt));
         let* _ = liftAction(_ -> mf(stmt));
-        let* _ = liftAction(_ -> FactIO/SQLite/Internal/PreparedStatement.executeUpdate(stmt));
+        let* _ = liftAction(_ -> FactIO/Internal/SQLite/PreparedStatement.executeUpdate(stmt));
         return()
 
 

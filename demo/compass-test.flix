@@ -1,7 +1,7 @@
-use FactIO/Csv/Import.{CsvRow, CsvResult};
-use FactIO/Csv.CsvRowEvaluator;
-use FactIO/SQLite/Import.{SQLiteRow, SQLiteResult};
-use FactIO/SQLite.SQLiteRowEvaluator;
+use FactIO/CsvImport.{CsvRow, CsvResult};
+use FactIO.CsvRowEvaluator;
+use FactIO/SQLiteImport.{SQLiteRow, SQLiteResult};
+use FactIO.SQLiteRowEvaluator;
 use FactIO/FlatFile.SimpleParser;
 use FactIO/FlatFile.LineEvaluator;
 
@@ -19,22 +19,22 @@ def makeDirection(name: String): #{ Direction } =
     Direction(name).
     
 def csvDirection1(): CsvRowEvaluator[#{Direction}] = 
-    use FactIO/Csv/RowEvaluator.{map, getStringByIndex};
+    use FactIO/CsvRowEvaluator.{map, getStringByIndex};
     map(makeDirection, getStringByIndex(0))
 
 pub def csv01(): #{Direction} & Impure =
     use Result.flatMap;
-    use FactIO/Csv/CsvFormat.{withFirstRecordAsHeader};
+    use FactIO/CsvFormat.{withFirstRecordAsHeader};
     let step = () -> {
         let path = "e:/coding/flix/factio/data/compass.csv";
-        let* src = FactIO/Csv/Import.newCsvStream(path, FactIO/Csv/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
-        let* relns = FactIO/Csv/Import.importRows(csvDirection1(), src);
+        let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        let* relns = FactIO/CsvImport.importRows(csvDirection1(), src);
         Ok(solve relns)
     };
     step() |> runResult
     
 def sqliteDirection1(): SQLiteRowEvaluator[#{Direction}] = 
-    use FactIO/SQLite/RowEvaluator.{map, getStringByLabel};
+    use FactIO/SQLiteRowEvaluator.{map, getStringByLabel};
     map(makeDirection, getStringByLabel("cardinal_name"))
     
 
@@ -43,8 +43,8 @@ pub def sqlite01(): #{Direction} & Impure =
     let step = () -> {
         let path = "e:/coding/flix/factio/data/compass.sqlite";
         let query = "SELECT cardinal_name FROM cardinals";
-        let* src = FactIO/SQLite/Import.newSQLiteStream(path, query);
-        let* relns = FactIO/SQLite/Import.importRows(sqliteDirection1(), src);
+        let* src = FactIO/SQLiteImport.newSQLiteStream(path, query);
+        let* relns = FactIO/SQLiteImport.importRows(sqliteDirection1(), src);
         Ok(solve relns)
     };
     step() |> runResult

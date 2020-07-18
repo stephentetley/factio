@@ -16,23 +16,23 @@
 
 use System.Error.{Generic};
 
-use FactIO/SQLite/Internal.Output;
-use FactIO/SQLite/Internal.Output.{Output};
-use FactIO/SQLite/Internal.PreparedStatement;
-use FactIO/SQLite/Internal.PreparedStatement.{PreparedStatement};
+use FactIO/Internal/SQLite.Output;
+use FactIO/Internal/SQLite.Output.{Output};
+use FactIO/Internal/SQLite.PreparedStatement;
+use FactIO/Internal/SQLite.PreparedStatement.{PreparedStatement};
 
-namespace FactIO/SQLite/Internal {
+namespace FactIO/Internal/SQLite {
 
-    pub opaque type Output = ##flix.runtime.spt.factio.sqlite.Output
+    pub opaque type Output = ##flix.runtime.spt.factio.sqlite.SQLiteOutput
 }
 
-namespace FactIO/SQLite/Internal/Output {
+namespace FactIO/Internal/SQLite/Output {
 
     ///
     /// Returns a new Output handle.
     ///
     pub def new(url: String): Result[Output, System.Error] & Impure =
-        import new flix.runtime.spt.factio.sqlite.Output(String) as newOutput;
+        import new flix.runtime.spt.factio.sqlite.SQLiteOutput(String) as newOutput;
         try {
             let ans = Output(newOutput(url));
             Ok(ans)
@@ -44,7 +44,7 @@ namespace FactIO/SQLite/Internal/Output {
     /// Close the internal connection to the DB.
     ///
     pub def close(x: Output): Result[Unit, System.Error] & Impure =
-        import flix.runtime.spt.factio.sqlite.Output.close();
+        import flix.runtime.spt.factio.sqlite.SQLiteOutput.close();
         try {
             let Output(x1) = x;
             x1.close();
@@ -54,7 +54,7 @@ namespace FactIO/SQLite/Internal/Output {
         }
 
     pub def setAutoCommit(x: Output, autoCommit: Bool): Result[Unit, System.Error] & Impure =
-        import flix.runtime.spt.factio.sqlite.Output.setAutoCommit(Bool);
+        import flix.runtime.spt.factio.sqlite.SQLiteOutput.setAutoCommit(Bool);
         try {
             let Output(x1) = x;
             x1.setAutoCommit(autoCommit);
@@ -64,7 +64,7 @@ namespace FactIO/SQLite/Internal/Output {
         }
 
     pub def commit(x: Output): Result[Unit, System.Error] & Impure =
-        import flix.runtime.spt.factio.sqlite.Output.commit();
+        import flix.runtime.spt.factio.sqlite.SQLiteOutput.commit();
         try {
             let Output(x1) = x;
             x1.commit();
@@ -74,7 +74,7 @@ namespace FactIO/SQLite/Internal/Output {
         }
 
     pub def rollback(x: Output): Result[Unit, System.Error] & Impure =
-        import flix.runtime.spt.factio.sqlite.Output.rollback();
+        import flix.runtime.spt.factio.sqlite.SQLiteOutput.rollback();
         try {
             let Output(x1) = x;
             x1.rollback();
@@ -84,7 +84,7 @@ namespace FactIO/SQLite/Internal/Output {
         }
 
     pub def prepareStatement(x: Output, sql: String): Result[PreparedStatement, System.Error] & Impure =
-        import flix.runtime.spt.factio.sqlite.Output.prepareStatement(String);
+        import flix.runtime.spt.factio.sqlite.SQLiteOutput.prepareStatement(String);
         try {
             let Output(x1) = x;
             let ans = x1.prepareStatement(sql);
@@ -94,7 +94,7 @@ namespace FactIO/SQLite/Internal/Output {
         }
 
     pub def execute(x: Output, sql: String): Result[Bool, System.Error] & Impure =
-        import flix.runtime.spt.factio.sqlite.Output.execute(String);
+        import flix.runtime.spt.factio.sqlite.SQLiteOutput.execute(String);
         try {
             let Output(x1) = x;
             let ans = x1.execute(sql);

@@ -18,12 +18,12 @@ use Data.Stream;
 use System.Error.{ArrayIndexOutOfBoundsException, IllegalArgumentException, IllegalStateException, IOException, Generic};
 use Text.Charset.{Charset};
 
-use FactIO/Csv.CsvFormat;
-use FactIO/Csv.CsvFormat.{CsvFormat};
-use FactIO/Csv.CsvRowEvaluator;
-use FactIO/Csv.CsvRowEvaluator.{CsvRowEvaluator};
+use FactIO.CsvFormat;
+use FactIO.CsvFormat.{CsvFormat};
+use FactIO.CsvRowEvaluator;
+use FactIO.CsvRowEvaluator.{CsvRowEvaluator};
 
-namespace FactIO/Csv/Import {
+namespace FactIO/CsvImport {
 
     ///
     /// Represents a CSV row.
