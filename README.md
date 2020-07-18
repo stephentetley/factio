@@ -1,7 +1,7 @@
 # factio
 
 Fact importing and exporting for the Flix programming language.
-Imports CSV, SQLite and flat text files, and exports CSV.
+Imports CSV, SQLite and flat text files, and exports CSV and SQLite.
 
 ## Build instructions
 
@@ -16,7 +16,7 @@ https://commons.apache.org/proper/commons-csv/download_csv.cgi
 
 https://commons.apache.org/proper/commons-io/download_io.cgi
 
-In Flix `main/src/flix/runtime` create a folder `factio` and drop in the Java
+In Flix `main/src/flix/runtime` create a folder `spt/factio` and drop in the Java
 modules from Factio `src/java`.
 
 In Flix `main/src/library` create a folder `spt/factio` and drop in the Flix
@@ -27,16 +27,24 @@ Factio Flix modules, i.e. add this code to the list of libraries:
 
 ~~~ {.Scala}
 
-    "spt/factio/Internal/ImportStrategies.flix" -> LocalResource.get("/library/spt/factio/Internal/ImportStrategies.flix"),
-    "spt/factio/Internal/LinesIterator.flix" -> LocalResource.get("/library/spt/factio/Internal/LinesIterator.flix"),
-    "spt/factio/CsvFormat.flix" -> LocalResource.get("/library/spt/factio/CsvFormat.flix"),
-    "spt/factio/CsvRowEvaluator.flix" -> LocalResource.get("/library/spt/factio/CsvRowEvaluator.flix"),
-    "spt/factio/CsvImport.flix" -> LocalResource.get("/library/spt/factio/CsvImport.flix"),
-    "spt/factio/CsvExport.flix" -> LocalResource.get("/library/spt/factio/CsvExport.flix"),
-    "spt/factio/SQLiteRowEvaluator.flix" -> LocalResource.get("/library/spt/factio/SQLiteRowEvaluator.flix"),
-    "spt/factio/SQLiteImport.flix" -> LocalResource.get("/library/spt/factio/SQLiteImport.flix"),
-    "spt/factio/LineEvaluator.flix" -> LocalResource.get("/library/spt/factio/LineEvaluator.flix"),
-    "spt/factio/LinesImporter.flix" -> LocalResource.get("/library/spt/factio/LinesImporter.flix"),
+   // factio
+    "Internal/ImportStrategies.flix" -> LocalResource.get("/src/library/spt/factio/Internal/ImportStrategies.flix"),
+    "Csv/CsvFormat.flix" -> LocalResource.get("/src/library/spt/factio/Csv/CsvFormat.flix"),
+    "Csv/Export.flix" -> LocalResource.get("/src/library/spt/factio/Csv/Export.flix"),
+    "Csv/Import.flix" -> LocalResource.get("/src/library/spt/factio/Csv/Import.flix"),
+    "Csv/RowEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/Csv/RowEvaluator.flix"),
+    "FlatFile/Internal/LinesIterator.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/Internal/LinesIterator.flix"),
+    "FlatFile/LineEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/LineEvaluator.flix"),
+    "FlatFile/RowEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/RowEvaluator.flix"),
+    "FlatFile/RowWithHeadersEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/RowWithHeadersEvaluator.flix"),
+    "FlatFile/SimpleParser.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/SimpleParser.flix"),
+    "FlatFile/Split.flix" -> LocalResource.get("/src/library/spt/factio/FlatFile/Split.flix"),
+    "SQLite/Internal/Output.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Internal/Output.flix"),
+    "SQLite/Internal/PreparedStatement.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Internal/PreparedStatement.flix"),
+    "SQLite/RowWriter.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/RowWriter.flix"),
+    "SQLite/Export.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Export.flix"),
+    "SQLite/Import.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Import.flix"),
+    "SQLite/RowEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/RowEvaluator.flix"),
 
 ~~~
 
@@ -49,4 +57,4 @@ https://github.com/stephentetley/flix-sandbox
 
 Build / rebuild the Flix compiler.
 
-Run the tests - currently you will need to edit the paths to the sample data.
+Run the demos - currently you will need to edit the paths to the sample data.
