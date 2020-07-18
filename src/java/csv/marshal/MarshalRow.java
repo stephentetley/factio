@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package flix.runtime.spt.factio.marshal;
+package flix.runtime.spt.factio.csv.marshal;
 
 import java.util.LinkedList;
 

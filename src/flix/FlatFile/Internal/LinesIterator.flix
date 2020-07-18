@@ -23,7 +23,7 @@ use FactIO/Internal.LinesIterator.{LinesIterator};
 
 namespace FactIO/Internal { 
     
-    pub opaque type LinesIterator = ##flix.runtime.spt.factio.LinesIterator
+    pub opaque type LinesIterator = ##flix.runtime.spt.factio.flatfile.LinesIterator
 
 }
 
@@ -32,7 +32,7 @@ namespace FactIO/Internal/LinesIterator {
 
     
     pub def newLinesIterator(filepath: String, cs: Text.Charset): Result[LinesIterator, System.Error] & Impure=
-        import new flix.runtime.spt.factio.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
+        import new flix.runtime.spt.factio.flatfile.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
         try {
             let Charset(cs1) = cs;
             let iter = newLinesIterator(filepath, cs1);
@@ -44,7 +44,7 @@ namespace FactIO/Internal/LinesIterator {
 
     
     pub def readLine(x: LinesIterator): Result[String, System.Error] & Impure = 
-        import flix.runtime.spt.factio.LinesIterator.next();
+        import flix.runtime.spt.factio.flatfile.LinesIterator.next();
         try { 
             let LinesIterator(x1) = x;
             let s = x1.next();
@@ -57,7 +57,7 @@ namespace FactIO/Internal/LinesIterator {
         }
 
     pub def hasNext(x: LinesIterator): Bool & Impure = 
-        import flix.runtime.spt.factio.LinesIterator.hasNext();
+        import flix.runtime.spt.factio.flatfile.LinesIterator.hasNext();
         let LinesIterator(x1) = x;
         x1.hasNext()
         
@@ -65,7 +65,7 @@ namespace FactIO/Internal/LinesIterator {
     /// Returns a new string line Stream.
     ///
     pub def close(x: LinesIterator): Result[Unit, System.Error] & Impure=
-        import flix.runtime.spt.factio.LinesIterator.close();
+        import flix.runtime.spt.factio.flatfile.LinesIterator.close();
         try {
             let LinesIterator(x1) = x;
             let _ = x1.close();

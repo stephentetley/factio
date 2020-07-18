@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package flix.runtime.spt.factio;
+package flix.runtime.spt.factio.sqlite;
 
-import java.io.IOException;
+import flix.runtime.spt.factio.sqlite.SQLiteRow;
+
 import java.sql.*;
 
 /// https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/

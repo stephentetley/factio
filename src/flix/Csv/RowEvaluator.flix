@@ -30,7 +30,7 @@ use FactIO/Csv.CsvRowEvaluator.{CsvRowEvaluator};
 
 namespace FactIO/Csv {
 
-    pub opaque type CsvRowEvaluator[a] = ##flix.runtime.spt.factio.CsvRow ~> Result[a, System.Error]
+    pub opaque type CsvRowEvaluator[a] = ##flix.runtime.spt.factio.csv.CsvRow ~> Result[a, System.Error]
 }
 
 
@@ -40,7 +40,7 @@ namespace FactIO/Csv/RowEvaluator {
     pub def return(x: a): CsvRowEvaluator[a] = 
         CsvRowEvaluator(_ -> Ok(x) as & Impure)
 
-    def apply1(x: CsvRowEvaluator[a], r: ##flix.runtime.spt.factio.CsvRow): Result[a, System.Error] & Impure =
+    def apply1(x: CsvRowEvaluator[a], r: ##flix.runtime.spt.factio.csv.CsvRow): Result[a, System.Error] & Impure =
         let CsvRowEvaluator(f) = x;
         f(r)
 
@@ -87,7 +87,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
 
-    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.CsvRow ~> Result[a, System.Error]): CsvRowEvaluator[a] =
+    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.csv.CsvRow ~> Result[a, System.Error]): CsvRowEvaluator[a] =
         CsvRowEvaluator(r -> eval(r))
 
     pub def liftResult(x: Result[a, System.Error]): CsvRowEvaluator[a] = 
@@ -102,7 +102,7 @@ namespace FactIO/Csv/RowEvaluator {
     pub def choice(xs: List[CsvRowEvaluator[a]]): CsvRowEvaluator[a] =
         CsvRowEvaluator(r -> choiceHelper(r, xs))
 
-    def choiceHelper(r: ##flix.runtime.spt.factio.CsvRow, xs: List[CsvRowEvaluator[a]]): Result[a, System.Error] & Impure =
+    def choiceHelper(r: ##flix.runtime.spt.factio.csv.CsvRow, xs: List[CsvRowEvaluator[a]]): Result[a, System.Error] & Impure =
         match xs {
             case Nil => Err(InputMismatchException) as & Impure
             case x1 :: rs => match apply1(x1, r) {
@@ -114,7 +114,7 @@ namespace FactIO/Csv/RowEvaluator {
     // Cell readers
 
     pub def getStringByIndex(ix: Int32): CsvRowEvaluator[String] =
-        import flix.runtime.spt.factio.CsvRow.getStringByIndex(Int32);
+        import flix.runtime.spt.factio.csv.CsvRow.getStringByIndex(Int32);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getStringByIndex(ix);
@@ -129,7 +129,7 @@ namespace FactIO/Csv/RowEvaluator {
     /// Get a string by its column name / label.
     ///
     pub def getStringByLabel(label: String): CsvRowEvaluator[String] =
-        import flix.runtime.spt.factio.CsvRow.getStringByLabel(String);
+        import flix.runtime.spt.factio.csv.CsvRow.getStringByLabel(String);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getStringByLabel(label);
@@ -141,7 +141,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getInt8ByIndex(ix: Int32): CsvRowEvaluator[Int8] =
-        import flix.runtime.spt.factio.CsvRow.getByteByIndex(Int32);
+        import flix.runtime.spt.factio.csv.CsvRow.getByteByIndex(Int32);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getByteByIndex(ix);
@@ -153,7 +153,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getInt8ByLabel(label: String): CsvRowEvaluator[Int8] =
-        import flix.runtime.spt.factio.CsvRow.getByteByLabel(String);
+        import flix.runtime.spt.factio.csv.CsvRow.getByteByLabel(String);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getByteByLabel(label);
@@ -165,7 +165,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getInt16ByIndex(ix: Int32): CsvRowEvaluator[Int16] =
-        import flix.runtime.spt.factio.CsvRow.getShortByIndex(Int32);
+        import flix.runtime.spt.factio.csv.CsvRow.getShortByIndex(Int32);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getShortByIndex(ix);
@@ -177,7 +177,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getInt16ByLabel(label: String): CsvRowEvaluator[Int16] =
-        import flix.runtime.spt.factio.CsvRow.getShortByLabel(String);
+        import flix.runtime.spt.factio.csv.CsvRow.getShortByLabel(String);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getShortByLabel(label);
@@ -189,7 +189,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getInt32ByIndex(ix: Int32): CsvRowEvaluator[Int32] =
-        import flix.runtime.spt.factio.CsvRow.getIntByIndex(Int32);
+        import flix.runtime.spt.factio.csv.CsvRow.getIntByIndex(Int32);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getIntByIndex(ix);
@@ -201,7 +201,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getInt32ByLabel(label: String): CsvRowEvaluator[Int32] =
-        import flix.runtime.spt.factio.CsvRow.getIntByLabel(String);
+        import flix.runtime.spt.factio.csv.CsvRow.getIntByLabel(String);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getIntByLabel(label);
@@ -213,7 +213,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getInt64ByIndex(ix: Int32): CsvRowEvaluator[Int64] =
-        import flix.runtime.spt.factio.CsvRow.getLongByIndex(Int32);
+        import flix.runtime.spt.factio.csv.CsvRow.getLongByIndex(Int32);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getLongByIndex(ix);
@@ -225,7 +225,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getInt64ByLabel(label: String): CsvRowEvaluator[Int64] =
-        import flix.runtime.spt.factio.CsvRow.getLongByLabel(String);
+        import flix.runtime.spt.factio.csv.CsvRow.getLongByLabel(String);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getLongByLabel(label);
@@ -237,7 +237,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getFloat32ByIndex(ix: Int32): CsvRowEvaluator[Float32] =
-        import flix.runtime.spt.factio.CsvRow.getFloatByIndex(Int32);
+        import flix.runtime.spt.factio.csv.CsvRow.getFloatByIndex(Int32);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getFloatByIndex(ix);
@@ -249,7 +249,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getFloat32ByLabel(label: String): CsvRowEvaluator[Float32] =
-        import flix.runtime.spt.factio.CsvRow.getFloatByLabel(String);
+        import flix.runtime.spt.factio.csv.CsvRow.getFloatByLabel(String);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getFloatByLabel(label);
@@ -261,7 +261,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getFloat64ByIndex(ix: Int32): CsvRowEvaluator[Float64] =
-        import flix.runtime.spt.factio.CsvRow.getDoubleByIndex(Int32);
+        import flix.runtime.spt.factio.csv.CsvRow.getDoubleByIndex(Int32);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getDoubleByIndex(ix);
@@ -273,7 +273,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getFloat64ByLabel(label: String): CsvRowEvaluator[Float64] =
-        import flix.runtime.spt.factio.CsvRow.getDoubleByLabel(String);
+        import flix.runtime.spt.factio.csv.CsvRow.getDoubleByLabel(String);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getDoubleByLabel(label);
@@ -285,7 +285,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getBigIntByIndex(ix: Int32): CsvRowEvaluator[BigInt] =
-        import flix.runtime.spt.factio.CsvRow.getBigIntegerByIndex(Int32);
+        import flix.runtime.spt.factio.csv.CsvRow.getBigIntegerByIndex(Int32);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getBigIntegerByIndex(ix);
@@ -297,7 +297,7 @@ namespace FactIO/Csv/RowEvaluator {
         )
 
     pub def getBigIntByLabel(label: String): CsvRowEvaluator[BigInt] =
-        import flix.runtime.spt.factio.CsvRow.getBigIntegerByLabel(String);
+        import flix.runtime.spt.factio.csv.CsvRow.getBigIntegerByLabel(String);
         liftPrimRowReader(row -> 
             try {
                 let a = row.getBigIntegerByLabel(label);

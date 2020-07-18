@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package flix.runtime.spt.factio;
+package flix.runtime.spt.factio.csv;
 
-import flix.runtime.spt.factio.marshal.MarshalRow;
+import flix.runtime.spt.factio.csv.marshal.MarshalRow;
 import org.apache.commons.csv.*;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;

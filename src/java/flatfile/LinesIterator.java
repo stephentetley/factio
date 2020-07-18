@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package flix.runtime.spt.factio;
+package flix.runtime.spt.factio.flatfile;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

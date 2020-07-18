@@ -29,11 +29,11 @@ namespace FactIO/Csv {
     ///
     /// Represents a CsvWriter.
     ///
-    pub opaque type CsvWriter = ##flix.runtime.spt.factio.CsvWriter
+    pub opaque type CsvWriter = ##flix.runtime.spt.factio.csv.CsvWriter
 
 
     /// CsvWriteList is a workaround because fixpoint fold is our only way of
-    /// extract data from a relation and the step function of fixpoint fold
+    /// extracting data from a relation and the step function of fixpoint fold
     /// must be pure - solution we build a list of impure "write" functions
     /// to be invoked after the fold.
     pub opaque type CsvWriteList = DList[CsvWriter -> Unit & Impure]
@@ -42,13 +42,13 @@ namespace FactIO/Csv {
 
 namespace FactIO/Csv/Export {
 
-    type alias MarshalRow = ##flix.runtime.spt.factio.marshal.MarshalRow
+    type alias MarshalRow = ##flix.runtime.spt.factio.csv.marshal.MarshalRow
 
     ///
     /// Returns a new CsvWriter.
     ///
     pub def new(filename: String, cs: Text.Charset, headers: Array[String]): Result[CsvWriter, System.Error] & Impure =
-        import new flix.runtime.spt.factio.CsvWriter(String, ##java.nio.charset.Charset) as newCsvWriter;
+        import new flix.runtime.spt.factio.csv.CsvWriter(String, ##java.nio.charset.Charset) as newCsvWriter;
         use Result.flatMap;
         try {
             let Charset(cs1) = cs;
@@ -60,8 +60,8 @@ namespace FactIO/Csv/Export {
         }
 
     def serializeRow(cells: Array[String]): MarshalRow & Impure =
-        import new flix.runtime.spt.factio.marshal.MarshalRow() as newMarshalRow;
-        import flix.runtime.spt.factio.marshal.MarshalRow.append(String);
+        import new flix.runtime.spt.factio.csv.marshal.MarshalRow() as newMarshalRow;
+        import flix.runtime.spt.factio.csv.marshal.MarshalRow.append(String);
         let r = newMarshalRow();
         Array.foreach(x -> r.append(x), cells);
         r
@@ -69,7 +69,7 @@ namespace FactIO/Csv/Export {
 
     /// Note - row must not be empty.
     pub def writeRow(w: CsvWriter, row: Array[String]): Result[Unit, System.Error] & Impure =
-        import flix.runtime.spt.factio.CsvWriter.writeRow(##flix.runtime.spt.factio.marshal.MarshalRow);
+        import flix.runtime.spt.factio.csv.CsvWriter.writeRow(##flix.runtime.spt.factio.csv.marshal.MarshalRow);
         try {
             let CsvWriter(w1) = w;
             let mrow = serializeRow(row);
@@ -81,7 +81,7 @@ namespace FactIO/Csv/Export {
         }
 
     pub def close(w: CsvWriter): Result[Unit, System.Error] & Impure =
-        import flix.runtime.spt.factio.CsvWriter.close();
+        import flix.runtime.spt.factio.csv.CsvWriter.close();
         try {
             let CsvWriter(w1) = w;
             w1.close();

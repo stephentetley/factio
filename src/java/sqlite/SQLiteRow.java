@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package flix.runtime.spt.factio;
+package flix.runtime.spt.factio.sqlite;
 
 import java.sql.ResultSet;
 

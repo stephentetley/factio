@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package flix.runtime.spt.factio;
+package flix.runtime.spt.factio.csv;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;

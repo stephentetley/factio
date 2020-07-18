@@ -28,16 +28,16 @@ namespace FactIO/Csv/Import {
     ///
     /// Represents a CSV row.
     ///
-    type alias CsvRow = ##flix.runtime.spt.factio.CsvRow
+    type alias CsvRow = ##flix.runtime.spt.factio.csv.CsvRow
 
     ///
     /// Returns a new Csv Stream.
     ///
     pub def newCsvStream(filepath: String, format: CsvFormat, cs: Text.Charset): Result[Stream[CsvRow], System.Error] & Impure=
-        import flix.runtime.spt.factio.CsvIterator:createIteratorforFile(String, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset) as newCsvIterator;
-        import flix.runtime.spt.factio.CsvIterator.hasNext() as ffiHasNext;
-        import flix.runtime.spt.factio.CsvIterator.next() as ffiNext;
-        import flix.runtime.spt.factio.CsvIterator.close() as ffiClose;
+        import flix.runtime.spt.factio.csv.CsvIterator:createIteratorforFile(String, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset) as newCsvIterator;
+        import flix.runtime.spt.factio.csv.CsvIterator.hasNext() as ffiHasNext;
+        import flix.runtime.spt.factio.csv.CsvIterator.next() as ffiNext;
+        import flix.runtime.spt.factio.csv.CsvIterator.close() as ffiClose;
         try {
             let CsvFormat(fmt1) = format;
             let Charset(cs1) = cs;
@@ -57,10 +57,10 @@ namespace FactIO/Csv/Import {
     /// Returns a new Csv Stream from a file with a BOM.
     ///
     pub def newCsvStreamWithBOM(filepath: String, format: CsvFormat, cs: Text.Charset): Result[Stream[CsvRow], System.Error] & Impure =
-        import flix.runtime.spt.factio.CsvIterator:createIteratorforBOMFile(String, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset) as newCsvIterator;
-        import flix.runtime.spt.factio.CsvIterator.hasNext() as ffiHasNext;
-        import flix.runtime.spt.factio.CsvIterator.next() as ffiNext;
-        import flix.runtime.spt.factio.CsvIterator.close() as ffiClose;
+        import flix.runtime.spt.factio.csv.CsvIterator:createIteratorforBOMFile(String, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset) as newCsvIterator;
+        import flix.runtime.spt.factio.csv.CsvIterator.hasNext() as ffiHasNext;
+        import flix.runtime.spt.factio.csv.CsvIterator.next() as ffiNext;
+        import flix.runtime.spt.factio.csv.CsvIterator.close() as ffiClose;
         try {
             let CsvFormat(fmt1) = format;
             let Charset(cs1) = cs;
