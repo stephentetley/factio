@@ -18,17 +18,17 @@ use Text.Charset.{Charset};
 
 use System.Error.{IllegalStateException, IOException, Generic};
 
-use FactIO/FlatFile.SimpleParser;
-use FactIO/FlatFile.SimpleParser.{SimpleParser};
+use FactIO.FlatFileParser;
+use FactIO.FlatFileParser.{FlatFileParser};
 
 use FactIO/FlatFile.LineEvaluator;
 use FactIO/FlatFile.LineEvaluator.{LineEvaluator};
-use FactIO/Internal.LinesIterator;
-use FactIO/Internal.LinesIterator.{LinesIterator};
+use FactIO/Internal/FlatFile.LinesIterator;
+use FactIO/Internal/FlatFile.LinesIterator.{LinesIterator};
 
-namespace FactIO/FlatFile {
+namespace FactIO {
     
-    pub opaque type SimpleParser[a] = LinesIterator ~> Result[a, System.Error]
+    pub opaque type FlatFileParser[a] = LinesIterator ~> Result[a, System.Error]
 
 }
 
@@ -41,25 +41,25 @@ namespace FactIO/FlatFile {
 /// But it should be fast and use memory conservatively, so it is worth keeping even if a
 /// we make a more expressive version.
 
-namespace FactIO/FlatFile/SimpleParser {
+namespace FactIO/FlatFileParser {
 
-    pub def runSimpleParser(x: SimpleParser[reln], path: String, cs: Text.Charset): Result[reln, System.Error] & Impure =
-        use FactIO/Internal/LinesIterator.{close};
-        match FactIO/Internal/LinesIterator.newLinesIterator(path, cs) {
+    pub def runFlatFileParser(x: FlatFileParser[reln], path: String, cs: Text.Charset): Result[reln, System.Error] & Impure =
+        use FactIO/Internal/FlatFile/LinesIterator.{close};
+        match FactIO/Internal/FlatFile/LinesIterator.newLinesIterator(path, cs) {
             case Ok(iter) => { let ans = apply1(x, iter); close(iter); ans }
             case Err(e) => Err(e)
         }
         
 
-    pub def return(x: a): SimpleParser[a] =
-        SimpleParser(_ -> Ok(x) as & Impure)
+    pub def return(x: a): FlatFileParser[a] =
+        FlatFileParser(_ -> Ok(x) as & Impure)
 
-    def apply1(x: SimpleParser[a], iter: LinesIterator): Result[a, System.Error] & Impure =
-        let SimpleParser(f) = x;
+    def apply1(x: FlatFileParser[a], iter: LinesIterator): Result[a, System.Error] & Impure =
+        let FlatFileParser(f) = x;
         f(iter)
 
-    pub def map(f: a -> b & e, x: SimpleParser[a]): SimpleParser[b] =
-        SimpleParser(r ->
+    pub def map(f: a -> b & e, x: FlatFileParser[a]): FlatFileParser[b] =
+        FlatFileParser(r ->
             match apply1(x, r) {
                 case Ok(a) => {
                     let ans = f(a) as & Impure;
@@ -69,8 +69,8 @@ namespace FactIO/FlatFile/SimpleParser {
             }
         )
 
-    pub def ap(mf: SimpleParser[a -> b], ma: SimpleParser[a]): SimpleParser[b] =
-        SimpleParser(r ->
+    pub def ap(mf: FlatFileParser[a -> b], ma: FlatFileParser[a]): FlatFileParser[b] =
+        FlatFileParser(r ->
             match apply1(mf, r) {
                 case Ok(f) => {
                     match apply1(ma, r) {
@@ -82,19 +82,19 @@ namespace FactIO/FlatFile/SimpleParser {
             }
         )
 
-    pub def bind(x: SimpleParser[a], k: a -> SimpleParser[b]): SimpleParser[b] =
-        SimpleParser(r ->
+    pub def bind(x: FlatFileParser[a], k: a -> FlatFileParser[b]): FlatFileParser[b] =
+        FlatFileParser(r ->
             match apply1(x, r) {
                 case Ok(a) => { let p1 = k(a); apply1(p1, r) }
                 case Err(e) => Err(e)
             }
         )
 
-    pub def flatMap(k: a -> SimpleParser[b], x: SimpleParser[a]): SimpleParser[b] = bind(x, k)
+    pub def flatMap(k: a -> FlatFileParser[b], x: FlatFileParser[a]): FlatFileParser[b] = bind(x, k)
 
-    pub def skipLine(): SimpleParser[Unit] =
-        use FactIO/Internal/LinesIterator.{readLine, hasNext};
-        SimpleParser(r ->
+    pub def skipLine(): FlatFileParser[Unit] =
+        use FactIO/Internal/FlatFile/LinesIterator.{readLine, hasNext};
+        FlatFileParser(r ->
             if (r.hasNext()) {
                 let _ = r.readLine();
                 Ok()
@@ -103,7 +103,7 @@ namespace FactIO/FlatFile/SimpleParser {
         )
 
 
-    pub def skipLines(n: Int32): SimpleParser[Unit] =
+    pub def skipLines(n: Int32): FlatFileParser[Unit] =
         if (n <= 0)
             return()
         else {
@@ -111,10 +111,10 @@ namespace FactIO/FlatFile/SimpleParser {
             skipLines(n - 1)
         }
 
-    pub def line(x: LineEvaluator[a]): SimpleParser[a] =
+    pub def line(x: LineEvaluator[a]): FlatFileParser[a] =
         use Result.flatMap;
-        use FactIO/Internal/LinesIterator.{readLine, hasNext};
-        SimpleParser(r ->
+        use FactIO/Internal/FlatFile/LinesIterator.{readLine, hasNext};
+        FlatFileParser(r ->
             if (r.hasNext()) {
                 let LineEvaluator(f1) = x;
                 let* str = r.readLine();
@@ -125,10 +125,10 @@ namespace FactIO/FlatFile/SimpleParser {
         )
 
 
-    pub def countLines(n: Int32, x: LineEvaluator[a]): SimpleParser[a] =
+    pub def countLines(n: Int32, x: LineEvaluator[a]): FlatFileParser[a] =
         countLinesHelper(n, x, #{ })
 
-    pub def countLinesHelper(n: Int32, x: LineEvaluator[a], ac: a): SimpleParser[a] =
+    pub def countLinesHelper(n: Int32, x: LineEvaluator[a], ac: a): FlatFileParser[a] =
         if (n <= 0)
             return(ac)
         else { 
@@ -136,13 +136,13 @@ namespace FactIO/FlatFile/SimpleParser {
             countLinesHelper(n - 1, x, ac <+> a1)
         }
 
-    pub def skipLinesTill(x: LineEvaluator[a]): SimpleParser[a] =
+    pub def skipLinesTill(x: LineEvaluator[a]): FlatFileParser[a] =
         let LineEvaluator(f1) = x;
-        SimpleParser(r -> skipLinesTillHelper(f1, r))
+        FlatFileParser(r -> skipLinesTillHelper(f1, r))
 
 
     def skipLinesTillHelper(f1: String ~> Result[a, System.Error], r: LinesIterator): Result[a, System.Error] & Impure=
-        use FactIO/Internal/LinesIterator.{readLine, hasNext};
+        use FactIO/Internal/FlatFile/LinesIterator.{readLine, hasNext};
         use Result.flatMap;
         if (r.hasNext()) {
             let* str = r.readLine();
@@ -154,14 +154,14 @@ namespace FactIO/FlatFile/SimpleParser {
             Err(IllegalStateException)
 
 
-    pub def linesTill(x: LineEvaluator[a], end: LineEvaluator[end]): SimpleParser[a] =
+    pub def linesTill(x: LineEvaluator[a], end: LineEvaluator[end]): FlatFileParser[a] =
         let LineEvaluator(f1) = x;
         let LineEvaluator(f2) = end;
-        SimpleParser(r -> linesTillHelper(f1, f2, r, #{ }))
+        FlatFileParser(r -> linesTillHelper(f1, f2, r, #{ }))
 
 
     def linesTillHelper(f1: String ~> Result[a, System.Error], f2: String ~> Result[b, System.Error], r: LinesIterator, ac: a): Result[a, System.Error] & Impure=
-        use FactIO/Internal/LinesIterator.{readLine, hasNext};
+        use FactIO/Internal/FlatFile/LinesIterator.{readLine, hasNext};
         use Result.flatMap;
         if (r.hasNext()) {
             let* str = r.readLine();
@@ -176,13 +176,13 @@ namespace FactIO/FlatFile/SimpleParser {
             Err(IllegalStateException)
 
 
-    pub def linesTillEnd(x: LineEvaluator[a]): SimpleParser[a] =
+    pub def linesTillEnd(x: LineEvaluator[a]): FlatFileParser[a] =
         let LineEvaluator(f1) = x;
-        SimpleParser(r -> linesTillEndHelper(f1, r, #{ }))
+        FlatFileParser(r -> linesTillEndHelper(f1, r, #{ }))
 
 
     def linesTillEndHelper(f1: String ~> Result[a, System.Error], r: LinesIterator, ac: a): Result[a, System.Error] & Impure=
-        use FactIO/Internal/LinesIterator.{readLine, hasNext};
+        use FactIO/Internal/FlatFile/LinesIterator.{readLine, hasNext};
         use Result.flatMap;
         if (r.hasNext()) {
             let* str = r.readLine();

@@ -18,17 +18,17 @@ use Text.Charset.{Charset};
 
 use System.Error.{IOException, IllegalStateException, Generic};
 
-use FactIO/Internal.LinesIterator;
-use FactIO/Internal.LinesIterator.{LinesIterator};
+use FactIO/Internal/FlatFile.LinesIterator;
+use FactIO/Internal/FlatFile.LinesIterator.{LinesIterator};
 
-namespace FactIO/Internal { 
+namespace FactIO/Internal/FlatFile {
     
     pub opaque type LinesIterator = ##flix.runtime.spt.factio.flatfile.LinesIterator
 
 }
 
 
-namespace FactIO/Internal/LinesIterator {
+namespace FactIO/Internal/FlatFile/LinesIterator {
 
     
     pub def newLinesIterator(filepath: String, cs: Text.Charset): Result[LinesIterator, System.Error] & Impure=
