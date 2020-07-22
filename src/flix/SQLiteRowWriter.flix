@@ -78,6 +78,10 @@ namespace FactIO/SQLiteRowWriter {
     // Note - the primitive setX! functions index from 1, we add 1 to calls
     // so FactIO's API indexes from 0.
 
+    pub def putNull!(ix: Int32): SQLiteRowWriter[Unit] =
+        use FactIO/Internal/SQLite/PreparedStatement.{sql_type_null};
+        liftPrim(x -> FactIO/Internal/SQLite/PreparedStatement.setNull!(x, ix + 1, sql_type_null()))
+
     pub def putString!(ix: Int32, str: String): SQLiteRowWriter[Unit] =
         liftPrim(x -> FactIO/Internal/SQLite/PreparedStatement.setString!(x, ix + 1, str))
 
@@ -103,44 +107,45 @@ namespace FactIO/SQLiteRowWriter {
         liftPrim(x -> FactIO/Internal/SQLite/PreparedStatement.setFloat64!(x, ix + 1, n))
 
 
+
     pub def putOptionString!(ix: Int32, x: Option[String]): SQLiteRowWriter[Unit] = match x {
         case Some(s) => putString!(ix, s)
-        case None => return()
+        case None => putNull!(ix)
     }
 
     pub def putOptionBool!(ix: Int32, x: Option[Bool]): SQLiteRowWriter[Unit] = match x {
         case Some(b) => putBool!(ix, b)
-        case None => return()
+        case None => putNull!(ix)
     }
 
     pub def putOptionInt8!(ix: Int32, x: Option[Int8]): SQLiteRowWriter[Unit] = match x {
         case Some(n) => putInt8!(ix, n)
-        case None => return()
+        case None => putNull!(ix)
     }
 
     pub def putOptionInt16!(ix: Int32, x: Option[Int16]): SQLiteRowWriter[Unit] = match x {
         case Some(n) => putInt16!(ix, n)
-        case None => return()
+        case None => putNull!(ix)
     }
 
     pub def putOptionInt32!(ix: Int32, x: Option[Int32]): SQLiteRowWriter[Unit] = match x {
         case Some(n) => putInt32!(ix, n)
-        case None => return()
+        case None => putNull!(ix)
     }
 
     pub def putOptionInt64!(ix: Int32, x: Option[Int64]): SQLiteRowWriter[Unit] = match x {
         case Some(n) => putInt64!(ix, n)
-        case None => return()
+        case None => putNull!(ix)
     }
 
     pub def putOptionFloat32!(ix: Int32, x: Option[Float32]): SQLiteRowWriter[Unit] = match x {
         case Some(n) => putFloat32!(ix, n)
-        case None => return()
+        case None => putNull!(ix)
     }
 
     pub def putOptionFloat64!(ix: Int32, x: Option[Float64]): SQLiteRowWriter[Unit] = match x {
         case Some(n) => putFloat64!(ix, n)
-        case None => return()
+        case None => putNull!(ix)
     }
 
 

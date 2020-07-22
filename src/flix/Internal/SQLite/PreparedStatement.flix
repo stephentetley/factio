@@ -26,6 +26,10 @@ namespace FactIO/Internal/SQLite {
 
 namespace FactIO/Internal/SQLite/PreparedStatement {
 
+    pub def sql_type_null(): Int32 =
+        import get java.sql.Types:NULL as get_NULL;
+        get_NULL() as & Pure
+
     pub def clearParameters!(x: PreparedStatement): Result[Unit, System.Error] & Impure =
         import java.sql.PreparedStatement.clearParameters();
         try {
@@ -34,6 +38,16 @@ namespace FactIO/Internal/SQLite/PreparedStatement {
             Ok()
         } catch {
             case _: ##java.sql.SQLException => Err(Generic("SQLException.clearParameters"))
+        }
+
+    pub def setNull!(x: PreparedStatement, ix: Int32, sqlType: Int32): Result[Unit, System.Error] & Impure =
+        import java.sql.PreparedStatement.setNull(Int32, Int32);
+        try {
+            let PreparedStatement(x1) = x;
+            x1.setNull(ix, sqlType);
+            Ok()
+        } catch {
+            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
         }
 
     pub def setString!(x: PreparedStatement, ix: Int32, str: String): Result[Unit, System.Error] & Impure =
