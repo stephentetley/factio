@@ -22,8 +22,8 @@ namespace TestCsvFormat {
 
 @test
 def toString01(): String =
-    use FactIO/Csv/CsvFormat.{toString};
-    FactIO/Csv/CsvFormat.default() |> toString
+    use FactIO/CsvFormat.{toString};
+    FactIO/CsvFormat.default() |> toString
 
 /////////////////////////////////////////////////////////////////////////////
 // compare                                                                 //

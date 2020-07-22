@@ -27,19 +27,21 @@ Factio Flix modules, i.e. add this code to the list of libraries:
 
 ~~~ {.Scala}
 
-   // factio
+    // factio
     "Internal/ImportStrategies.flix" -> LocalResource.get("/src/library/spt/factio/Internal/ImportStrategies.flix"),
-    "Csv/CsvFormat.flix" -> LocalResource.get("/src/library/spt/factio/Csv/CsvFormat.flix"),
-    "Csv/Export.flix" -> LocalResource.get("/src/library/spt/factio/Csv/Export.flix"),
-    "Csv/Import.flix" -> LocalResource.get("/src/library/spt/factio/Csv/Import.flix"),
-    "Csv/RowEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/Csv/RowEvaluator.flix"),
-    "Internal/SQLite/Output.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Internal/Output.flix"),
-    "SQLite/Internal/PreparedStatement.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Internal/PreparedStatement.flix"),
-    "SQLite/RowWriter.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/RowWriter.flix"),
-    "SQLite/Export.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Export.flix"),
-    "SQLite/Import.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/Import.flix"),
-    "SQLite/RowEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/SQLite/RowEvaluator.flix"),
-
+    "CsvFormat.flix" -> LocalResource.get("/src/library/spt/factio/CsvFormat.flix"),
+    "CsvRowEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/CsvRowEvaluator.flix"),
+    "CsvImport.flix" -> LocalResource.get("/src/library/spt/factio/CsvImport.flix"),
+    "CsvExport.flix" -> LocalResource.get("/src/library/spt/factio/CsvExport.flix"),
+    "Internal/SQLite/Output.flix" -> LocalResource.get("/src/library/spt/factio/Internal/SQLite/Output.flix"),
+    "Internal/SQLite/PreparedStatement.flix" -> LocalResource.get("/src/library/spt/factio/Internal/SQLite/PreparedStatement.flix"),
+    "SQLiteRowEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/SQLiteRowEvaluator.flix"),
+    "SQLiteRowWriter.flix" -> LocalResource.get("/src/library/spt/factio/SQLiteRowWriter.flix"),
+    "SQLiteImport.flix" -> LocalResource.get("/src/library/spt/factio/SQLiteImport.flix"),
+    "SQLiteExport.flix" -> LocalResource.get("/src/library/spt/factio/SQLiteExport.flix"),
+    "FlatFileLineEvaluator.flix" -> LocalResource.get("/src/library/spt/factio/FlatFileLineEvaluator.flix"),
+    "FlatFileImport.flix" -> LocalResource.get("/src/library/spt/factio/FlatFileImport.flix"),
+    
 ~~~
 
 **Note** Factio depends on `flix-sandbox` an incubator project geared towards adding 

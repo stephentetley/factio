@@ -103,6 +103,47 @@ namespace FactIO/SQLiteRowWriter {
         liftPrim(x -> FactIO/Internal/SQLite/PreparedStatement.setFloat64!(x, ix + 1, n))
 
 
+    pub def putOptionString!(ix: Int32, x: Option[String]): SQLiteRowWriter[Unit] = match x {
+        case Some(s) => putString!(ix, s)
+        case None => return()
+    }
+
+    pub def putOptionBool!(ix: Int32, x: Option[Bool]): SQLiteRowWriter[Unit] = match x {
+        case Some(b) => putBool!(ix, b)
+        case None => return()
+    }
+
+    pub def putOptionInt8!(ix: Int32, x: Option[Int8]): SQLiteRowWriter[Unit] = match x {
+        case Some(n) => putInt8!(ix, n)
+        case None => return()
+    }
+
+    pub def putOptionInt16!(ix: Int32, x: Option[Int16]): SQLiteRowWriter[Unit] = match x {
+        case Some(n) => putInt16!(ix, n)
+        case None => return()
+    }
+
+    pub def putOptionInt32!(ix: Int32, x: Option[Int32]): SQLiteRowWriter[Unit] = match x {
+        case Some(n) => putInt32!(ix, n)
+        case None => return()
+    }
+
+    pub def putOptionInt64!(ix: Int32, x: Option[Int64]): SQLiteRowWriter[Unit] = match x {
+        case Some(n) => putInt64!(ix, n)
+        case None => return()
+    }
+
+    pub def putOptionFloat32!(ix: Int32, x: Option[Float32]): SQLiteRowWriter[Unit] = match x {
+        case Some(n) => putFloat32!(ix, n)
+        case None => return()
+    }
+
+    pub def putOptionFloat64!(ix: Int32, x: Option[Float64]): SQLiteRowWriter[Unit] = match x {
+        case Some(n) => putFloat64!(ix, n)
+        case None => return()
+    }
+
+
     ///
     /// Applies the binary function `f` to the values in `o1` and `o2`.
     ///
