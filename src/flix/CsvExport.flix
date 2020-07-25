@@ -63,6 +63,9 @@ namespace FactIO/CsvExport {
     pub def return(x: a): CsvExport[a] =
         CsvExport((_,_) -> Ok(x) as & Impure)
 
+    pub def fail(e: System.Error): CsvExport[a] =
+       CsvExport((_,_) -> Err(e) as & Impure)
+
     def apply1(x: CsvExport[a], headers: Map[String, Int], r: FactIO/Internal/Csv.Output): Result[a, System.Error] & Impure =
         let CsvExport(f) = x;
         f(headers, r)
@@ -156,6 +159,17 @@ namespace FactIO/CsvExport {
             let mx = f(x);
             let* _ = writeRow(mx);
             mapRowWriterX(f, rs)
+        }
+    }
+
+    pub def traverseX(f: a -> CsvExport[b], xs: List[a]): CsvExport[Unit] =
+        CsvExport((hdrs, r) -> traverseXHelper(f, hdrs, r, xs))
+
+    def traverseXHelper(f: a -> CsvExport[b], headers: Map[String, Int], r: FactIO/Internal/Csv.Output,  xs: List[a]): Result[Unit, System.Error] & Impure = match xs {
+        case Nil            => Ok()
+        case x :: rs        => match apply1(f(x), headers, r) {
+            case Err(e) => Err(e)
+            case Ok(_)  => traverseXHelper(f, headers, r, rs)
         }
     }
 
