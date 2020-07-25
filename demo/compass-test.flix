@@ -26,7 +26,7 @@ pub def csv01(): #{Direction} & Impure =
     use Result.flatMap;
     use FactIO/CsvFormat.{withFirstRecordAsHeader};
     let step = () -> {
-        let path = "e:/coding/flix/factio/data/compass.csv";
+        let path = System/FilePath.new("e:/coding/flix/factio/data/compass.csv");
         let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows(csvDirection1(), src);
         Ok(solve relns)
@@ -41,7 +41,7 @@ def sqliteDirection1(): SQLiteRowEvaluator[#{Direction}] =
 pub def sqlite01(): #{Direction} & Impure =
     use Result.flatMap;
     let step = () -> {
-        let path = "e:/coding/flix/factio/data/compass.sqlite";
+        let path = System/FilePath.new("e:/coding/flix/factio/data/compass.sqlite");
         let query = "SELECT cardinal_name FROM cardinals";
         let* src = FactIO/SQLiteImport.newSQLiteStream(path, query);
         let* relns = FactIO/SQLiteImport.importRows(sqliteDirection1(), src);
@@ -57,7 +57,7 @@ def flatfileDirection1(): FlatFileLineEvaluator[#{ Direction }] =
 pub def lines01(): #{ Direction } & Impure =
     use Result.flatMap;    
     let step = () -> {
-        let path = "e:/coding/flix/factio/data/compass.txt";
+        let path = System/FilePath.new("e:/coding/flix/factio/data/compass.txt");
         let* src = FactIO/FlatFileImport.newFlatFileStream(path, Text/Charset.utf_8());
         let* relns = FactIO/FlatFileImport.importRows(flatfileDirection1(), src);
         Ok(solve relns)

@@ -22,7 +22,7 @@ def getColour(): FlatFileLineEvaluator[#{ Colour }] =
 pub def test01(): #{ Colour } & Impure =
     use Result.flatMap;
     let step = () -> {
-        let path = "e:/coding/flix/factio/data/colours.txt";
+        let path = System/FilePath.new("e:/coding/flix/factio/data/colours.txt");
         let* src = FactIO/FlatFileImport.newFlatFileStream(path, Text/Charset.utf_8());
         let* relns = FactIO/FlatFileImport.importRows(getColour(), src);
         Ok(solve relns)

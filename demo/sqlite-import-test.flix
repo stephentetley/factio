@@ -20,7 +20,7 @@ def getLang (): SQLiteRowEvaluator[#{Lang}] =
 pub def test01(): #{Lang} & Impure =
     use Result.flatMap;
     let step = () -> {
-        let path = "e:/coding/flix/factio/data/langs.sqlite";
+        let path = System/FilePath.new("e:/coding/flix/factio/data/langs.sqlite");
         let query = "SELECT name, year FROM language";
         let* src = FactIO/SQLiteImport.newSQLiteStream(path, query);
         let* relns = FactIO/SQLiteImport.importRows(getLang(), src);

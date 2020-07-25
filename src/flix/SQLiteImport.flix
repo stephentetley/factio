@@ -30,13 +30,13 @@ namespace FactIO/SQLiteImport {
     ///
     /// Returns a new SQLite Stream.
     ///
-    pub def newSQLiteStream(filepath: String, query: String): Result[Stream[SQLiteRow], System.Error] & Impure=
+    pub def newSQLiteStream(filepath: System.FilePath, query: String): Result[Stream[SQLiteRow], System.Error] & Impure=
         import new flix.runtime.spt.factio.sqlite.SQLiteIterator(String, String) as newSQLiteIterator;
         import flix.runtime.spt.factio.sqlite.SQLiteIterator.next() as ffiHasNext;
         import flix.runtime.spt.factio.sqlite.SQLiteIterator.getRow() as ffiNext;
         import flix.runtime.spt.factio.sqlite.SQLiteIterator.close() as ffiClose;
         try {
-            let iter = newSQLiteIterator(filepath, query);
+            let iter = newSQLiteIterator(System/FilePath.toString(filepath), query);
             let streamiter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = () -> ffiNext(iter)

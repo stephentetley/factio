@@ -47,12 +47,12 @@ namespace FactIO/CsvExport {
     ///
     /// Returns a new CsvWriter.
     ///
-    pub def new(filename: String, cs: Text.Charset, headers: Array[String]): Result[CsvWriter, System.Error] & Impure =
+    pub def new(filepath: System.FilePath, cs: Text.Charset, headers: Array[String]): Result[CsvWriter, System.Error] & Impure =
         import new flix.runtime.spt.factio.csv.CsvOutput(String, ##java.nio.charset.Charset) as newCsvWriter;
         use Result.flatMap;
         try {
             let Charset(cs1) = cs;
-            let w1 = CsvWriter(newCsvWriter(filename, cs1));
+            let w1 = CsvWriter(newCsvWriter(System/FilePath.toString(filepath), cs1));
             let* _ = w1.writeRow(headers);
             Ok(w1)
         } catch {
@@ -101,7 +101,7 @@ namespace FactIO/CsvExport {
             let w1 = { w ->  let cells = f(x) as & Impure; writeRow(w, cells); () };
             CsvWriteList(Data/Transient/DList.snoc(ws1, w1))
 
-    pub def outputCsv(filepath: String, cs: Text.Charset, headers: Array[String], writeList: CsvWriteList): Result[Unit, System.Error] & Impure =
+    pub def outputCsv(filepath: System.FilePath, cs: Text.Charset, headers: Array[String], writeList: CsvWriteList): Result[Unit, System.Error] & Impure =
         use Result.flatMap;
         let* w = new(filepath, cs, headers);
         let CsvWriteList(ws1) = writeList;

@@ -33,7 +33,7 @@ namespace FactIO/CsvImport {
     ///
     /// Returns a new Csv Stream.
     ///
-    pub def newCsvStream(filepath: String, format: CsvFormat, cs: Text.Charset): Result[Stream[CsvRow], System.Error] & Impure=
+    pub def newCsvStream(filepath: System.FilePath, format: CsvFormat, cs: Text.Charset): Result[Stream[CsvRow], System.Error] & Impure=
         import flix.runtime.spt.factio.csv.CsvIterator:createIteratorforFile(String, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset) as newCsvIterator;
         import flix.runtime.spt.factio.csv.CsvIterator.hasNext() as ffiHasNext;
         import flix.runtime.spt.factio.csv.CsvIterator.next() as ffiNext;
@@ -41,7 +41,7 @@ namespace FactIO/CsvImport {
         try {
             let CsvFormat(fmt1) = format;
             let Charset(cs1) = cs;
-            let iter = newCsvIterator(filepath, fmt1, cs1);
+            let iter = newCsvIterator(System/FilePath.toString(filepath), fmt1, cs1);
             let streamiter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = () -> ffiNext(iter)
@@ -56,7 +56,7 @@ namespace FactIO/CsvImport {
     ///
     /// Returns a new Csv Stream from a file with a BOM.
     ///
-    pub def newCsvStreamWithBOM(filepath: String, format: CsvFormat, cs: Text.Charset): Result[Stream[CsvRow], System.Error] & Impure =
+    pub def newCsvStreamWithBOM(filepath: System.FilePath, format: CsvFormat, cs: Text.Charset): Result[Stream[CsvRow], System.Error] & Impure =
         import flix.runtime.spt.factio.csv.CsvIterator:createIteratorforBOMFile(String, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset) as newCsvIterator;
         import flix.runtime.spt.factio.csv.CsvIterator.hasNext() as ffiHasNext;
         import flix.runtime.spt.factio.csv.CsvIterator.next() as ffiNext;
@@ -64,7 +64,7 @@ namespace FactIO/CsvImport {
         try {
             let CsvFormat(fmt1) = format;
             let Charset(cs1) = cs;
-            let iter = newCsvIterator(filepath, fmt1, cs1);
+            let iter = newCsvIterator(System/FilePath.toString(filepath), fmt1, cs1);
             let streamiter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = () -> ffiNext(iter)
