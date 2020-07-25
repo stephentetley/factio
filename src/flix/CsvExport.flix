@@ -55,7 +55,7 @@ namespace FactIO/CsvExport {
         let cellcount = Array.length(headings);
         let headers = makeColumnIndices(headings);
         let* handle = newOutput(System/FilePath.toString(path), fmt1, cellcount, cs);
-        let* ans = apply1(mx, headers, handle);
+        let* ans = apply1(bind(writeLine(headings), _ -> mx), headers, handle);
         let _ = handle.close();
         Ok(ans)
 
@@ -130,6 +130,23 @@ namespace FactIO/CsvExport {
             execWriteListHelper(rs)
         }
     }
+
+    pub def writeLine(arr: Array[String]): CsvExport[Unit] =
+        let* xs = liftAction(_ -> Ok(Array.toList(arr)));
+        let mx = makeSimpleWriter(0, xs);
+        writeRow(mx)
+
+    def makeSimpleWriter(ix: Int32, xs: List[String]): CsvRowWriter[Unit] =
+        use FactIO/CsvRowWriter.{flatMap, putString!};
+        match xs {
+            case Nil => FactIO/CsvRowWriter.return()
+            case x :: rs => {
+                let* _ = putString!(ix, x);
+                makeSimpleWriter(ix + 1, rs)
+            }
+        }
+
+
 
     pub def writeRow(mx: CsvRowWriter[a]): CsvExport[Unit] =
         let* _ = clearCells!();
