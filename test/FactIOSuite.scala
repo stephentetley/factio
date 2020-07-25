@@ -14,23 +14,11 @@
  * limitations under the License.
  */
 
-package flix.runtime.spt.factio.csv.marshal;
+package spt.factio
 
-import java.util.LinkedList;
+import ca.uwaterloo.flix.util.{FlixTest, Options}
+import org.scalatest.Suites
 
-
-public class MarshalRow {
-    private LinkedList<String> cells;
-
-    public MarshalRow() {
-        this.cells = new LinkedList<String>();
-    }
-
-    public void append(String s) {
-        this.cells.addLast(s);
-    }
-
-    public String[] toArray() {
-        return this.cells.toArray(new String[this.cells.size()]);
-    }
-}
+class FactIOSuite extends Suites(
+  new FlixTest("TestCsvFormat", "main/test/spt/factio/TestCsvFormat.flix")(Options.TestWithLibrary),
+)

@@ -16,7 +16,6 @@
 
 package flix.runtime.spt.factio.csv;
 
-import flix.runtime.spt.factio.csv.marshal.MarshalRow;
 import org.apache.commons.csv.*;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -29,63 +28,26 @@ public class CsvOutput {
 
     private final Writer outw;
     private final CSVPrinter printer;
+    private final String[] row;
 
-    public CsvOutput(String filename, Charset cs) throws Exception {
+    public CsvOutput(String filename, CSVFormat format, int cellcount, Charset cs) throws Exception {
         outw = new OutputStreamWriter(new FileOutputStream(filename), cs);
-        printer = CSVFormat.DEFAULT.print(outw);
-    }
-
-
-    public CsvOutput(String filename, Charset cs, int format) throws Exception {
-        outw = new OutputStreamWriter(new FileOutputStream(filename), cs);
-        switch (format) {
-            case 1:
-                printer = CSVFormat.EXCEL.print(outw);
-                break;
-            case 2:
-                printer = CSVFormat.INFORMIX_UNLOAD.print(outw);
-                break;
-            case 3:
-                printer = CSVFormat.INFORMIX_UNLOAD_CSV.print(outw);
-                break;
-            case 4:
-                printer = CSVFormat.MONGODB_CSV.print(outw);
-                break;
-            case 5:
-                printer = CSVFormat.MONGODB_TSV.print(outw);
-                break;
-            case 6:
-                printer = CSVFormat.MYSQL.print(outw);
-                break;
-            case 7:
-                printer = CSVFormat.RFC4180.print(outw);
-                break;
-            case 8:
-                printer = CSVFormat.ORACLE.print(outw);
-                break;
-            case 9:
-                printer = CSVFormat.POSTGRESQL_CSV.print(outw);
-                break;
-            case 10:
-                printer = CSVFormat.POSTGRESQL_CSV.print(outw);
-                break;
-            case 11:
-                printer = CSVFormat.POSTGRESQL_TEXT.print(outw);
-                break;
-            case 12:
-                printer = CSVFormat.TDF.print(outw);
-                break;
-            default:
-                printer = CSVFormat.DEFAULT.print(outw);
-                break;
-        }
+        printer = format.print(outw);
+        row = new String[cellcount];
         return;
     }
 
-    public void writeRow(MarshalRow rowdata) throws Exception {
-        String[] row = rowdata.toArray();
+    public void setCell(int ix, String value) {
+        row[ix] = value;
+    }
+
+    public void writeRow() throws Exception {
         Iterable<String> cells = Arrays.asList(row);
         printer.printRecord(cells);
+    }
+
+    public void clearCells() throws Exception {
+        Arrays.fill(row, "");
     }
 
     public void close() throws Exception {

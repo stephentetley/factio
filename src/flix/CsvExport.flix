@@ -19,95 +19,135 @@ use System.Error.{IOException, Generic};
 use Text.Charset.{Charset};
 
 
-use FactIO.CsvWriter;
-use FactIO.CsvWriter.{CsvWriter};
+use FactIO.CsvExport;
+use FactIO.CsvExport.{CsvExport};
 use FactIO.CsvWriteList;
 use FactIO.CsvWriteList.{CsvWriteList};
+use FactIO.CsvFormat;
+use FactIO.CsvFormat.{CsvFormat};
+
+use FactIO.CsvRowWriter;
+use FactIO.CsvRowWriter.{CsvRowWriter};
 
 namespace FactIO {
 
-    ///
-    /// Represents a CsvWriter.
-    ///
-    pub opaque type CsvWriter = ##flix.runtime.spt.factio.csv.CsvOutput
 
+    pub opaque type CsvExport[a] = (Map[String, Int32], FactIO/Internal/Csv.Output) ~> Result[a, System.Error]
 
     /// CsvWriteList is a workaround because fixpoint fold is our only way of
     /// extracting data from a relation and the step function of fixpoint fold
     /// must be pure - solution we build a list of impure "write" functions
     /// to be invoked after the fold.
-    pub opaque type CsvWriteList = DList[CsvWriter -> Unit & Impure]
+    pub opaque type CsvWriteList = DList[CsvRowWriter[Unit]]
 
 }
 
 namespace FactIO/CsvExport {
 
-    type alias MarshalRow = ##flix.runtime.spt.factio.csv.marshal.MarshalRow
+    def makeColumnIndices(headers: Array[String]): Map[String, Int32] & Impure =
+        Array.foldLeft((ac, s) -> {let (m,i) = ac; (Map.insert(s, i, m), i+1)}, (Map.empty(), 0), headers) |> fst
 
-    ///
-    /// Returns a new CsvWriter.
-    ///
-    pub def new(filepath: System.FilePath, cs: Text.Charset, headers: Array[String]): Result[CsvWriter, System.Error] & Impure =
-        import new flix.runtime.spt.factio.csv.CsvOutput(String, ##java.nio.charset.Charset) as newCsvWriter;
+    pub def runCsvExport(mx: CsvExport[a], path: System.FilePath, format: CsvFormat, cs: Text.Charset, headings: Array[String]): Result[a, System.Error] & Impure =
         use Result.flatMap;
-        try {
-            let Charset(cs1) = cs;
-            let w1 = CsvWriter(newCsvWriter(System/FilePath.toString(filepath), cs1));
-            let* _ = w1.writeRow(headers);
-            Ok(w1)
-        } catch {
-            case _: ##java.lang.Exception => Err(Generic("new Csv.Writer"))
-        }
-
-    def serializeRow(cells: Array[String]): MarshalRow & Impure =
-        import new flix.runtime.spt.factio.csv.marshal.MarshalRow() as newMarshalRow;
-        import flix.runtime.spt.factio.csv.marshal.MarshalRow.append(String);
-        let r = newMarshalRow();
-        Array.foreach(x -> r.append(x), cells);
-        r
+        use System/FilePath.{normalize, toString};
+        use FactIO/Internal/Csv/Output.{new => newOutput, close};
+        let CsvFormat(fmt1) = format;
+        let cellcount = Array.length(headings);
+        let headers = makeColumnIndices(headings);
+        let* handle = newOutput(System/FilePath.toString(path), fmt1, cellcount, cs);
+        let* ans = apply1(mx, headers, handle);
+        let _ = handle.close();
+        Ok(ans)
 
 
-    /// Note - row must not be empty.
-    pub def writeRow(w: CsvWriter, row: Array[String]): Result[Unit, System.Error] & Impure =
-        import flix.runtime.spt.factio.csv.CsvOutput.writeRow(##flix.runtime.spt.factio.csv.marshal.MarshalRow);
-        try {
-            let CsvWriter(w1) = w;
-            let mrow = serializeRow(row);
-            w1.writeRow(mrow);
-            Ok()
-        } catch {
-            case _: ##java.io.IOException => Err(IOException)
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
+    pub def return(x: a): CsvExport[a] =
+        CsvExport((_,_) -> Ok(x) as & Impure)
 
-    pub def close(w: CsvWriter): Result[Unit, System.Error] & Impure =
-        import flix.runtime.spt.factio.csv.CsvOutput.close();
-        try {
-            let CsvWriter(w1) = w;
-            w1.close();
-            Ok()
-        } catch {
-            case _: ##java.io.IOException => Err(IOException)
-            case _: ##java.lang.Exception => Err(Generic("Exception"))
-        }
+    def apply1(x: CsvExport[a], headers: Map[String, Int], r: FactIO/Internal/Csv.Output): Result[a, System.Error] & Impure =
+        let CsvExport(f) = x;
+        f(headers, r)
+
+    pub def map(f: a -> b & ef, x: CsvExport[a]): CsvExport[b] =
+        CsvExport((hdrs, r) ->
+            match apply1(x, hdrs, r) {
+                case Ok(a) => {
+                    let ans = f(a) as & Impure;
+                    Ok(ans)
+                }
+                case Err(e) => Err(e)
+            }
+        )
+
+    pub def ap(mf: CsvExport[a -> b & ef], ma: CsvExport[a]): CsvExport[b] =
+        CsvExport((hdrs, r) ->
+            match apply1(mf, hdrs, r) {
+                case Ok(f) => {
+                    match apply1(ma, hdrs, r) {
+                        case Ok(a) => Ok(f(a) as & Impure)
+                        case Err(e2) => Err(e2)
+                    }
+                }
+                case Err(e1) => Err(e1)
+            }
+        )
+
+
+    pub def bind(x: CsvExport[a], k: a -> CsvExport[b]): CsvExport[b] =
+        CsvExport((hdrs, r) ->
+            match apply1(x, hdrs, r) {
+                case Ok(a) => { let ans = k(a); apply1(ans, hdrs, r) }
+                case Err(e) => Err(e)
+            }
+        )
+
+    pub def flatMap(k: a -> CsvExport[b], x: CsvExport[a]): CsvExport[b] = bind(x, k)
+
+    pub def liftAction(fn: Unit ~> Result[a, System.Error]): CsvExport[a] =
+        CsvExport((_,_) -> fn())
 
     pub def emptyCsvWriteList(): CsvWriteList =
         use Data/Transient/DList.{empty};
         CsvWriteList(empty())
 
-    pub def makeCsvWriteStep(f: x -> Array[String] & e): (x, CsvWriteList) -> CsvWriteList =
+    pub def makeCsvWriteStep(f: x -> CsvRowWriter[Unit]): (x, CsvWriteList) -> CsvWriteList =
         (x, ws) ->
             let CsvWriteList(ws1) = ws;
-            let w1 = { w ->  let cells = f(x) as & Impure; writeRow(w, cells); () };
+            let w1 = f(x);
             CsvWriteList(Data/Transient/DList.snoc(ws1, w1))
 
-    pub def outputCsv(filepath: System.FilePath, cs: Text.Charset, headers: Array[String], writeList: CsvWriteList): Result[Unit, System.Error] & Impure =
-        use Result.flatMap;
-        let* w = new(filepath, cs, headers);
-        let CsvWriteList(ws1) = writeList;
-        let xs = Data/Transient/DList.toList(ws1);
-        List.foreach(f -> f(w),  xs);
-        close(w);
-        Ok()
+    pub def execWriteList(xs: CsvWriteList): CsvExport[Unit] =
+        let CsvWriteList(xs1) = xs;
+        let writes = Data/Transient/DList.toList(xs1);
+        execWriteListHelper(writes)
 
- }
+    def execWriteListHelper(xs: List[CsvRowWriter[Unit]]): CsvExport[Unit] = match xs {
+        case Nil => return()
+        case mx :: rs => {
+            let* _ = execWriteList1(mx);
+            execWriteListHelper(rs)
+        }
+    }
+
+    def execWriteList1(mx: CsvRowWriter[a]): CsvExport[Unit] =
+        let* _ = clearCells!();
+        let* _ = applyCsvRowWriter(mx);
+        let* _ = writeRow();
+        return()
+
+    def clearCells!(): CsvExport[Unit] =
+        CsvExport((_, r) -> FactIO/Internal/Csv/Output.clearCells!(r))
+
+    def writeRow(): CsvExport[Unit] =
+        CsvExport((_, r) -> FactIO/Internal/Csv/Output.writeRow(r))
+
+    def applyCsvRowWriter(mx: CsvRowWriter[a]): CsvExport[Unit] =
+        CsvExport((hdrs, r) ->
+            let CsvRowWriter(mf) = mx;
+            match mf(hdrs, r) {
+                case Ok(_) => Ok()
+                case Err(e) => Err(e)
+            }
+        )
+
+
+}
