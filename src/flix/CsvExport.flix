@@ -47,7 +47,7 @@ namespace FactIO/CsvExport {
     def makeColumnIndices(headers: Array[String]): Map[String, Int32] & Impure =
         Array.foldLeft((ac, s) -> {let (m,i) = ac; (Map.insert(s, i, m), i+1)}, (Map.empty(), 0), headers) |> fst
 
-    pub def runCsvExport(mx: CsvExport[a], path: System.FilePath, format: CsvFormat, cs: Text.Charset, headings: Array[String]): Result[a, System.Error] & Impure =
+    pub def runCsvExport(mx: CsvExport[a], path: System.FilePath, format: CsvFormat, headings: Array[String], cs: Text.Charset): Result[a, System.Error] & Impure =
         use Result.flatMap;
         use System/FilePath.{normalize, toString};
         use FactIO/Internal/Csv/Output.{new => newOutput, close};

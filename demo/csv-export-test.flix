@@ -33,7 +33,7 @@ def writeRow(src: (String,Int)): CsvRowWriter[Unit] =
     use FactIO/CsvRowWriter.{flatMap, return, putString!, putInt32!};
     let (name,i) = src;
     let* _ = putString!(0, name);
-    let* _ = putInt32!(0, i);
+    let* _ = putInt32!(1, i);
     return()
 
 
@@ -42,18 +42,18 @@ def writeStep(): ((String, Int32), CsvWriteList) -> CsvWriteList =
 
 def writeOutput(): CsvExport[Unit] =
     use FactIO/CsvExport.{flatMap, return, emptyCsvWriteList, execWriteList};
-    let writes      = fold Dbms emptyCsvWriteList() writeStep() (solve dummyRelations());
+    let writes      = fold Dummy emptyCsvWriteList() writeStep() (solve dummyRelations());
     let* _          = execWriteList(writes);
     return()
 
 
-@test
+
 def test01(): Result[Unit, System.Error] & Impure = 
     use Result.flatMap;
     use FactIO/CsvExport.{runCsvExport};
     let path = System/FilePath.new("e:/coding/flix/factio/data/output/dummy_export.csv");
     let headers = ["name", "intval"];
-    let* _ = runCsvExport(writeOutput(), path, headers, Text/Charset.utf_8());
+    let* _ = runCsvExport(writeOutput(), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
     Ok()
 
 
