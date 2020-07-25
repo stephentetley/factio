@@ -123,21 +123,21 @@ namespace FactIO/CsvExport {
     def execWriteListHelper(xs: List[CsvRowWriter[Unit]]): CsvExport[Unit] = match xs {
         case Nil => return()
         case mx :: rs => {
-            let* _ = execWriteList1(mx);
+            let* _ = writeRow(mx);
             execWriteListHelper(rs)
         }
     }
 
-    def execWriteList1(mx: CsvRowWriter[a]): CsvExport[Unit] =
+    pub def writeRow(mx: CsvRowWriter[a]): CsvExport[Unit] =
         let* _ = clearCells!();
         let* _ = applyCsvRowWriter(mx);
-        let* _ = writeRow();
+        let* _ = primWriteRow();
         return()
 
     def clearCells!(): CsvExport[Unit] =
         CsvExport((_, r) -> FactIO/Internal/Csv/Output.clearCells!(r))
 
-    def writeRow(): CsvExport[Unit] =
+    def primWriteRow(): CsvExport[Unit] =
         CsvExport((_, r) -> FactIO/Internal/Csv/Output.writeRow(r))
 
     def applyCsvRowWriter(mx: CsvRowWriter[a]): CsvExport[Unit] =
@@ -149,5 +149,14 @@ namespace FactIO/CsvExport {
             }
         )
 
+    /// name?
+    pub def mapRowWriterX(f: a -> CsvRowWriter[b], xs: List[a]): CsvExport[Unit] = match xs {
+        case Nil            => return()
+        case x :: rs        => {
+            let mx = f(x);
+            let* _ = writeRow(mx);
+            mapRowWriterX(f, rs)
+        }
+    }
 
 }
