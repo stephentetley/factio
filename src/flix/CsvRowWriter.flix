@@ -94,27 +94,56 @@ namespace FactIO/CsvRowWriter {
     pub def putString!(ix: Int32, str: String): CsvRowWriter[Unit] =
         primWriteCell(ix, str)
 
+    pub def putStringByLabel!(label: String, str: String): CsvRowWriter[Unit] =
+        primWriteNamedCell(label, str)
+
     pub def putBool!(ix: Int32, b: Bool): CsvRowWriter[Unit] =
         primWriteCell(ix, if (b) "true" else "false")
+
+    pub def putBoolByLabel!(label: String, b: Bool): CsvRowWriter[Unit] =
+        primWriteNamedCell(label, if (b) "true" else "false")
 
     pub def putInt8!(ix: Int32, n: Int8): CsvRowWriter[Unit] =
         primWriteCell(ix, Int8.toString(n))
 
+    pub def putInt8ByLabel!(label: String, n: Int8): CsvRowWriter[Unit] =
+        primWriteNamedCell(label, Int8.toString(n))
+
     pub def putInt16!(ix: Int32, n: Int16): CsvRowWriter[Unit] =
         primWriteCell(ix, Int16.toString(n))
+
+    pub def putInt16ByLabel!(label: String, n: Int16): CsvRowWriter[Unit] =
+        primWriteNamedCell(label, Int16.toString(n))
 
     pub def putInt32!(ix: Int32, n: Int32): CsvRowWriter[Unit] =
         primWriteCell(ix, Int32.toString(n))
 
+    pub def putInt32ByLabel!(label: String, n: Int32): CsvRowWriter[Unit] =
+        primWriteNamedCell(label, Int32.toString(n))
+
     pub def putInt64!(ix: Int32, n: Int64): CsvRowWriter[Unit] =
         primWriteCell(ix, Int64.toString(n))
+
+    pub def putInt64ByLabel!(label: String, n: Int64): CsvRowWriter[Unit] =
+        primWriteNamedCell(label, Int64.toString(n))
+
+    pub def putBigInt!(ix: Int32, n: BigInt): CsvRowWriter[Unit] =
+        primWriteCell(ix, BigInt.toString(n))
+
+    pub def putBigIntByLabel!(label: String, n: BigInt): CsvRowWriter[Unit] =
+        primWriteNamedCell(label, BigInt.toString(n))
 
     pub def putFloat32!(ix: Int32, n: Float32): CsvRowWriter[Unit] =
         primWriteCell(ix, Float32.toString(n))
 
+    pub def putFloat32ByLabel!(label: String, n: Float32): CsvRowWriter[Unit] =
+        primWriteNamedCell(label, Float32.toString(n))
+
     pub def putFloat64!(ix: Int32, n: Float64): CsvRowWriter[Unit] =
         primWriteCell(ix, Float64.toString(n))
 
+    pub def putFloat64ByLabel!(label: String, n: Float64): CsvRowWriter[Unit] =
+        primWriteNamedCell(label, Float64.toString(n))
 
 
     pub def putOptionString!(ix: Int32, x: Option[String]): CsvRowWriter[Unit] = match x {
@@ -122,9 +151,19 @@ namespace FactIO/CsvRowWriter {
         case None => putNull!(ix)
     }
 
+    pub def putOptionStringByLabel!(label: String, x: Option[String]): CsvRowWriter[Unit] = match x {
+        case Some(s) => putStringByLabel!(label, s)
+        case None => putNullByLabel!(label)
+    }
+
     pub def putOptionBool!(ix: Int32, x: Option[Bool]): CsvRowWriter[Unit] = match x {
         case Some(b) => putBool!(ix, b)
         case None => putNull!(ix)
+    }
+
+    pub def putOptionBoolByLabel!(label: String, x: Option[Bool]): CsvRowWriter[Unit] = match x {
+        case Some(b) => putBoolByLabel!(label, b)
+        case None => putNullByLabel!(label)
     }
 
     pub def putOptionInt8!(ix: Int32, x: Option[Int8]): CsvRowWriter[Unit] = match x {
@@ -132,9 +171,19 @@ namespace FactIO/CsvRowWriter {
         case None => putNull!(ix)
     }
 
+    pub def putOptionInt8ByLabel!(label: String, x: Option[Int8]): CsvRowWriter[Unit] = match x {
+        case Some(n) => putInt8ByLabel!(label, n)
+        case None => putNullByLabel!(label)
+    }
+
     pub def putOptionInt16!(ix: Int32, x: Option[Int16]): CsvRowWriter[Unit] = match x {
         case Some(n) => putInt16!(ix, n)
         case None => putNull!(ix)
+    }
+
+    pub def putOptionInt16ByLabel!(label: String, x: Option[Int16]): CsvRowWriter[Unit] = match x {
+        case Some(n) => putInt16ByLabel!(label, n)
+        case None => putNullByLabel!(label)
     }
 
     pub def putOptionInt32!(ix: Int32, x: Option[Int32]): CsvRowWriter[Unit] = match x {
@@ -142,9 +191,29 @@ namespace FactIO/CsvRowWriter {
         case None => putNull!(ix)
     }
 
+    pub def putOptionInt32ByLabel!(label: String, x: Option[Int32]): CsvRowWriter[Unit] = match x {
+        case Some(n) => putInt32ByLabel!(label, n)
+        case None => putNullByLabel!(label)
+    }
+
     pub def putOptionInt64!(ix: Int32, x: Option[Int64]): CsvRowWriter[Unit] = match x {
         case Some(n) => putInt64!(ix, n)
         case None => putNull!(ix)
+    }
+
+    pub def putOptionInt64ByLabel!(label: String, x: Option[Int64]): CsvRowWriter[Unit] = match x {
+        case Some(n) => putInt64ByLabel!(label, n)
+        case None => putNullByLabel!(label)
+    }
+
+    pub def putOptionBigInt!(ix: Int32, x: Option[BigInt]): CsvRowWriter[Unit] = match x {
+        case Some(n) => putBigInt!(ix, n)
+        case None => putNull!(ix)
+    }
+
+    pub def putOptionBigIntByLabel!(label: String, x: Option[BigInt]): CsvRowWriter[Unit] = match x {
+        case Some(n) => putBigIntByLabel!(label, n)
+        case None => putNullByLabel!(label)
     }
 
     pub def putOptionFloat32!(ix: Int32, x: Option[Float32]): CsvRowWriter[Unit] = match x {
@@ -152,11 +221,20 @@ namespace FactIO/CsvRowWriter {
         case None => putNull!(ix)
     }
 
+    pub def putOptionFloat32ByLabel!(label: String, x: Option[Float32]): CsvRowWriter[Unit] = match x {
+        case Some(n) => putFloat32ByLabel!(label, n)
+        case None => putNullByLabel!(label)
+    }
+
     pub def putOptionFloat64!(ix: Int32, x: Option[Float64]): CsvRowWriter[Unit] = match x {
         case Some(n) => putFloat64!(ix, n)
         case None => putNull!(ix)
     }
 
+    pub def putOptionFloat64ByLabel!(label: String, x: Option[Float64]): CsvRowWriter[Unit] = match x {
+        case Some(n) => putFloat64ByLabel!(label, n)
+        case None => putNullByLabel!(label)
+    }
 
     ///
     /// Applies the binary function `f` to the values in `o1` and `o2`.

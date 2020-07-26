@@ -86,7 +86,7 @@ namespace FactIO/FlatFileImport {
     ///
     /// Returns a list of applying `eval` to all rows in the input stream `src`.
     ///
-    pub def getRows(eval: FlatFileLineEvaluator[a], src: Stream[String]): Result[List[a], System.Error] & Impure =
+    pub def evaluateRows(eval: FlatFileLineEvaluator[a], src: Stream[String]): Result[List[a], System.Error] & Impure =
         let FlatFileLineEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.getRows(mf, src)
 

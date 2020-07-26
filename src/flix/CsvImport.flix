@@ -117,10 +117,8 @@ namespace FactIO/CsvImport {
     ///
     /// Returns a list of applying `eval` to all rows in the input stream `src`.
     ///
-    pub def getRows(eval: CsvRowEvaluator[a], src: Stream[CsvRow]): Result[List[a], System.Error] & Impure =
+    pub def evaluateRows(eval: CsvRowEvaluator[a], src: Stream[CsvRow]): Result[List[a], System.Error] & Impure =
         let CsvRowEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.getRows(mf, src)
-
-
 
 }

@@ -88,10 +88,7 @@ namespace FactIO/Internal/ImportStrategies {
     /// Process all rows of the input.
     ///
     pub def getRows(rowreader: row -> RowResult[a] & Impure, s: Stream[row]): Result[List[a], System.Error] & Impure =
-        let step = (ac, r1) -> match rowreader(r1) {
-            case Ok(a1) => Ok(snoc(ac, a1))
-            case Err(e) => Err(e)
-        };
-        Data/Stream.foldResult(step, empty(), s) |> Result.map(toList)
+        Data/Stream.traverseToListResult(rowreader, s)
+
 
 }
