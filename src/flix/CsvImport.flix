@@ -121,4 +121,14 @@ namespace FactIO/CsvImport {
         let CsvRowEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.getRows(mf, src)
 
+    /// Version of `evaluateRows` that skips empty rows in the source Csv.
+    pub def evaluateRowsSkipEmptyRows(eval: CsvRowEvaluator[a], src: Stream[CsvRow]): Result[List[a], System.Error] & Impure =
+        let CsvRowEvaluator(mf) = eval;
+        let src1 = Data/Stream.filter(x -> !isEmptyRow(x), src);
+        Data/Stream.traverseToListResult(mf, src1)
+
+    def isEmptyRow(row: CsvRow): Bool =
+        import flix.runtime.spt.factio.csv.CsvRow.isEmptyRow() as primIsEmptyRow;
+        row.primIsEmptyRow() as & Pure
+
 }

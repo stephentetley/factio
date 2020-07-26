@@ -28,6 +28,20 @@ public class CsvRow {
         this.wrappedRow = row;
     }
 
+    public boolean isEmptyRow() {
+        int sz = this.wrappedRow.size();
+        boolean empty = true;
+        String s = null;
+        for(int i = 0; i < sz; i++){
+            s = this.wrappedRow.get(i);
+            if (s.isEmpty() == false) {
+                empty = false;
+                break;
+            }
+        }
+        return empty;
+    }
+
     public String getStringByIndex(int ix) {
         return this.wrappedRow.get(ix);
     }
