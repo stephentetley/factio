@@ -105,6 +105,23 @@ namespace FactIO/CsvExport {
 
     pub def flatMap(k: a -> CsvExport[b], x: CsvExport[a]): CsvExport[b] = bind(x, k)
 
+    pub def mapM(mf: a -> CsvExport[b], xs: List[a]): CsvExport[List[b]] =
+        CsvExport((headers, r) ->
+            mapMHelper(headers, r, mf, xs, e -> Err(e), ys -> Ok(ys))
+        )
+
+    def mapMHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, mf: a -> CsvExport[b], xs: List[a], fk: System.Error -> Result[List[b], System.Error], sk: List[b] -> Result[List[b], System.Error]): Result[List[b], System.Error] & Impure =
+        match xs {
+            case Nil => sk(Nil)
+            case x :: rs => {
+                let ma = mf(x);
+                match apply1(ma, headers, r) {
+                    case Err(e) => fk(e)
+                    case Ok(x1) => mapMHelper(headers, r, mf, rs, fk, ks -> sk(x1 :: ks))
+                }
+            }
+        }
+
     pub def liftAction(fn: Unit ~> Result[a, System.Error]): CsvExport[a] =
         CsvExport((_,_) -> fn())
 

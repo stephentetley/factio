@@ -63,6 +63,9 @@ namespace FactIO/SQLiteExport {
         let SQLiteExport(f) = x;
         f(r)
 
+    pub def fail(e: System.Error): SQLiteExport[a] =
+        SQLiteExport(_ -> Err(e) as & Impure)
+
     pub def map(f: a -> b & ef, x: SQLiteExport[a]): SQLiteExport[b] =
         SQLiteExport(r ->
             match apply1(x, r) {
@@ -97,6 +100,23 @@ namespace FactIO/SQLiteExport {
         )
 
     pub def flatMap(k: a -> SQLiteExport[b], x: SQLiteExport[a]): SQLiteExport[b] = bind(x, k)
+
+    pub def mapM(mf: a -> SQLiteExport[b], xs: List[a]): SQLiteExport[List[b]] =
+        SQLiteExport(r ->
+            mapMHelper(r, mf, xs, e -> Err(e), ys -> Ok(ys))
+        )
+
+    def mapMHelper(r: FactIO/Internal/SQLite.Output, mf: a -> SQLiteExport[b], xs: List[a], fk: System.Error -> Result[List[b], System.Error], sk: List[b] -> Result[List[b], System.Error]): Result[List[b], System.Error] & Impure =
+        match xs {
+            case Nil => sk(Nil)
+            case x :: rs => {
+                let ma = mf(x);
+                match apply1(ma, r) {
+                    case Err(e) => fk(e)
+                    case Ok(x1) => mapMHelper(r, mf, rs, fk, ks -> sk(x1 :: ks))
+                }
+            }
+        }
 
     pub def liftAction(fn: Unit ~> Result[a, System.Error]): SQLiteExport[a] =
         SQLiteExport(_ -> fn())
@@ -145,12 +165,12 @@ namespace FactIO/SQLiteExport {
     def execWriteListHelper(stmt: PreparedStatement, xs: List[SQLiteRowWriter[Unit]]): SQLiteExport[Unit] = match xs {
         case Nil => return()
         case mx :: rs => {
-            let* _ = execWriteList1(stmt, mx);
+            let* _ = writeRow(stmt, mx);
             execWriteListHelper(stmt, rs)
         }
     }
 
-    def execWriteList1(stmt: PreparedStatement, mx: SQLiteRowWriter[a]): SQLiteExport[Unit] =
+    pub def writeRow(stmt: PreparedStatement, mx: SQLiteRowWriter[a]): SQLiteExport[Unit] =
         let SQLiteRowWriter(mf) = mx;
         let* _ = liftAction(_ -> FactIO/Internal/SQLite/PreparedStatement.clearParameters!(stmt));
         let* _ = liftAction(_ -> mf(stmt));
