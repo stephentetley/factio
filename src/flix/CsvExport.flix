@@ -122,6 +122,40 @@ namespace FactIO/CsvExport {
             }
         }
 
+    pub def mapX(mf: a -> CsvExport[b], xs: List[a]): CsvExport[Unit] =
+        CsvExport((headers, r) ->
+            mapXHelper(headers, r, mf, xs, e -> Err(e), _ -> Ok())
+        )
+
+    def mapXHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, mf: a -> CsvExport[b], xs: List[a], fk: System.Error -> Result[Unit, System.Error], sk: Unit -> Result[Unit, System.Error]): Result[Unit, System.Error] & Impure =
+        match xs {
+            case Nil => sk()
+            case x :: rs => {
+                let ma = mf(x);
+                match apply1(ma, headers, r) {
+                    case Err(e) => fk(e)
+                    case Ok(_) => mapXHelper(headers, r, mf, rs, fk, sk)
+                }
+            }
+        }
+
+    pub def sequence(xs: List[CsvExport[a]]): CsvExport[List[a]] =
+        CsvExport((headers, r) ->
+            sequenceHelper(headers, r, xs, e -> Err(e), ys -> Ok(ys))
+        )
+
+    ///
+    /// Helper function for `sequence`.
+    ///
+    def sequenceHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, xs: List[CsvExport[a]], fk: System.Error -> Result[List[a], System.Error], sk: List[a] -> Result[List[a], System.Error]): Result[List[a], System.Error] & Impure =
+        match xs {
+            case Nil => sk(Nil)
+            case mx :: rs => match apply1(mx, headers, r) {
+                case Err(e) => fk(e)
+                case Ok(x) => sequenceHelper(headers, r, rs, fk, ks -> sk(x :: ks))
+            }
+        }
+
     pub def liftAction(fn: Unit ~> Result[a, System.Error]): CsvExport[a] =
         CsvExport((_,_) -> fn())
 
@@ -167,7 +201,7 @@ namespace FactIO/CsvExport {
 
     pub def writeRow(mx: CsvRowWriter[a]): CsvExport[Unit] =
         let* _ = clearCells!();
-        let* _ = applyCsvRowWriter(mx);
+        let* _ = execCsvRowWriter(mx);
         let* _ = primWriteRow();
         return()
 
@@ -177,7 +211,7 @@ namespace FactIO/CsvExport {
     def primWriteRow(): CsvExport[Unit] =
         CsvExport((_, r) -> FactIO/Internal/Csv/Output.writeRow(r))
 
-    def applyCsvRowWriter(mx: CsvRowWriter[a]): CsvExport[Unit] =
+    def execCsvRowWriter(mx: CsvRowWriter[a]): CsvExport[Unit] =
         CsvExport((hdrs, r) ->
             let CsvRowWriter(mf) = mx;
             match mf(hdrs, r) {
@@ -186,7 +220,7 @@ namespace FactIO/CsvExport {
             }
         )
 
-    /// name?
+    /// This is probably unnecessary...
     pub def mapRowWriterX(f: a -> CsvRowWriter[b], xs: List[a]): CsvExport[Unit] = match xs {
         case Nil            => return()
         case x :: rs        => {
@@ -206,5 +240,22 @@ namespace FactIO/CsvExport {
             case Ok(_)  => traverseXHelper(f, headers, r, rs)
         }
     }
+
+    pub def foldM(mf: (b, a) -> CsvExport[b], start: b, xs: List[a]): CsvExport[b] =
+        CsvExport((headers, r) ->
+            foldMHelper(headers, r, mf, start, xs, e -> Err(e), ac -> Ok(ac))
+        )
+
+    def foldMHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, mf: (b, a) -> CsvExport[b], acc: b, xs: List[a], fk: System.Error -> Result[b, System.Error], sk: b -> Result[b, System.Error]): Result[b, System.Error] & Impure =
+        match xs {
+            case Nil => sk(acc)
+            case x :: rs => {
+                let ma = mf(acc, x);
+                match apply1(ma, headers, r) {
+                    case Err(e) => fk(e)
+                    case Ok(acc1) => foldMHelper(headers, r, mf, acc1, rs, fk, sk)
+                }
+            }
+        }
 
 }

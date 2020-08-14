@@ -101,11 +101,15 @@ namespace FactIO/SQLiteExport {
 
     pub def flatMap(k: a -> SQLiteExport[b], x: SQLiteExport[a]): SQLiteExport[b] = bind(x, k)
 
+
     pub def mapM(mf: a -> SQLiteExport[b], xs: List[a]): SQLiteExport[List[b]] =
         SQLiteExport(r ->
             mapMHelper(r, mf, xs, e -> Err(e), ys -> Ok(ys))
         )
 
+    ///
+    /// Helper function for `mapM`.
+    ///
     def mapMHelper(r: FactIO/Internal/SQLite.Output, mf: a -> SQLiteExport[b], xs: List[a], fk: System.Error -> Result[List[b], System.Error], sk: List[b] -> Result[List[b], System.Error]): Result[List[b], System.Error] & Impure =
         match xs {
             case Nil => sk(Nil)
@@ -114,6 +118,58 @@ namespace FactIO/SQLiteExport {
                 match apply1(ma, r) {
                     case Err(e) => fk(e)
                     case Ok(x1) => mapMHelper(r, mf, rs, fk, ks -> sk(x1 :: ks))
+                }
+            }
+        }
+
+    pub def mapX(mf: a -> SQLiteExport[b], xs: List[a]): SQLiteExport[Unit] =
+        SQLiteExport(r ->
+            mapXHelper(r, mf, xs, e -> Err(e), _ -> Ok())
+        )
+
+    def mapXHelper(r: FactIO/Internal/SQLite.Output, mf: a -> SQLiteExport[b], xs: List[a], fk: System.Error -> Result[Unit, System.Error], sk: Unit -> Result[Unit, System.Error]): Result[Unit, System.Error] & Impure =
+        match xs {
+            case Nil => sk()
+            case x :: rs => {
+                let ma = mf(x);
+                match apply1(ma, r) {
+                    case Err(e) => fk(e)
+                    case Ok(_) => mapXHelper(r, mf, rs, fk, sk)
+                }
+            }
+        }
+
+
+    pub def sequence(xs: List[SQLiteExport[a]]): SQLiteExport[List[a]] =
+        SQLiteExport(r ->
+            sequenceHelper(r, xs, e -> Err(e), ys -> Ok(ys))
+        )
+
+    ///
+    /// Helper function for `sequence`.
+    ///
+    def sequenceHelper(r: FactIO/Internal/SQLite.Output, xs: List[SQLiteExport[a]], fk: System.Error -> Result[List[a], System.Error], sk: List[a] -> Result[List[a], System.Error]): Result[List[a], System.Error] & Impure =
+        match xs {
+            case Nil => sk(Nil)
+            case mx :: rs => match apply1(mx, r) {
+                case Err(e) => fk(e)
+                case Ok(x) => sequenceHelper(r, rs, fk, ks -> sk(x :: ks))
+            }
+        }
+
+    pub def foldM(mf: (b, a) -> SQLiteExport[b], start: b, xs: List[a]): SQLiteExport[b] =
+        SQLiteExport(r ->
+            foldMHelper(r, mf, start, xs, e -> Err(e), ac -> Ok(ac))
+        )
+
+    def foldMHelper(r: FactIO/Internal/SQLite.Output, mf: (b, a) -> SQLiteExport[b], acc: b, xs: List[a], fk: System.Error -> Result[b, System.Error], sk: b -> Result[b, System.Error]): Result[b, System.Error] & Impure =
+        match xs {
+            case Nil => sk(acc)
+            case x :: rs => {
+                let ma = mf(acc, x);
+                match apply1(ma, r) {
+                    case Err(e) => fk(e)
+                    case Ok(acc1) => foldMHelper(r, mf, acc1, rs, fk, sk)
                 }
             }
         }
