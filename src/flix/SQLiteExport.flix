@@ -25,7 +25,7 @@ use FactIO.SQLiteWriteList.{SQLiteWriteList};
 
 use FactIO.SQLiteRowWriter;
 use FactIO.SQLiteRowWriter.{SQLiteRowWriter};
-use FactIO/Internal/SQLite.PreparedStatement;
+
 
 
 namespace FactIO {
@@ -43,6 +43,8 @@ namespace FactIO {
 }
 
 namespace FactIO/SQLiteExport {
+
+    type alias PreparedStatement = FactIO/Internal/SQLite.PreparedStatement
 
     def makeConnectString(dbpath: String): String = "jdbc:sqlite:" + dbpath
 
@@ -197,8 +199,8 @@ namespace FactIO/SQLiteExport {
         use FactIO/Internal/SQLite/Output.{execute};
         liftPrim(x -> x.execute(sql))
 
-    /// Don't export...
-    def prepareStatement(sql: String): SQLiteExport[PreparedStatement] =
+
+    pub def prepareStatement(sql: String): SQLiteExport[PreparedStatement] =
         use FactIO/Internal/SQLite/Output.{prepareStatement};
         liftPrim(x -> x.prepareStatement(sql))
 
@@ -212,26 +214,26 @@ namespace FactIO/SQLiteExport {
             let w1 = f(x);
             SQLiteWriteList(Data/Transient/DList.snoc(ws1, w1))
 
-    pub def execWriteList(sql: String, xs: SQLiteWriteList): SQLiteExport[Unit] =
+    pub def execWriteList(sql: String, xs: SQLiteWriteList): SQLiteExport[Int32] =
         let SQLiteWriteList(xs1) = xs;
         let writes = Data/Transient/DList.toList(xs1);
         let* stmt = prepareStatement(sql);
-        execWriteListHelper(stmt, writes)
+        execWriteListHelper(stmt, 0, writes)
 
-    def execWriteListHelper(stmt: PreparedStatement, xs: List[SQLiteRowWriter[Unit]]): SQLiteExport[Unit] = match xs {
-        case Nil => return()
+    def execWriteListHelper(stmt: PreparedStatement, ac: Int32, xs: List[SQLiteRowWriter[Unit]]): SQLiteExport[Int32] = match xs {
+        case Nil => return(ac)
         case mx :: rs => {
-            let* _ = writeRow(stmt, mx);
-            execWriteListHelper(stmt, rs)
+            let* n = writeRow(stmt, mx);
+            execWriteListHelper(stmt, ac + n, rs)
         }
     }
 
-    pub def writeRow(stmt: PreparedStatement, mx: SQLiteRowWriter[a]): SQLiteExport[Unit] =
+    pub def writeRow(stmt: PreparedStatement, mx: SQLiteRowWriter[a]): SQLiteExport[Int32] =
         let SQLiteRowWriter(mf) = mx;
         let* _ = liftAction(_ -> FactIO/Internal/SQLite/PreparedStatement.clearParameters!(stmt));
         let* _ = liftAction(_ -> mf(stmt));
-        let* _ = liftAction(_ -> FactIO/Internal/SQLite/PreparedStatement.executeUpdate(stmt));
-        return()
+        let* n = liftAction(_ -> FactIO/Internal/SQLite/PreparedStatement.executeUpdate(stmt));
+        return(n)
 
 
 

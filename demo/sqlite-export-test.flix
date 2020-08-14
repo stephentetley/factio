@@ -12,23 +12,24 @@ def databases(): #{Dbms} = #{
     Dbms("DuckDB", 2019).
 }
 
-/// Weird - making this a top level definition (with a type signature) seems 
-/// to stop the program crashing.
-def writeStep(): ((String, Int32), SQLiteWriteList) -> SQLiteWriteList = 
-    FactIO/SQLiteExport.makeSQLiteWriteStep(writeCells)
-
 
 def writeOutput(): SQLiteExport[Unit] =
-    use FactIO/SQLiteExport.{flatMap, return, execute, emptySQLiteWriteList, execWriteList, setAutoCommit, commit, close};
+    use FactIO/SQLiteExport.{flatMap, return, execute, liftAction, emptySQLiteWriteList, execWriteList, setAutoCommit, commit, close};
     let* _          = execute("CREATE TABLE IF NOT EXISTS dbms (name text PRIMARY KEY NOT NULL, year int);");
     let* _          = execute("DELETE FROM dbms;");
     let stmt        = "INSERT INTO dbms(name, year) VALUES(?,?)";
     let* _          = setAutoCommit(false);
     let writes      = fold Dbms emptySQLiteWriteList() writeStep() (solve databases());
-    let* _          = execWriteList(stmt, writes);
+    let* n          = execWriteList(stmt, writes);
     let* _          = commit();
     let* _          = close();
+    let* _          = liftAction(_ -> { Console.printLine("Row count: " + Int32.toString(n)); Ok()});
     return()
+
+/// Weird - making this a top level definition (with a type signature) seems 
+/// to stop the program crashing.
+def writeStep(): ((String, Int32), SQLiteWriteList) -> SQLiteWriteList = 
+    FactIO/SQLiteExport.makeSQLiteWriteStep(writeCells)
 
 
 /// A "cell printer" for the body of Dbms.
