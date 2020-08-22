@@ -272,4 +272,32 @@ namespace FactIO/CsvExport {
             }
         }
 
+    pub def mapAccumM(mf: (ac, a) -> CsvExport[(ac, b)], start: ac, xs: List[a]): CsvExport[(ac, List[b])] =
+        CsvExport((hdrs, r) ->
+            mapAccumMHelper(hdrs, r, mf, start, xs, e -> Err(e), (ac, ks) -> Ok((ac, ks)))
+        )
+
+    def mapAccumMHelper(headers: Map[String, Int32],
+                        r: FactIO/Internal/Csv.Output,
+                        mf: (ac, a) -> CsvExport[(ac, b)],
+                        ac: ac,
+                        xs: List[a],
+                        fk: System.Error -> Result[(ac, List[b]), System.Error],
+                        sk: (ac, List[b]) -> Result[(ac, List[b]), System.Error]): Result[(ac, List[b]), System.Error] & Impure =
+        match xs {
+            case Nil => sk(ac, Nil)
+            case x :: rs => {
+                let ma = mf(ac, x);
+                match apply1(ma, headers, r) {
+                    case Err(e) => fk(e)
+                    case Ok((ac1, x1)) => mapAccumMHelper(headers, r, mf, ac1, rs, fk, (ac2, ks) -> sk(ac2, x1 :: ks))
+                }
+            }
+        }
+
+    ///
+    /// `mapAccumX` is a synonym for `foldM`.
+    ///
+    pub def mapAccumX(mf: (ac, a) -> CsvExport[ac], start: ac, xs: List[a]): CsvExport[ac] = foldM(mf, start, xs)
+
 }

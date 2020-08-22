@@ -201,6 +201,34 @@ namespace FactIO/SQLiteExport {
             }
         }
 
+
+    pub def mapAccumM(mf: (ac, a) -> SQLiteExport[(ac, b)], start: ac, xs: List[a]): SQLiteExport[(ac, List[b])] =
+        SQLiteExport(r ->
+            mapAccumMHelper(r, mf, start, xs, e -> Err(e), (ac, ks) -> Ok((ac, ks)))
+        )
+
+    def mapAccumMHelper(r: FactIO/Internal/SQLite.Output,
+                        mf: (ac, a) -> SQLiteExport[(ac, b)],
+                        ac: ac,
+                        xs: List[a],
+                        fk: System.Error -> Result[(ac, List[b]), System.Error],
+                        sk: (ac, List[b]) -> Result[(ac, List[b]), System.Error]): Result[(ac, List[b]), System.Error] & Impure =
+        match xs {
+            case Nil => sk(ac, Nil)
+            case x :: rs => {
+                let ma = mf(ac, x);
+                match apply1(ma, r) {
+                    case Err(e) => fk(e)
+                    case Ok((ac1, x1)) => mapAccumMHelper(r, mf, ac1, rs, fk, (ac2, ks) -> sk(ac2, x1 :: ks))
+                }
+            }
+        }
+
+    ///
+    /// `mapAccumX` is a synonym for `foldM`.
+    ///
+    pub def mapAccumX(mf: (ac, a) -> SQLiteExport[ac], start: ac, xs: List[a]): SQLiteExport[ac] = foldM(mf, start, xs)
+
     pub def liftAction(fn: Unit ~> Result[a, System.Error]): SQLiteExport[a] =
         SQLiteExport(_ -> fn())
 
