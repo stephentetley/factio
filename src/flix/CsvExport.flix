@@ -220,7 +220,7 @@ namespace FactIO/CsvExport {
             }
         )
 
-    /// This is probably unnecessary...
+    ///
     pub def mapRowWriterX(f: a -> CsvRowWriter[b], xs: List[a]): CsvExport[Unit] = match xs {
         case Nil            => return()
         case x :: rs        => {
@@ -230,6 +230,11 @@ namespace FactIO/CsvExport {
         }
     }
 
+    pub def streamRowWriterX(f: a -> CsvRowWriter[b], ss: Data.Stream[a]): CsvExport[Unit] =
+        use Data/Stream.{foreachResult};
+        CsvExport((hdrs, r) ->
+            foreachResult(x -> apply1(writeRow(f(x)), hdrs, r), ss)
+        )
 
     ///
     /// Returns `(v1 :: v2 :: ... v :: vn)` if each of `f(xs_i)` is successful.

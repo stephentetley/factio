@@ -288,6 +288,20 @@ namespace FactIO/SQLiteExport {
         let* n = liftAction(_ -> FactIO/Internal/SQLite/PreparedStatement.executeUpdate(stmt));
         return(n)
 
+    ///
+    pub def mapRowWriterX(stmt: PreparedStatement, f: a -> SQLiteRowWriter[b], xs: List[a]): SQLiteExport[Unit] = match xs {
+        case Nil            => return()
+        case x :: rs        => {
+            let mx = f(x);
+            let* _ = writeRow(stmt, mx);
+            mapRowWriterX(stmt, f, rs)
+        }
+    }
 
+    pub def streamRowWriterX(stmt: PreparedStatement, f: a -> SQLiteRowWriter[b], ss: Data.Stream[a]): SQLiteExport[Unit] =
+        use Data/Stream.{foreachResult};
+        SQLiteExport(r ->
+            foreachResult(x -> apply1(writeRow(stmt, f(x)), r), ss)
+        )
 
  }
