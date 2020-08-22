@@ -230,20 +230,34 @@ namespace FactIO/CsvExport {
         }
     }
 
-    pub def traverseX(f: a -> CsvExport[b], xs: List[a]): CsvExport[Unit] =
-        CsvExport((hdrs, r) -> traverseXHelper(f, hdrs, r, xs))
 
-    def traverseXHelper(f: a -> CsvExport[b], headers: Map[String, Int], r: FactIO/Internal/Csv.Output,  xs: List[a]): Result[Unit, System.Error] & Impure = match xs {
-        case Nil            => Ok()
-        case x :: rs        => match apply1(f(x), headers, r) {
-            case Err(e) => Err(e)
-            case Ok(_)  => traverseXHelper(f, headers, r, rs)
-        }
-    }
+    ///
+    /// Returns `(v1 :: v2 :: ... v :: vn)` if each of `f(xs_i)` is successful.
+    /// Otherwise fails with the first error encountered.
+    ///
+    /// `traverse` is a synonym for `mapM`.
+    ///
+    pub def traverse(f: a -> CsvExport[b], xs: List[a]): CsvExport[List[b]] = mapM(f, xs)
+
+    ///
+    /// `traverseX` is a synonym for `mapX`.
+    ///
+    pub def traverseX(f: a -> CsvExport[b], xs: List[a]): CsvExport[Unit] = mapX(f, xs)
+
+    ///
+    /// `forM` is `mapM` with its arguments flipped.
+    ///
+    pub def forM(xs: List[a], f: a -> CsvExport[b]): CsvExport[List[b]] = mapM(f, xs)
+
+    ///
+    /// `forX` is `mapX` with its arguments flipped.
+    ///
+    pub def forX(xs: List[a], f: a -> CsvExport[b]): CsvExport[Unit] = mapX(f, xs)
+
 
     pub def foldM(mf: (b, a) -> CsvExport[b], start: b, xs: List[a]): CsvExport[b] =
-        CsvExport((headers, r) ->
-            foldMHelper(headers, r, mf, start, xs, e -> Err(e), ac -> Ok(ac))
+        CsvExport((hdrs, r) ->
+            foldMHelper(hdrs, r, mf, start, xs, e -> Err(e), ac -> Ok(ac))
         )
 
     def foldMHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, mf: (b, a) -> CsvExport[b], acc: b, xs: List[a], fk: System.Error -> Result[b, System.Error], sk: b -> Result[b, System.Error]): Result[b, System.Error] & Impure =

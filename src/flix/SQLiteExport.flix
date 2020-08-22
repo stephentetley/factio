@@ -144,7 +144,7 @@ namespace FactIO/SQLiteExport {
 
     pub def sequence(xs: List[SQLiteExport[a]]): SQLiteExport[List[a]] =
         SQLiteExport(r ->
-            sequenceHelper(r, xs, e -> Err(e), ys -> Ok(ys))
+            sequenceHelper(r, xs, e -> Err(e), ks -> Ok(ks))
         )
 
     ///
@@ -158,6 +158,31 @@ namespace FactIO/SQLiteExport {
                 case Ok(x) => sequenceHelper(r, rs, fk, ks -> sk(x :: ks))
             }
         }
+
+
+    ///
+    /// Returns `(v1 :: v2 :: ... v :: vn)` if each of `f(xs_i)` is successful.
+    /// Otherwise fails with the first error encountered.
+    ///
+    /// `traverse` is a synonym for `mapM`.
+    ///
+    pub def traverse(f: a -> SQLiteExport[b], xs: List[a]): SQLiteExport[List[b]] = mapM(f, xs)
+
+    ///
+    /// `traverseX` is a synonym for `mapX`.
+    ///
+    pub def traverseX(f: a -> SQLiteExport[b], xs: List[a]): SQLiteExport[Unit] = mapX(f, xs)
+
+    ///
+    /// `forM` is `mapM` with its arguments flipped.
+    ///
+    pub def forM(xs: List[a], f: a -> SQLiteExport[b]): SQLiteExport[List[b]] = mapM(f, xs)
+
+    ///
+    /// `forX` is `mapX` with its arguments flipped.
+    ///
+    pub def forX(xs: List[a], f: a -> SQLiteExport[b]): SQLiteExport[Unit] = mapX(f, xs)
+
 
     pub def foldM(mf: (b, a) -> SQLiteExport[b], start: b, xs: List[a]): SQLiteExport[b] =
         SQLiteExport(r ->
