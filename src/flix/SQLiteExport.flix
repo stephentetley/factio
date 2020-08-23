@@ -229,10 +229,13 @@ namespace FactIO/SQLiteExport {
     ///
     pub def mapAccumX(mf: (ac, a) -> SQLiteExport[ac], start: ac, xs: List[a]): SQLiteExport[ac] = foldM(mf, start, xs)
 
-    pub def liftAction(fn: Unit ~> Result[a, System.Error]): SQLiteExport[a] =
+    pub def liftAction(fn: Unit ~> a): SQLiteExport[a] =
+        SQLiteExport(_ -> { let a = fn(); Ok(a) })
+
+    pub def liftActionResult(fn: Unit ~> Result[a, System.Error]): SQLiteExport[a] =
         SQLiteExport(_ -> fn())
 
-
+    /// Not exported.
     def liftPrim(prim: FactIO/Internal/SQLite.Output ~> Result[a, System.Error]): SQLiteExport[a] =
         SQLiteExport(r -> prim(r))
 
@@ -283,9 +286,9 @@ namespace FactIO/SQLiteExport {
 
     pub def writeRow(stmt: PreparedStatement, mx: SQLiteRowWriter[a]): SQLiteExport[Int32] =
         let SQLiteRowWriter(mf) = mx;
-        let* _ = liftAction(_ -> FactIO/Internal/SQLite/PreparedStatement.clearParameters!(stmt));
-        let* _ = liftAction(_ -> mf(stmt));
-        let* n = liftAction(_ -> FactIO/Internal/SQLite/PreparedStatement.executeUpdate(stmt));
+        let* _ = liftActionResult(_ -> FactIO/Internal/SQLite/PreparedStatement.clearParameters!(stmt));
+        let* _ = liftActionResult(_ -> mf(stmt));
+        let* n = liftActionResult(_ -> FactIO/Internal/SQLite/PreparedStatement.executeUpdate(stmt));
         return(n)
 
     ///

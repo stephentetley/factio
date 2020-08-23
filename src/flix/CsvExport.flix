@@ -156,7 +156,10 @@ namespace FactIO/CsvExport {
             }
         }
 
-    pub def liftAction(fn: Unit ~> Result[a, System.Error]): CsvExport[a] =
+    pub def liftAction(fn: Unit ~> a): CsvExport[a] =
+        CsvExport((_,_) -> { let a = fn(); Ok(a) })
+
+    pub def liftActionResult(fn: Unit ~> Result[a, System.Error]): CsvExport[a] =
         CsvExport((_,_) -> fn())
 
     pub def emptyCsvWriteList(): CsvWriteList =
@@ -183,7 +186,7 @@ namespace FactIO/CsvExport {
     }
 
     pub def writeLine(arr: Array[String]): CsvExport[Unit] =
-        let* xs = liftAction(_ -> Ok(Array.toList(arr)));
+        let* xs = liftAction(_ -> Array.toList(arr));
         let mx = makeSimpleWriter(0, xs);
         writeRow(mx)
 
