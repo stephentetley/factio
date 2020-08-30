@@ -20,7 +20,6 @@ use Data/Transient/DList.{empty, snoc, toList};
 
 namespace FactIO/Internal/ImportStrategies {
 
-    type alias RowResult[t] = Result[t, System.Error]
 
 
     ///
@@ -28,7 +27,8 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     /// Note - a `relation` is naturally monoidal - a `rowreader` can generate zero, one or many facts from a `row`.
     ///
-    pub def importRows(rowreader: row -> RowResult[reln] & Impure, s: Stream[row]): Result[reln, System.Error] & Impure = 
+    pub def importRows(rowreader: row -> Result[#{| reln}, System.Error] & Impure,
+                        s: Stream[row]): Result[#{| reln}, System.Error] & Impure =
         let step = (ac, r1) -> match rowreader(r1) { 
             case Ok(a1) => Ok(ac <+> a1)
             case Err(e) => Err(e)
@@ -41,7 +41,8 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCount(rowreader: (row, Int32) -> RowResult[reln] & Impure, s: Stream[row]): Result[reln, System.Error] & Impure = 
+    pub def importRowsWithCount(rowreader: (row, Int32) ~> Result[#{| reln}, System.Error],
+                                s: Stream[row]): Result[#{| reln}, System.Error] & Impure =
         let step = (xy, row) -> {
             let (relns, n) = xy; 
             match rowreader(row, n) { 
@@ -58,7 +59,9 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithAccum(rowreader: (row, acc) -> RowResult[(reln, acc)] & Impure, st: acc, s: Stream[row]): Result[(reln, acc), System.Error] & Impure = 
+    pub def importRowsWithAccum(rowreader: (row, acc) ~> Result[(#{| reln}, acc), System.Error],
+                                st: acc,
+                                s: Stream[row]): Result[(#{| reln}, acc), System.Error] & Impure =
         let step = (xy, row) -> {
             let (relns, s1) = xy; 
             match rowreader(row, s1) { 
@@ -73,7 +76,9 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCountAndAccum(rowreader: (row, Int32, acc) -> RowResult[(reln, acc)] & Impure, st: acc, s: Stream[row]): Result[(reln, acc), System.Error] & Impure = 
+    pub def importRowsWithCountAndAccum(rowreader: (row, Int32, acc) ~> Result[(#{| reln}, acc), System.Error],
+                                        st: acc,
+                                        s: Stream[row]): Result[(#{| reln}, acc), System.Error] & Impure =
         let step = (xyz, row) -> {
             let (relns, n, s1) = xyz; 
             match rowreader(row, n, s1) { 
@@ -87,7 +92,8 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     /// Process all rows of the input.
     ///
-    pub def getRows(rowreader: row -> RowResult[a] & Impure, s: Stream[row]): Result[List[a], System.Error] & Impure =
+    pub def getRows(rowreader: row ~> Result[a, System.Error],
+                    s: Stream[row]): Result[List[a], System.Error] & Impure =
         Data/Stream.traverseToListResult(rowreader, s)
 
 

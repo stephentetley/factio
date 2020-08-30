@@ -30,7 +30,8 @@ namespace FactIO/SQLiteImport {
     ///
     /// Returns a new SQLite Stream.
     ///
-    pub def newSQLiteStream(filepath: System.FilePath, query: String): Result[Stream[SQLiteRow], System.Error] & Impure=
+    pub def newSQLiteStream(filepath: System.FilePath,
+                            query: String): Result[Stream[SQLiteRow], System.Error] & Impure =
         import new flix.runtime.spt.factio.sqlite.SQLiteIterator(String, String) as newSQLiteIterator;
         import flix.runtime.spt.factio.sqlite.SQLiteIterator.next() as ffiHasNext;
         import flix.runtime.spt.factio.sqlite.SQLiteIterator.getRow() as ffiNext;
@@ -53,7 +54,8 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRows(eval: SQLiteRowEvaluator[reln], src: Stream[SQLiteRow]): Result[reln, System.Error] & Impure =
+    pub def importRows(eval: SQLiteRowEvaluator[#{| reln}],
+                       src: Stream[SQLiteRow]): Result[#{| reln}, System.Error] & Impure =
         let SQLiteRowEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.importRows(mf, src)
 
@@ -62,7 +64,8 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCount(eval: Int32 -> SQLiteRowEvaluator[reln], src: Stream[SQLiteRow]): Result[reln, System.Error] & Impure =
+    pub def importRowsWithCount(eval: Int32 -> SQLiteRowEvaluator[#{| reln}],
+                                src: Stream[SQLiteRow]): Result[#{| reln}, System.Error] & Impure =
         let mf = (row, ix) -> { let SQLiteRowEvaluator(r1) = eval(ix); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithCount(mf, src)
 
@@ -71,7 +74,9 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithAccum(eval: st -> SQLiteRowEvaluator[(reln, st)], state: st, src: Stream[SQLiteRow]): Result[(reln, st), System.Error] & Impure =
+    pub def importRowsWithAccum(eval: st -> SQLiteRowEvaluator[(#{| reln}, st)],
+                                state: st,
+                                src: Stream[SQLiteRow]): Result[(#{| reln}, st), System.Error] & Impure =
         let mf = (row, st) -> { let SQLiteRowEvaluator(r1) = eval(st); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithAccum(mf, state, src)
 
@@ -80,14 +85,17 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCountAndAccum(eval: (Int32, st) -> SQLiteRowEvaluator[(reln, st)], state: st, src: Stream[SQLiteRow]): Result[(reln, st), System.Error] & Impure =
+    pub def importRowsWithCountAndAccum(eval: (Int32, st) -> SQLiteRowEvaluator[(#{| reln}, st)],
+                                        state: st,
+                                        src: Stream[SQLiteRow]): Result[(#{| reln}, st), System.Error] & Impure =
         let mf = (row, ix, st) -> { let SQLiteRowEvaluator(r1) = eval(ix, st); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(mf, state, src)
 
     ///
     /// Returns a list of applying `eval` to all rows in the input stream `src`.
     ///
-    pub def evaluateRows(eval: SQLiteRowEvaluator[a], src: Stream[SQLiteRow]): Result[List[a], System.Error] & Impure =
+    pub def evaluateRows(eval: SQLiteRowEvaluator[a],
+                         src: Stream[SQLiteRow]): Result[List[a], System.Error] & Impure =
         let SQLiteRowEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.getRows(mf, src)
 
