@@ -18,19 +18,19 @@ use Data/Transient.DList;
 use System.Error.{IOException, Generic};
 use Text.Charset.{Charset};
 
-use FactIO.SQLiteExport;
-use FactIO.SQLiteExport.{SQLiteExport};
-use FactIO.SQLiteWriteList;
-use FactIO.SQLiteWriteList.{SQLiteWriteList};
+use FactIO.JdbcExport;
+use FactIO.JdbcExport.{JdbcExport};
+use FactIO.JdbcWriteList;
+use FactIO.JdbcWriteList.{JdbcWriteList};
 
-use FactIO.SQLiteRowWriter;
-use FactIO.SQLiteRowWriter.{SQLiteRowWriter};
+use FactIO.JdbcRowWriter;
+use FactIO.JdbcRowWriter.{JdbcRowWriter};
 
 
 
 namespace FactIO {
 
-    pub opaque type SQLiteExport[a] = FactIO/Internal/SQLite.Output ~> Result[a, System.Error]
+    pub opaque type JdbcExport[a] = FactIO/Internal/Jdbc.Output ~> Result[a, System.Error]
 
     ///
     /// CsvWriteList is a workaround because fixpoint fold is our only way of
@@ -38,38 +38,38 @@ namespace FactIO {
     /// must be pure - solution we build a list of impure "write" functions
     /// to be invoked after the fold.
     ///
-    pub opaque type SQLiteWriteList = DList[SQLiteRowWriter[Unit]]
+    pub opaque type JdbcWriteList = DList[JdbcRowWriter[Unit]]
 
 }
 
-namespace FactIO/SQLiteExport {
+namespace FactIO/JdbcExport {
 
-    type alias PreparedStatement = FactIO/Internal/SQLite.PreparedStatement
+    type alias PreparedStatement = FactIO/Internal/Jdbc.PreparedStatement
 
     def makeConnectString(dbpath: String): String = "jdbc:sqlite:" + dbpath
 
-    pub def runSQLiteExport(mx: SQLiteExport[a], dbpath: System.FilePath): Result[a, System.Error] & Impure =
+    pub def runJdbcExport(mx: JdbcExport[a], dbpath: System.FilePath): Result[a, System.Error] & Impure =
         use Result.flatMap;
         use System/FilePath.{normalize, toString};
-        use FactIO/Internal/SQLite/Output.{new => newOutput};
+        use FactIO/Internal/Jdbc/Output.{new => newOutput};
         let url = makeConnectString(dbpath.normalize().toString());
         let* store = newOutput(url);
         apply1(mx, store)
 
 
 
-    pub def return(x: a): SQLiteExport[a] =
-        SQLiteExport(_ -> Ok(x) as & Impure)
+    pub def return(x: a): JdbcExport[a] =
+        JdbcExport(_ -> Ok(x) as & Impure)
 
-    def apply1(x: SQLiteExport[a], r: FactIO/Internal/SQLite.Output): Result[a, System.Error] & Impure =
-        let SQLiteExport(f) = x;
+    def apply1(x: JdbcExport[a], r: FactIO/Internal/Jdbc.Output): Result[a, System.Error] & Impure =
+        let JdbcExport(f) = x;
         f(r)
 
-    pub def fail(e: System.Error): SQLiteExport[a] =
-        SQLiteExport(_ -> Err(e) as & Impure)
+    pub def fail(e: System.Error): JdbcExport[a] =
+        JdbcExport(_ -> Err(e) as & Impure)
 
-    pub def map(f: a -> b & ef, x: SQLiteExport[a]): SQLiteExport[b] =
-        SQLiteExport(r ->
+    pub def map(f: a -> b & ef, x: JdbcExport[a]): JdbcExport[b] =
+        JdbcExport(r ->
             match apply1(x, r) {
                 case Ok(a) => {
                     let ans = f(a) as & Impure;
@@ -79,8 +79,8 @@ namespace FactIO/SQLiteExport {
             }
         )
 
-    pub def ap(mf: SQLiteExport[a -> b & ef], ma: SQLiteExport[a]): SQLiteExport[b] =
-        SQLiteExport(r ->
+    pub def ap(mf: JdbcExport[a -> b & ef], ma: JdbcExport[a]): JdbcExport[b] =
+        JdbcExport(r ->
             match apply1(mf, r) {
                 case Ok(f) => {
                     match apply1(ma, r) {
@@ -93,26 +93,26 @@ namespace FactIO/SQLiteExport {
         )
 
 
-    pub def bind(x: SQLiteExport[a], k: a -> SQLiteExport[b]): SQLiteExport[b] =
-        SQLiteExport(r ->
+    pub def bind(x: JdbcExport[a], k: a -> JdbcExport[b]): JdbcExport[b] =
+        JdbcExport(r ->
             match apply1(x, r) {
                 case Ok(a) => { let ans = k(a); apply1(ans, r) }
                 case Err(e) => Err(e)
             }
         )
 
-    pub def flatMap(k: a -> SQLiteExport[b], x: SQLiteExport[a]): SQLiteExport[b] = bind(x, k)
+    pub def flatMap(k: a -> JdbcExport[b], x: JdbcExport[a]): JdbcExport[b] = bind(x, k)
 
 
-    pub def mapM(mf: a -> SQLiteExport[b], xs: List[a]): SQLiteExport[List[b]] =
-        SQLiteExport(r ->
+    pub def mapM(mf: a -> JdbcExport[b], xs: List[a]): JdbcExport[List[b]] =
+        JdbcExport(r ->
             mapMHelper(r, mf, xs, e -> Err(e), ys -> Ok(ys))
         )
 
     ///
     /// Helper function for `mapM`.
     ///
-    def mapMHelper(r: FactIO/Internal/SQLite.Output, mf: a -> SQLiteExport[b], xs: List[a], fk: System.Error -> Result[List[b], System.Error], sk: List[b] -> Result[List[b], System.Error]): Result[List[b], System.Error] & Impure =
+    def mapMHelper(r: FactIO/Internal/Jdbc.Output, mf: a -> JdbcExport[b], xs: List[a], fk: System.Error -> Result[List[b], System.Error], sk: List[b] -> Result[List[b], System.Error]): Result[List[b], System.Error] & Impure =
         match xs {
             case Nil => sk(Nil)
             case x :: rs => {
@@ -124,12 +124,12 @@ namespace FactIO/SQLiteExport {
             }
         }
 
-    pub def mapX(mf: a -> SQLiteExport[b], xs: List[a]): SQLiteExport[Unit] =
-        SQLiteExport(r ->
+    pub def mapX(mf: a -> JdbcExport[b], xs: List[a]): JdbcExport[Unit] =
+        JdbcExport(r ->
             mapXHelper(r, mf, xs, e -> Err(e), _ -> Ok())
         )
 
-    def mapXHelper(r: FactIO/Internal/SQLite.Output, mf: a -> SQLiteExport[b], xs: List[a], fk: System.Error -> Result[Unit, System.Error], sk: Unit -> Result[Unit, System.Error]): Result[Unit, System.Error] & Impure =
+    def mapXHelper(r: FactIO/Internal/Jdbc.Output, mf: a -> JdbcExport[b], xs: List[a], fk: System.Error -> Result[Unit, System.Error], sk: Unit -> Result[Unit, System.Error]): Result[Unit, System.Error] & Impure =
         match xs {
             case Nil => sk()
             case x :: rs => {
@@ -142,15 +142,15 @@ namespace FactIO/SQLiteExport {
         }
 
 
-    pub def sequence(xs: List[SQLiteExport[a]]): SQLiteExport[List[a]] =
-        SQLiteExport(r ->
+    pub def sequence(xs: List[JdbcExport[a]]): JdbcExport[List[a]] =
+        JdbcExport(r ->
             sequenceHelper(r, xs, e -> Err(e), ks -> Ok(ks))
         )
 
     ///
     /// Helper function for `sequence`.
     ///
-    def sequenceHelper(r: FactIO/Internal/SQLite.Output, xs: List[SQLiteExport[a]], fk: System.Error -> Result[List[a], System.Error], sk: List[a] -> Result[List[a], System.Error]): Result[List[a], System.Error] & Impure =
+    def sequenceHelper(r: FactIO/Internal/Jdbc.Output, xs: List[JdbcExport[a]], fk: System.Error -> Result[List[a], System.Error], sk: List[a] -> Result[List[a], System.Error]): Result[List[a], System.Error] & Impure =
         match xs {
             case Nil => sk(Nil)
             case mx :: rs => match apply1(mx, r) {
@@ -166,30 +166,30 @@ namespace FactIO/SQLiteExport {
     ///
     /// `traverse` is a synonym for `mapM`.
     ///
-    pub def traverse(f: a -> SQLiteExport[b], xs: List[a]): SQLiteExport[List[b]] = mapM(f, xs)
+    pub def traverse(f: a -> JdbcExport[b], xs: List[a]): JdbcExport[List[b]] = mapM(f, xs)
 
     ///
     /// `traverseX` is a synonym for `mapX`.
     ///
-    pub def traverseX(f: a -> SQLiteExport[b], xs: List[a]): SQLiteExport[Unit] = mapX(f, xs)
+    pub def traverseX(f: a -> JdbcExport[b], xs: List[a]): JdbcExport[Unit] = mapX(f, xs)
 
     ///
     /// `forM` is `mapM` with its arguments flipped.
     ///
-    pub def forM(xs: List[a], f: a -> SQLiteExport[b]): SQLiteExport[List[b]] = mapM(f, xs)
+    pub def forM(xs: List[a], f: a -> JdbcExport[b]): JdbcExport[List[b]] = mapM(f, xs)
 
     ///
     /// `forX` is `mapX` with its arguments flipped.
     ///
-    pub def forX(xs: List[a], f: a -> SQLiteExport[b]): SQLiteExport[Unit] = mapX(f, xs)
+    pub def forX(xs: List[a], f: a -> JdbcExport[b]): JdbcExport[Unit] = mapX(f, xs)
 
 
-    pub def foldM(mf: (b, a) -> SQLiteExport[b], start: b, xs: List[a]): SQLiteExport[b] =
-        SQLiteExport(r ->
+    pub def foldM(mf: (b, a) -> JdbcExport[b], start: b, xs: List[a]): JdbcExport[b] =
+        JdbcExport(r ->
             foldMHelper(r, mf, start, xs, e -> Err(e), ac -> Ok(ac))
         )
 
-    def foldMHelper(r: FactIO/Internal/SQLite.Output, mf: (b, a) -> SQLiteExport[b], acc: b, xs: List[a], fk: System.Error -> Result[b, System.Error], sk: b -> Result[b, System.Error]): Result[b, System.Error] & Impure =
+    def foldMHelper(r: FactIO/Internal/Jdbc.Output, mf: (b, a) -> JdbcExport[b], acc: b, xs: List[a], fk: System.Error -> Result[b, System.Error], sk: b -> Result[b, System.Error]): Result[b, System.Error] & Impure =
         match xs {
             case Nil => sk(acc)
             case x :: rs => {
@@ -202,13 +202,13 @@ namespace FactIO/SQLiteExport {
         }
 
 
-    pub def mapAccumM(mf: (ac, a) -> SQLiteExport[(ac, b)], start: ac, xs: List[a]): SQLiteExport[(ac, List[b])] =
-        SQLiteExport(r ->
+    pub def mapAccumM(mf: (ac, a) -> JdbcExport[(ac, b)], start: ac, xs: List[a]): JdbcExport[(ac, List[b])] =
+        JdbcExport(r ->
             mapAccumMHelper(r, mf, start, xs, e -> Err(e), (ac, ks) -> Ok((ac, ks)))
         )
 
-    def mapAccumMHelper(r: FactIO/Internal/SQLite.Output,
-                        mf: (ac, a) -> SQLiteExport[(ac, b)],
+    def mapAccumMHelper(r: FactIO/Internal/Jdbc.Output,
+                        mf: (ac, a) -> JdbcExport[(ac, b)],
                         ac: ac,
                         xs: List[a],
                         fk: System.Error -> Result[(ac, List[b]), System.Error],
@@ -227,56 +227,56 @@ namespace FactIO/SQLiteExport {
     ///
     /// `mapAccumX` is a synonym for `foldM`.
     ///
-    pub def mapAccumX(mf: (ac, a) -> SQLiteExport[ac], start: ac, xs: List[a]): SQLiteExport[ac] = foldM(mf, start, xs)
+    pub def mapAccumX(mf: (ac, a) -> JdbcExport[ac], start: ac, xs: List[a]): JdbcExport[ac] = foldM(mf, start, xs)
 
-    pub def liftAction(fn: Unit ~> a): SQLiteExport[a] =
-        SQLiteExport(_ -> { let a = fn(); Ok(a) })
+    pub def liftAction(fn: Unit ~> a): JdbcExport[a] =
+        JdbcExport(_ -> { let a = fn(); Ok(a) })
 
-    pub def liftActionResult(fn: Unit ~> Result[a, System.Error]): SQLiteExport[a] =
-        SQLiteExport(_ -> fn())
+    pub def liftActionResult(fn: Unit ~> Result[a, System.Error]): JdbcExport[a] =
+        JdbcExport(_ -> fn())
 
     /// Not exported.
-    def liftPrim(prim: FactIO/Internal/SQLite.Output ~> Result[a, System.Error]): SQLiteExport[a] =
-        SQLiteExport(r -> prim(r))
+    def liftPrim(prim: FactIO/Internal/Jdbc.Output ~> Result[a, System.Error]): JdbcExport[a] =
+        JdbcExport(r -> prim(r))
 
-    pub def close(): SQLiteExport[Unit] =
-        use FactIO/Internal/SQLite/Output.{close};
+    pub def close(): JdbcExport[Unit] =
+        use FactIO/Internal/Jdbc/Output.{close};
         liftPrim(x -> x.close())
 
-    pub def setAutoCommit(autoCommit: Bool): SQLiteExport[Unit] =
-        use FactIO/Internal/SQLite/Output.{setAutoCommit};
+    pub def setAutoCommit(autoCommit: Bool): JdbcExport[Unit] =
+        use FactIO/Internal/Jdbc/Output.{setAutoCommit};
         liftPrim(x -> x.setAutoCommit(autoCommit))
 
-    pub def commit(): SQLiteExport[Unit] =
-        use FactIO/Internal/SQLite/Output.{commit};
+    pub def commit(): JdbcExport[Unit] =
+        use FactIO/Internal/Jdbc/Output.{commit};
         liftPrim(x -> x.commit())
 
-    pub def execute(sql: String): SQLiteExport[Bool] =
-        use FactIO/Internal/SQLite/Output.{execute};
+    pub def execute(sql: String): JdbcExport[Bool] =
+        use FactIO/Internal/Jdbc/Output.{execute};
         liftPrim(x -> x.execute(sql))
 
 
-    pub def prepareStatement(sql: String): SQLiteExport[PreparedStatement] =
-        use FactIO/Internal/SQLite/Output.{prepareStatement};
+    pub def prepareStatement(sql: String): JdbcExport[PreparedStatement] =
+        use FactIO/Internal/Jdbc/Output.{prepareStatement};
         liftPrim(x -> x.prepareStatement(sql))
 
-    pub def emptySQLiteWriteList(): SQLiteWriteList =
+    pub def emptyJdbcWriteList(): JdbcWriteList =
         use Data/Transient/DList.{empty};
-        SQLiteWriteList(empty())
+        JdbcWriteList(empty())
 
-    pub def makeSQLiteWriteStep(f: x -> SQLiteRowWriter[Unit]): (x, SQLiteWriteList) -> SQLiteWriteList =
+    pub def makeJdbcWriteStep(f: x -> JdbcRowWriter[Unit]): (x, JdbcWriteList) -> JdbcWriteList =
         (x, ws) ->
-            let SQLiteWriteList(ws1) = ws;
+            let JdbcWriteList(ws1) = ws;
             let w1 = f(x);
-            SQLiteWriteList(Data/Transient/DList.snoc(ws1, w1))
+            JdbcWriteList(Data/Transient/DList.snoc(ws1, w1))
 
-    pub def execWriteList(sql: String, xs: SQLiteWriteList): SQLiteExport[Int32] =
-        let SQLiteWriteList(xs1) = xs;
+    pub def execWriteList(sql: String, xs: JdbcWriteList): JdbcExport[Int32] =
+        let JdbcWriteList(xs1) = xs;
         let writes = Data/Transient/DList.toList(xs1);
         let* stmt = prepareStatement(sql);
         execWriteListHelper(stmt, 0, writes)
 
-    def execWriteListHelper(stmt: PreparedStatement, ac: Int32, xs: List[SQLiteRowWriter[Unit]]): SQLiteExport[Int32] = match xs {
+    def execWriteListHelper(stmt: PreparedStatement, ac: Int32, xs: List[JdbcRowWriter[Unit]]): JdbcExport[Int32] = match xs {
         case Nil => return(ac)
         case mx :: rs => {
             let* n = writeRow(stmt, mx);
@@ -284,15 +284,15 @@ namespace FactIO/SQLiteExport {
         }
     }
 
-    pub def writeRow(stmt: PreparedStatement, mx: SQLiteRowWriter[a]): SQLiteExport[Int32] =
-        let SQLiteRowWriter(mf) = mx;
-        let* _ = liftActionResult(_ -> FactIO/Internal/SQLite/PreparedStatement.clearParameters!(stmt));
+    pub def writeRow(stmt: PreparedStatement, mx: JdbcRowWriter[a]): JdbcExport[Int32] =
+        let JdbcRowWriter(mf) = mx;
+        let* _ = liftActionResult(_ -> FactIO/Internal/Jdbc/PreparedStatement.clearParameters!(stmt));
         let* _ = liftActionResult(_ -> mf(stmt));
-        let* n = liftActionResult(_ -> FactIO/Internal/SQLite/PreparedStatement.executeUpdate(stmt));
+        let* n = liftActionResult(_ -> FactIO/Internal/Jdbc/PreparedStatement.executeUpdate(stmt));
         return(n)
 
     ///
-    pub def mapRowWriterX(stmt: PreparedStatement, f: a -> SQLiteRowWriter[b], xs: List[a]): SQLiteExport[Unit] = match xs {
+    pub def mapRowWriterX(stmt: PreparedStatement, f: a -> JdbcRowWriter[b], xs: List[a]): JdbcExport[Unit] = match xs {
         case Nil            => return()
         case x :: rs        => {
             let mx = f(x);
@@ -301,9 +301,9 @@ namespace FactIO/SQLiteExport {
         }
     }
 
-    pub def streamRowWriterX(stmt: PreparedStatement, f: a -> SQLiteRowWriter[b], ss: Data.Stream[a]): SQLiteExport[Unit] =
+    pub def streamRowWriterX(stmt: PreparedStatement, f: a -> JdbcRowWriter[b], ss: Data.Stream[a]): JdbcExport[Unit] =
         use Data/Stream.{foreachResult};
-        SQLiteExport(r ->
+        JdbcExport(r ->
             foreachResult(x -> apply1(writeRow(stmt, f(x)), r), ss)
         )
 

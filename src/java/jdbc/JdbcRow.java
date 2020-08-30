@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package flix.runtime.spt.factio.sqlite;
+package flix.runtime.spt.factio.jdbc;
 
 import java.sql.ResultSet;
 
-public class SQLiteRow {
+public class JdbcRow {
     private ResultSet rs = null;
 
-    protected SQLiteRow(ResultSet resultSet) {
+    protected JdbcRow(ResultSet resultSet) {
         this.rs = resultSet;
     }
 

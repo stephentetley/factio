@@ -16,15 +16,15 @@
 
 use System.Error.{Generic};
 
-use FactIO/Internal/SQLite.PreparedStatement;
-use FactIO/Internal/SQLite.PreparedStatement.{PreparedStatement};
+use FactIO/Internal/Jdbc.PreparedStatement;
+use FactIO/Internal/Jdbc.PreparedStatement.{PreparedStatement};
 
-namespace FactIO/Internal/SQLite {
+namespace FactIO/Internal/Jdbc {
 
      pub opaque type PreparedStatement = ##java.sql.PreparedStatement
 }
 
-namespace FactIO/Internal/SQLite/PreparedStatement {
+namespace FactIO/Internal/Jdbc/PreparedStatement {
 
     pub def sql_type_null(): Int32 =
         import get java.sql.Types:NULL as get_NULL;

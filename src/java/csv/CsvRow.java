@@ -34,7 +34,7 @@ public class CsvRow {
         String s = null;
         for(int i = 0; i < sz; i++){
             s = this.wrappedRow.get(i);
-            if (s.isEmpty() == false) {
+            if (!s.isEmpty()) {
                 empty = false;
                 break;
             }

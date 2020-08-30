@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package flix.runtime.spt.factio.sqlite;
+package flix.runtime.spt.factio.jdbc;
 
 
 import java.sql.*;
 
-public class SQLiteOutput {
+public class JdbcOutput {
 
     private Connection conn;
 
-    public SQLiteOutput(String url) throws SQLException  {
+    public JdbcOutput(String url) throws SQLException  {
         conn = DriverManager.getConnection(url);
     }
 

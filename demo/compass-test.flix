@@ -1,11 +1,10 @@
 use FactIO/CsvImport.{CsvRow, CsvResult};
 use FactIO.CsvRowEvaluator;
-use FactIO/SQLiteImport.{SQLiteRow, SQLiteResult};
-use FactIO.SQLiteRowEvaluator;
-// use FactIO/FlatFile.SimpleParser;
+use FactIO/JdbcImport.{JdbcRow, JdbcResult};
+use FactIO.JdbcRowEvaluator;
 use FactIO.FlatFileLineEvaluator;
 
-def runResult(r1: Result[reln, System.Error]): reln & Impure = match r1 {
+def runResult(r1: Result[#{| reln}, System.Error]): #{| reln} & Impure = match r1 {
     case Ok(reln) => reln
     case Err(e) => {
         Console.printLine(System/Error.toString(e));
@@ -33,8 +32,8 @@ pub def csv01(): #{Direction} & Impure =
     };
     step() |> runResult
     
-def sqliteDirection1(): SQLiteRowEvaluator[#{Direction}] = 
-    use FactIO/SQLiteRowEvaluator.{map, getStringByLabel};
+def sqliteDirection1(): JdbcRowEvaluator[#{Direction}] = 
+    use FactIO/JdbcRowEvaluator.{map, getStringByLabel};
     map(makeDirection, getStringByLabel("cardinal_name"))
     
 
@@ -43,8 +42,8 @@ pub def sqlite01(): #{Direction} & Impure =
     let step = () -> {
         let path = System/FilePath.new("e:/coding/flix/factio/data/compass.sqlite");
         let query = "SELECT cardinal_name FROM cardinals";
-        let* src = FactIO/SQLiteImport.newSQLiteStream(path, query);
-        let* relns = FactIO/SQLiteImport.importRows(sqliteDirection1(), src);
+        let* src = FactIO/JdbcImport.newJdbcStream(path, query);
+        let* relns = FactIO/JdbcImport.importRows(sqliteDirection1(), src);
         Ok(solve relns)
     };
     step() |> runResult

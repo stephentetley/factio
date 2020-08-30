@@ -1,7 +1,7 @@
 use FactIO.CsvRowEvaluator;
 use FactIO/CsvFormat.{withFirstRecordAsHeader};
 
-def runResult(r: Result[reln, System.Error]): reln & Impure = match r {
+def runResult(r: Result[#{| reln}, System.Error]): #{| reln} & Impure = match r {
     case Ok(reln) => reln
     case Err(e) => { Console.printLine(System/Error.toString(e)); #{ }}
 }
@@ -17,7 +17,7 @@ def getNewDatalog(): CsvRowEvaluator[#{Lang}] =
 /// Should fail
 pub def test01(): #{Lang} & Impure =
     use Result.flatMap;
-    let path = "e:/coding/flix/factio/data/new-datalogs-utf8-bom.csv";
+    let path = System/FilePath.new("e:/coding/flix/factio/data/new-datalogs-utf8-bom.csv");
     let step =  () -> {
         let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows(getNewDatalog(), src);
@@ -28,7 +28,7 @@ pub def test01(): #{Lang} & Impure =
 
 pub def test02(): #{Lang} & Impure =
     use Result.flatMap;
-    let path = "e:/coding/flix/factio/data/new-datalogs-utf8-bom.csv";
+    let path = System/FilePath.new("e:/coding/flix/factio/data/new-datalogs-utf8-bom.csv");
     let step =  () -> {
         let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows(getNewDatalog(), src);
@@ -44,7 +44,7 @@ def getFunctionalLang(): CsvRowEvaluator[#{Lang}] =
 
 pub def test03(): #{Lang} & Impure =
     use Result.flatMap;
-    let path = "e:/coding/flix/factio/data/functional-langs-utf8-bom.csv";
+    let path = System/FilePath.new("e:/coding/flix/factio/data/functional-langs-utf8-bom.csv");
     let step =  () -> {
         let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows(getFunctionalLang(), src);
@@ -55,7 +55,7 @@ pub def test03(): #{Lang} & Impure =
 
 pub def test04(): #{Lang} & Impure =
     use Result.flatMap;
-    let path = "e:/coding/flix/factio/data/functional-langs-utf8-bom.csv";
+    let path = System/FilePath.new("e:/coding/flix/factio/data/functional-langs-utf8-bom.csv");
     let step = () -> {
         let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows(getFunctionalLang(), src);

@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-package flix.runtime.spt.factio.sqlite;
-
-import flix.runtime.spt.factio.sqlite.SQLiteRow;
+package flix.runtime.spt.factio.jdbc;
 
 import java.sql.*;
 
 /// https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/
 
-public class SQLiteIterator {
+public class JdbcIterator {
 
     private ResultSet rs = null;
     private Statement stmt = null;
     private Connection conn = null;
 
-    public SQLiteIterator(String filepath, String query) throws Exception {
-        String dbpath = "jdbc:sqlite:" + filepath;
-        this.conn = DriverManager.getConnection(dbpath);
+    public JdbcIterator(String url, String query) throws Exception {
+        this.conn = DriverManager.getConnection(url);
         this.stmt = this.conn.createStatement();
         this.rs = this.stmt.executeQuery(query);
     }
 
-    public SQLiteRow getRow() {
-        return new SQLiteRow(this.rs);
+    public JdbcRow getRow() {
+        return new JdbcRow(this.rs);
     }
 
     public boolean next() throws Exception {

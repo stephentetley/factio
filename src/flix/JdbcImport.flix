@@ -17,26 +17,26 @@
 use Data.Stream;
 use System.Error.{IOException, Generic};
 
-use FactIO.SQLiteRowEvaluator;
-use FactIO.SQLiteRowEvaluator.{SQLiteRowEvaluator};
+use FactIO.JdbcRowEvaluator;
+use FactIO.JdbcRowEvaluator.{JdbcRowEvaluator};
 
-namespace FactIO/SQLiteImport {
-
-    ///
-    /// Represents a SQLite row.
-    ///
-    type alias SQLiteRow = ##flix.runtime.spt.factio.sqlite.SQLiteRow
+namespace FactIO/JdbcImport {
 
     ///
-    /// Returns a new SQLite Stream.
+    /// Represents a database row.
     ///
-    pub def newDbStream(url: String, query: String): Result[Stream[SQLiteRow], System.Error] & Impure =
-        import new flix.runtime.spt.factio.sqlite.SQLiteIterator(String, String) as newSQLiteIterator;
-        import flix.runtime.spt.factio.sqlite.SQLiteIterator.next() as ffiHasNext;
-        import flix.runtime.spt.factio.sqlite.SQLiteIterator.getRow() as ffiNext;
-        import flix.runtime.spt.factio.sqlite.SQLiteIterator.close() as ffiClose;
+    type alias JdbcRow = ##flix.runtime.spt.factio.jdbc.JdbcRow
+
+    ///
+    /// Returns a new Jdbc Stream.
+    ///
+    pub def newDbStream(url: String, query: String): Result[Stream[JdbcRow], System.Error] & Impure =
+        import new flix.runtime.spt.factio.jdbc.JdbcIterator(String, String) as newJdbcIterator;
+        import flix.runtime.spt.factio.jdbc.JdbcIterator.next() as ffiHasNext;
+        import flix.runtime.spt.factio.jdbc.JdbcIterator.getRow() as ffiNext;
+        import flix.runtime.spt.factio.jdbc.JdbcIterator.close() as ffiClose;
         try {
-            let iter = newSQLiteIterator(url, query);
+            let iter = newJdbcIterator(url, query);
             let streamiter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = () -> ffiNext(iter)
@@ -49,10 +49,10 @@ namespace FactIO/SQLiteImport {
         }
 
     ///
-    /// Returns a new SQLite Stream.
+    /// Returns a new Jdbc Stream.
     ///
-    pub def newSQLiteStream(filepath: System.FilePath,
-                            query: String): Result[Stream[SQLiteRow], System.Error] & Impure =
+    pub def newJdbcStream(filepath: System.FilePath,
+                            query: String): Result[Stream[JdbcRow], System.Error] & Impure =
         use System/FilePath.{toString};
         let url = "jdbc:sqlite:" + filepath.toString();
         newDbStream(url, query)
@@ -61,7 +61,7 @@ namespace FactIO/SQLiteImport {
     /// Returns a new DuckDB Stream.
     ///
     pub def newDuckDBStream(filepath: System.FilePath,
-                            query: String): Result[Stream[SQLiteRow], System.Error] & Impure =
+                            query: String): Result[Stream[JdbcRow], System.Error] & Impure =
         use System/FilePath.{toString};
         let url = "jdbc:duckdb:" + filepath.toString();
         newDbStream(url, query)
@@ -71,9 +71,9 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRows(eval: SQLiteRowEvaluator[#{| reln}],
-                       src: Stream[SQLiteRow]): Result[#{| reln}, System.Error] & Impure =
-        let SQLiteRowEvaluator(mf) = eval;
+    pub def importRows(eval: JdbcRowEvaluator[#{| reln}],
+                       src: Stream[JdbcRow]): Result[#{| reln}, System.Error] & Impure =
+        let JdbcRowEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.importRows(mf, src)
 
     ///
@@ -81,9 +81,9 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCount(eval: Int32 -> SQLiteRowEvaluator[#{| reln}],
-                                src: Stream[SQLiteRow]): Result[#{| reln}, System.Error] & Impure =
-        let mf = (row, ix) -> { let SQLiteRowEvaluator(r1) = eval(ix); r1(row) };
+    pub def importRowsWithCount(eval: Int32 -> JdbcRowEvaluator[#{| reln}],
+                                src: Stream[JdbcRow]): Result[#{| reln}, System.Error] & Impure =
+        let mf = (row, ix) -> { let JdbcRowEvaluator(r1) = eval(ix); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithCount(mf, src)
 
     ///
@@ -91,10 +91,10 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithAccum(eval: st -> SQLiteRowEvaluator[(#{| reln}, st)],
+    pub def importRowsWithAccum(eval: st -> JdbcRowEvaluator[(#{| reln}, st)],
                                 state: st,
-                                src: Stream[SQLiteRow]): Result[(#{| reln}, st), System.Error] & Impure =
-        let mf = (row, st) -> { let SQLiteRowEvaluator(r1) = eval(st); r1(row) };
+                                src: Stream[JdbcRow]): Result[(#{| reln}, st), System.Error] & Impure =
+        let mf = (row, st) -> { let JdbcRowEvaluator(r1) = eval(st); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithAccum(mf, state, src)
 
     ///
@@ -102,18 +102,18 @@ namespace FactIO/SQLiteImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCountAndAccum(eval: (Int32, st) -> SQLiteRowEvaluator[(#{| reln}, st)],
+    pub def importRowsWithCountAndAccum(eval: (Int32, st) -> JdbcRowEvaluator[(#{| reln}, st)],
                                         state: st,
-                                        src: Stream[SQLiteRow]): Result[(#{| reln}, st), System.Error] & Impure =
-        let mf = (row, ix, st) -> { let SQLiteRowEvaluator(r1) = eval(ix, st); r1(row) };
+                                        src: Stream[JdbcRow]): Result[(#{| reln}, st), System.Error] & Impure =
+        let mf = (row, ix, st) -> { let JdbcRowEvaluator(r1) = eval(ix, st); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(mf, state, src)
 
     ///
     /// Returns a list of applying `eval` to all rows in the input stream `src`.
     ///
-    pub def evaluateRows(eval: SQLiteRowEvaluator[a],
-                         src: Stream[SQLiteRow]): Result[List[a], System.Error] & Impure =
-        let SQLiteRowEvaluator(mf) = eval;
+    pub def evaluateRows(eval: JdbcRowEvaluator[a],
+                         src: Stream[JdbcRow]): Result[List[a], System.Error] & Impure =
+        let JdbcRowEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.getRows(mf, src)
 
 
