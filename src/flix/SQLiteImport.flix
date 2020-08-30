@@ -30,14 +30,13 @@ namespace FactIO/SQLiteImport {
     ///
     /// Returns a new SQLite Stream.
     ///
-    pub def newSQLiteStream(filepath: System.FilePath,
-                            query: String): Result[Stream[SQLiteRow], System.Error] & Impure =
+    pub def newDbStream(url: String, query: String): Result[Stream[SQLiteRow], System.Error] & Impure =
         import new flix.runtime.spt.factio.sqlite.SQLiteIterator(String, String) as newSQLiteIterator;
         import flix.runtime.spt.factio.sqlite.SQLiteIterator.next() as ffiHasNext;
         import flix.runtime.spt.factio.sqlite.SQLiteIterator.getRow() as ffiNext;
         import flix.runtime.spt.factio.sqlite.SQLiteIterator.close() as ffiClose;
         try {
-            let iter = newSQLiteIterator(System/FilePath.toString(filepath), query);
+            let iter = newSQLiteIterator(url, query);
             let streamiter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = () -> ffiNext(iter)
@@ -48,6 +47,24 @@ namespace FactIO/SQLiteImport {
             case _: ##java.io.FileNotFoundException => Err(IOException)
             case _: ##java.io.IOException => Err(IOException)
         }
+
+    ///
+    /// Returns a new SQLite Stream.
+    ///
+    pub def newSQLiteStream(filepath: System.FilePath,
+                            query: String): Result[Stream[SQLiteRow], System.Error] & Impure =
+        use System/FilePath.{toString};
+        let url = "jdbc:sqlite:" + filepath.toString();
+        newDbStream(url, query)
+
+    ///
+    /// Returns a new DuckDB Stream.
+    ///
+    pub def newDuckDBStream(filepath: System.FilePath,
+                            query: String): Result[Stream[SQLiteRow], System.Error] & Impure =
+        use System/FilePath.{toString};
+        let url = "jdbc:duckdb:" + filepath.toString();
+        newDbStream(url, query)
 
     ///
     /// Process all rows of the input.
