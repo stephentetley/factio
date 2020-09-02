@@ -49,9 +49,9 @@ namespace FactIO/JdbcImport {
         }
 
     ///
-    /// Returns a new Jdbc Stream.
+    /// Returns a new SQLite Stream.
     ///
-    pub def newJdbcStream(filepath: System.FilePath,
+    pub def newSQLiteStream(filepath: System.FilePath,
                             query: String): Result[Stream[JdbcRow], System.Error] & Impure =
         use System/FilePath.{toString};
         let url = "jdbc:sqlite:" + filepath.toString();

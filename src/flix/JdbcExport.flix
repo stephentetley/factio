@@ -46,8 +46,6 @@ namespace FactIO/JdbcExport {
 
     type alias PreparedStatement = FactIO/Internal/Jdbc.PreparedStatement
 
-    def makeConnectString(db: String, dbpath: String): String = "jdbc:" + db + ":" + dbpath
-
     pub def runJdbcExport(ma: JdbcExport[a], url: String): Result[a, System.Error] & Impure =
         use Result.flatMap;
         use FactIO/Internal/Jdbc/Output.{new => newOutput};
@@ -56,12 +54,12 @@ namespace FactIO/JdbcExport {
 
     pub def runSQLiteExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, System.Error] & Impure =
         use System/FilePath.{normalize, toString};
-        let url = makeConnectString("sqlite", dbpath.normalize().toString());
+        let url = "jdbc:sqlite:" + dbpath.normalize().toString();
         runJdbcExport(ma, url)
 
     pub def runDuckDBExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, System.Error] & Impure =
         use System/FilePath.{normalize, toString};
-        let url = makeConnectString("duckdb", dbpath.normalize().toString());
+        let url = "jdbc:duckdb:" +dbpath.normalize().toString();
         runJdbcExport(ma, url)
 
     pub def return(x: a): JdbcExport[a] =
