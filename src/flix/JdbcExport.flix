@@ -46,17 +46,23 @@ namespace FactIO/JdbcExport {
 
     type alias PreparedStatement = FactIO/Internal/Jdbc.PreparedStatement
 
-    def makeConnectString(dbpath: String): String = "jdbc:sqlite:" + dbpath
+    def makeConnectString(db: String, dbpath: String): String = "jdbc:" + db + ":" + dbpath
 
-    pub def runJdbcExport(mx: JdbcExport[a], dbpath: System.FilePath): Result[a, System.Error] & Impure =
+    pub def runJdbcExport(ma: JdbcExport[a], url: String): Result[a, System.Error] & Impure =
         use Result.flatMap;
-        use System/FilePath.{normalize, toString};
         use FactIO/Internal/Jdbc/Output.{new => newOutput};
-        let url = makeConnectString(dbpath.normalize().toString());
         let* store = newOutput(url);
-        apply1(mx, store)
+        apply1(ma, store)
 
+    pub def runSQLiteExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, System.Error] & Impure =
+        use System/FilePath.{normalize, toString};
+        let url = makeConnectString("sqlite", dbpath.normalize().toString());
+        runJdbcExport(ma, url)
 
+    pub def runDuckDBExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, System.Error] & Impure =
+        use System/FilePath.{normalize, toString};
+        let url = makeConnectString("duckdb", dbpath.normalize().toString());
+        runJdbcExport(ma, url)
 
     pub def return(x: a): JdbcExport[a] =
         JdbcExport(_ -> Ok(x) as & Impure)
