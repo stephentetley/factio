@@ -43,11 +43,10 @@ def writeCells(src: (String, Int32)): JdbcRowSetter[Unit] =
 
 def main(): Result[Bool, System.Error] & Impure =
     use Result.flatMap;
-    use FactIO/JdbcExport.{runJdbcExport};
-    let str = "e:/coding/flix/factio/data/output/db1.sqlite";
-    let path = System/FilePath.new(str);    
+    use FactIO/JdbcExport.{runSQLiteExport};
+    let path = System/FilePath.new("e://coding/flix/factio/data/output/db1.sqlite");    
     let* _ = System/File.deleteIfExists(path);
-    let* _ = runJdbcExport(writeOutput(), path);
+    let* _ = runSQLiteExport(writeOutput(), path);
     Ok(true)
 
 // def main(): Int32 = fold Dbms 0 mkWriteStep() (solve databases())
