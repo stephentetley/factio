@@ -26,8 +26,8 @@ use FactIO.CsvWriteList.{CsvWriteList};
 use FactIO.CsvFormat;
 use FactIO.CsvFormat.{CsvFormat};
 
-use FactIO.CsvRowWriter;
-use FactIO.CsvRowWriter.{CsvRowWriter};
+use FactIO.CsvRowSetter;
+use FactIO.CsvRowSetter.{CsvRowSetter};
 
 namespace FactIO {
 
@@ -38,7 +38,7 @@ namespace FactIO {
     /// extracting data from a relation and the step function of fixpoint fold
     /// must be pure - solution we build a list of impure "write" functions
     /// to be invoked after the fold.
-    pub opaque type CsvWriteList = DList[CsvRowWriter[Unit]]
+    pub opaque type CsvWriteList = DList[CsvRowSetter[Unit]]
 
 }
 
@@ -166,7 +166,7 @@ namespace FactIO/CsvExport {
         use Data/Transient/DList.{empty};
         CsvWriteList(empty())
 
-    pub def makeCsvWriteStep(f: x -> CsvRowWriter[Unit]): (x, CsvWriteList) -> CsvWriteList =
+    pub def makeCsvWriteStep(f: x -> CsvRowSetter[Unit]): (x, CsvWriteList) -> CsvWriteList =
         (x, ws) ->
             let CsvWriteList(ws1) = ws;
             let w1 = f(x);
@@ -177,7 +177,7 @@ namespace FactIO/CsvExport {
         let writes = Data/Transient/DList.toList(xs1);
         execWriteListHelper(writes)
 
-    def execWriteListHelper(xs: List[CsvRowWriter[Unit]]): CsvExport[Unit] = match xs {
+    def execWriteListHelper(xs: List[CsvRowSetter[Unit]]): CsvExport[Unit] = match xs {
         case Nil => return()
         case mx :: rs => {
             let* _ = writeRow(mx);
@@ -190,10 +190,10 @@ namespace FactIO/CsvExport {
         let mx = makeSimpleWriter(0, xs);
         writeRow(mx)
 
-    def makeSimpleWriter(ix: Int32, xs: List[String]): CsvRowWriter[Unit] =
-        use FactIO/CsvRowWriter.{flatMap, putString!};
+    def makeSimpleWriter(ix: Int32, xs: List[String]): CsvRowSetter[Unit] =
+        use FactIO/CsvRowSetter.{flatMap, putString!};
         match xs {
-            case Nil => FactIO/CsvRowWriter.return()
+            case Nil => FactIO/CsvRowSetter.return()
             case x :: rs => {
                 let* _ = putString!(ix, x);
                 makeSimpleWriter(ix + 1, rs)
@@ -202,9 +202,9 @@ namespace FactIO/CsvExport {
 
 
 
-    pub def writeRow(mx: CsvRowWriter[a]): CsvExport[Unit] =
+    pub def writeRow(mx: CsvRowSetter[a]): CsvExport[Unit] =
         let* _ = clearCells!();
-        let* _ = execCsvRowWriter(mx);
+        let* _ = execCsvRowSetter(mx);
         let* _ = primWriteRow();
         return()
 
@@ -214,9 +214,9 @@ namespace FactIO/CsvExport {
     def primWriteRow(): CsvExport[Unit] =
         CsvExport((_, r) -> FactIO/Internal/Csv/Output.writeRow(r))
 
-    def execCsvRowWriter(mx: CsvRowWriter[a]): CsvExport[Unit] =
+    def execCsvRowSetter(mx: CsvRowSetter[a]): CsvExport[Unit] =
         CsvExport((hdrs, r) ->
-            let CsvRowWriter(mf) = mx;
+            let CsvRowSetter(mf) = mx;
             match mf(hdrs, r) {
                 case Ok(_) => Ok()
                 case Err(e) => Err(e)
@@ -224,16 +224,16 @@ namespace FactIO/CsvExport {
         )
 
     ///
-    pub def mapRowWriterX(f: a -> CsvRowWriter[b], xs: List[a]): CsvExport[Unit] = match xs {
+    pub def mapRowSetterX(f: a -> CsvRowSetter[b], xs: List[a]): CsvExport[Unit] = match xs {
         case Nil            => return()
         case x :: rs        => {
             let mx = f(x);
             let* _ = writeRow(mx);
-            mapRowWriterX(f, rs)
+            mapRowSetterX(f, rs)
         }
     }
 
-    pub def streamRowWriterX(f: a -> CsvRowWriter[b], ss: Data.Stream[a]): CsvExport[Unit] =
+    pub def streamRowSetterX(f: a -> CsvRowSetter[b], ss: Data.Stream[a]): CsvExport[Unit] =
         use Data/Stream.{foreachResult};
         CsvExport((hdrs, r) ->
             foreachResult(x -> apply1(writeRow(f(x)), hdrs, r), ss)

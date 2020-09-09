@@ -1,6 +1,6 @@
 use FactIO.JdbcExport;
 use FactIO.JdbcWriteList;
-use FactIO.JdbcRowWriter;
+use FactIO.JdbcRowSetter;
 
 
 rel Dbms(name: String, year: Int32)
@@ -33,8 +33,8 @@ def writeStep(): ((String, Int32), JdbcWriteList) -> JdbcWriteList =
 
 
 /// A "cell printer" for the body of Dbms.
-def writeCells(src: (String, Int32)): JdbcRowWriter[Unit] = 
-    use FactIO/JdbcRowWriter.{flatMap, return, putString!, putInt32!};
+def writeCells(src: (String, Int32)): JdbcRowSetter[Unit] = 
+    use FactIO/JdbcRowSetter.{flatMap, return, putString!, putInt32!};
     let (name,year) = src;
     let* _ = putString!(0, name);
     let* _ = putInt32!(1, year);

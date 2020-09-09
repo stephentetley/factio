@@ -23,8 +23,8 @@ use FactIO.JdbcExport.{JdbcExport};
 use FactIO.JdbcWriteList;
 use FactIO.JdbcWriteList.{JdbcWriteList};
 
-use FactIO.JdbcRowWriter;
-use FactIO.JdbcRowWriter.{JdbcRowWriter};
+use FactIO.JdbcRowSetter;
+use FactIO.JdbcRowSetter.{JdbcRowSetter};
 
 
 
@@ -38,7 +38,7 @@ namespace FactIO {
     /// must be pure - solution we build a list of impure "write" functions
     /// to be invoked after the fold.
     ///
-    pub opaque type JdbcWriteList = DList[JdbcRowWriter[Unit]]
+    pub opaque type JdbcWriteList = DList[JdbcRowSetter[Unit]]
 
 }
 
@@ -268,7 +268,7 @@ namespace FactIO/JdbcExport {
         use Data/Transient/DList.{empty};
         JdbcWriteList(empty())
 
-    pub def makeJdbcWriteStep(f: x -> JdbcRowWriter[Unit]): (x, JdbcWriteList) -> JdbcWriteList =
+    pub def makeJdbcWriteStep(f: x -> JdbcRowSetter[Unit]): (x, JdbcWriteList) -> JdbcWriteList =
         (x, ws) ->
             let JdbcWriteList(ws1) = ws;
             let w1 = f(x);
@@ -280,7 +280,7 @@ namespace FactIO/JdbcExport {
         let* stmt = prepareStatement(sql);
         execWriteListHelper(stmt, 0, writes)
 
-    def execWriteListHelper(stmt: PreparedStatement, ac: Int32, xs: List[JdbcRowWriter[Unit]]): JdbcExport[Int32] = match xs {
+    def execWriteListHelper(stmt: PreparedStatement, ac: Int32, xs: List[JdbcRowSetter[Unit]]): JdbcExport[Int32] = match xs {
         case Nil => return(ac)
         case mx :: rs => {
             let* n = writeRow(stmt, mx);
@@ -288,24 +288,24 @@ namespace FactIO/JdbcExport {
         }
     }
 
-    pub def writeRow(stmt: PreparedStatement, mx: JdbcRowWriter[a]): JdbcExport[Int32] =
-        let JdbcRowWriter(mf) = mx;
+    pub def writeRow(stmt: PreparedStatement, mx: JdbcRowSetter[a]): JdbcExport[Int32] =
+        let JdbcRowSetter(mf) = mx;
         let* _ = liftActionResult(_ -> FactIO/Internal/Jdbc/PreparedStatement.clearParameters!(stmt));
         let* _ = liftActionResult(_ -> mf(stmt));
         let* n = liftActionResult(_ -> FactIO/Internal/Jdbc/PreparedStatement.executeUpdate(stmt));
         return(n)
 
     ///
-    pub def mapRowWriterX(stmt: PreparedStatement, f: a -> JdbcRowWriter[b], xs: List[a]): JdbcExport[Unit] = match xs {
+    pub def mapRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], xs: List[a]): JdbcExport[Unit] = match xs {
         case Nil            => return()
         case x :: rs        => {
             let mx = f(x);
             let* _ = writeRow(stmt, mx);
-            mapRowWriterX(stmt, f, rs)
+            mapRowSetterX(stmt, f, rs)
         }
     }
 
-    pub def streamRowWriterX(stmt: PreparedStatement, f: a -> JdbcRowWriter[b], ss: Data.Stream[a]): JdbcExport[Unit] =
+    pub def streamRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], ss: Data.Stream[a]): JdbcExport[Unit] =
         use Data/Stream.{foreachResult};
         JdbcExport(r ->
             foreachResult(x -> apply1(writeRow(stmt, f(x)), r), ss)

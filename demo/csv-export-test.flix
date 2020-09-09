@@ -1,6 +1,6 @@
 use FactIO.CsvExport;
 use FactIO.CsvWriteList;
-use FactIO.CsvRowWriter;
+use FactIO.CsvRowSetter;
 
 /// TODO - work out how to use CsvExport for "non-relations"...
 
@@ -29,8 +29,8 @@ pub def dummyRelations(): #{ Dummy } = solve #{
 
 
 /// A RowWriter for the body of Dummy.
-def writeRow(src: (String,Int)): CsvRowWriter[Unit] = 
-    use FactIO/CsvRowWriter.{flatMap, return, putString!, putInt32!};
+def writeRow(src: (String,Int)): CsvRowSetter[Unit] = 
+    use FactIO/CsvRowSetter.{flatMap, return, putString!, putInt32!};
     let (name,i) = src;
     let* _ = putString!(0, name);
     let* _ = putInt32!(1, i);
