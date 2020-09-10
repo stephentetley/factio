@@ -35,6 +35,10 @@ public class JdbcOutput {
         conn.setAutoCommit(autoCommit);
     }
 
+    public boolean getAutoCommit() throws SQLException {
+        return conn.getAutoCommit();
+    }
+
     public void commit() throws SQLException {
         conn.commit();
     }

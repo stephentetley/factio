@@ -63,6 +63,16 @@ namespace FactIO/Internal/Jdbc/Output {
             case _: ##java.sql.SQLException => Err(Generic("Output.setAutoCommit"))
         }
 
+    pub def getAutoCommit(x: Output): Result[Bool, System.Error] & Impure =
+        import flix.runtime.spt.factio.jdbc.JdbcOutput.getAutoCommit();
+        try {
+            let Output(x1) = x;
+            let ans = x1.getAutoCommit();
+            Ok(ans)
+        } catch {
+            case _: ##java.sql.SQLException => Err(Generic("Output.getAutoCommit"))
+        }
+
     pub def commit(x: Output): Result[Unit, System.Error] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.commit();
         try {

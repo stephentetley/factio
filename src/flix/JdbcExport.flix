@@ -251,6 +251,15 @@ namespace FactIO/JdbcExport {
         use FactIO/Internal/Jdbc/Output.{setAutoCommit};
         liftPrim(x -> x.setAutoCommit(autoCommit))
 
+    pub def getAutoCommit(): JdbcExport[Bool] =
+        use FactIO/Internal/Jdbc/Output.{getAutoCommit};
+        liftPrim(x -> x.getAutoCommit())
+
+    /// Performs a check first...
+    pub def setAutoCommitOff(): JdbcExport[Unit] =
+        let* ans = getAutoCommit();
+        if (ans) setAutoCommit(false) else return()
+
     pub def commit(): JdbcExport[Unit] =
         use FactIO/Internal/Jdbc/Output.{commit};
         liftPrim(x -> x.commit())

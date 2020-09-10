@@ -14,11 +14,11 @@ def databases(): #{Dbms} = #{
 
 
 def writeOutput(): JdbcExport[Unit] =
-    use FactIO/JdbcExport.{flatMap, return, execute, liftAction, emptyJdbcWriteList, execWriteList, setAutoCommit, commit, close};
+    use FactIO/JdbcExport.{flatMap, return, execute, liftAction, emptyJdbcWriteList, execWriteList, setAutoCommitOff, commit, close};
     let* _          = execute("CREATE TABLE IF NOT EXISTS dbms (name text PRIMARY KEY NOT NULL, year int);");
     let* _          = execute("DELETE FROM dbms;");
     let stmt        = "INSERT INTO dbms(name, year) VALUES(?,?)";
-    let* _          = setAutoCommit(false);
+    let* _          = setAutoCommitOff();
     let writes      = fold Dbms emptyJdbcWriteList() writeStep() (solve databases());
     let* n          = execWriteList(stmt, writes);
     let* _          = commit();
