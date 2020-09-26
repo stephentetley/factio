@@ -11,9 +11,9 @@ def runResult(r1: Result[#{| reln}, System.Error]): #{| reln} & Impure = match r
 rel Lang(name: String, year: Int32)
 
 def getLang (): JdbcRowEvaluator[#{Lang}] = 
-    use FactIO/JdbcRowEvaluator.{flatMap, getStringByLabel, getInt32ByLabel, return};
-    let* x = getStringByLabel("name");
-    let* y = getInt32ByLabel("year");
+    use FactIO/JdbcRowEvaluator.{flatMap, getStringNamed, getInt32Named, return};
+    let* x = getStringNamed("name");
+    let* y = getInt32Named("year");
     return({ Lang(x, y). })
 
 
@@ -22,7 +22,7 @@ pub def test01(): #{Lang} & Impure =
     let step = () -> {
         let path = System/FilePath.new("e:/coding/flix/factio/data/langs.sqlite");
         let query = "SELECT name, year FROM language";
-        let* src = FactIO/JdbcImport.newJdbcStream(path, query);
+        let* src = FactIO/JdbcImport.newSQLiteStream(path, query);
         let* relns = FactIO/JdbcImport.importRows(getLang(), src);
         Ok(solve relns)
     };

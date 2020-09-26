@@ -11,8 +11,8 @@ def runResult(r: Result[#{| reln}, System.Error]): #{| reln} & Impure = match r 
 rel Lang(name: String)
 
 def getNewDatalog(): CsvRowEvaluator[#{Lang}] =
-    use FactIO/CsvRowEvaluator.{map, getStringByLabel}; 
-    map(s -> { Lang(s). }, getStringByLabel("Lang"))
+    use FactIO/CsvRowEvaluator.{map, getStringNamed}; 
+    map(s -> { Lang(s). }, getStringNamed("Lang"))
 
 /// Should fail
 pub def test01(): #{Lang} & Impure =
@@ -39,8 +39,8 @@ pub def test02(): #{Lang} & Impure =
 
 
 def getFunctionalLang(): CsvRowEvaluator[#{Lang}] = 
-    use FactIO/CsvRowEvaluator.{map, getStringByLabel}; 
-    map(s -> { Lang(s). }, getStringByLabel("Lang Name"))
+    use FactIO/CsvRowEvaluator.{map, getStringNamed}; 
+    map(s -> { Lang(s). }, getStringNamed("Lang Name"))
 
 pub def test03(): #{Lang} & Impure =
     use Result.flatMap;

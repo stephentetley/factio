@@ -14,8 +14,8 @@ def makeName(name: String): #{ Name } =
     Name(name).
 
 def getName(): CsvRowEvaluator[#{Name}] = 
-    use FactIO/CsvRowEvaluator.{map, getStringByLabel};
-    map(makeName, getStringByLabel("Name"))
+    use FactIO/CsvRowEvaluator.{map, getStringNamed};
+    map(makeName, getStringNamed("Name"))
 
 
 pub def test01(): #{Name} & Impure =
@@ -34,9 +34,9 @@ rel Station(name: String, gridref: String)
 
 
 def getStation(): CsvRowEvaluator[#{Station}] = 
-    use FactIO/CsvRowEvaluator.{flatMap, getStringByLabel, return};
-    let* x = getStringByLabel("Name");
-    let* y = getStringByLabel("Grid_Ref");
+    use FactIO/CsvRowEvaluator.{flatMap, getStringNamed, return};
+    let* x = getStringNamed("Name");
+    let* y = getStringNamed("Grid_Ref");
     return({ Station(x, y). })
     
 

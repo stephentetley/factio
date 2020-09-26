@@ -112,11 +112,11 @@ namespace FactIO/CsvRowEvaluator {
 
     // Cell readers
 
-    pub def getStringByIndex(ix: Int32): CsvRowEvaluator[String] =
-        import flix.runtime.spt.factio.csv.CsvRow.getStringByIndex(Int32);
+    pub def getStringAt(ix: Int32): CsvRowEvaluator[String] =
+        import flix.runtime.spt.factio.csv.CsvRow.getStringAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getStringByIndex(ix);
+                let a = row.getStringAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
@@ -127,11 +127,11 @@ namespace FactIO/CsvRowEvaluator {
     ///
     /// Get a string by its column name / label.
     ///
-    pub def getStringByLabel(label: String): CsvRowEvaluator[String] =
-        import flix.runtime.spt.factio.csv.CsvRow.getStringByLabel(String);
+    pub def getStringNamed(label: String): CsvRowEvaluator[String] =
+        import flix.runtime.spt.factio.csv.CsvRow.getStringNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getStringByLabel(label);
+                let a = row.getStringNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
@@ -139,11 +139,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getInt8ByIndex(ix: Int32): CsvRowEvaluator[Int8] =
-        import flix.runtime.spt.factio.csv.CsvRow.getByteByIndex(Int32);
+    pub def getInt8At(ix: Int32): CsvRowEvaluator[Int8] =
+        import flix.runtime.spt.factio.csv.CsvRow.getByteAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getByteByIndex(ix);
+                let a = row.getByteAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
@@ -151,11 +151,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getInt8ByLabel(label: String): CsvRowEvaluator[Int8] =
-        import flix.runtime.spt.factio.csv.CsvRow.getByteByLabel(String);
+    pub def getInt8Named(label: String): CsvRowEvaluator[Int8] =
+        import flix.runtime.spt.factio.csv.CsvRow.getByteNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getByteByLabel(label);
+                let a = row.getByteNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
@@ -163,11 +163,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getInt16ByIndex(ix: Int32): CsvRowEvaluator[Int16] =
-        import flix.runtime.spt.factio.csv.CsvRow.getShortByIndex(Int32);
+    pub def getInt16At(ix: Int32): CsvRowEvaluator[Int16] =
+        import flix.runtime.spt.factio.csv.CsvRow.getShortAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getShortByIndex(ix);
+                let a = row.getShortAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
@@ -175,11 +175,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getInt16ByLabel(label: String): CsvRowEvaluator[Int16] =
-        import flix.runtime.spt.factio.csv.CsvRow.getShortByLabel(String);
+    pub def getInt16Named(label: String): CsvRowEvaluator[Int16] =
+        import flix.runtime.spt.factio.csv.CsvRow.getShortNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getShortByLabel(label);
+                let a = row.getShortNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
@@ -187,11 +187,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getInt32ByIndex(ix: Int32): CsvRowEvaluator[Int32] =
-        import flix.runtime.spt.factio.csv.CsvRow.getIntByIndex(Int32);
+    pub def getInt32At(ix: Int32): CsvRowEvaluator[Int32] =
+        import flix.runtime.spt.factio.csv.CsvRow.getIntAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getIntByIndex(ix);
+                let a = row.getIntAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
@@ -199,11 +199,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getInt32ByLabel(label: String): CsvRowEvaluator[Int32] =
-        import flix.runtime.spt.factio.csv.CsvRow.getIntByLabel(String);
+    pub def getInt32Named(label: String): CsvRowEvaluator[Int32] =
+        import flix.runtime.spt.factio.csv.CsvRow.getIntNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getIntByLabel(label);
+                let a = row.getIntNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
@@ -211,11 +211,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getInt64ByIndex(ix: Int32): CsvRowEvaluator[Int64] =
-        import flix.runtime.spt.factio.csv.CsvRow.getLongByIndex(Int32);
+    pub def getInt64At(ix: Int32): CsvRowEvaluator[Int64] =
+        import flix.runtime.spt.factio.csv.CsvRow.getLongAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getLongByIndex(ix);
+                let a = row.getLongAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
@@ -223,11 +223,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getInt64ByLabel(label: String): CsvRowEvaluator[Int64] =
-        import flix.runtime.spt.factio.csv.CsvRow.getLongByLabel(String);
+    pub def getInt64Named(label: String): CsvRowEvaluator[Int64] =
+        import flix.runtime.spt.factio.csv.CsvRow.getLongNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getLongByLabel(label);
+                let a = row.getLongNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
@@ -235,11 +235,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getFloat32ByIndex(ix: Int32): CsvRowEvaluator[Float32] =
-        import flix.runtime.spt.factio.csv.CsvRow.getFloatByIndex(Int32);
+    pub def getFloat32At(ix: Int32): CsvRowEvaluator[Float32] =
+        import flix.runtime.spt.factio.csv.CsvRow.getFloatAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getFloatByIndex(ix);
+                let a = row.getFloatAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
@@ -247,11 +247,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getFloat32ByLabel(label: String): CsvRowEvaluator[Float32] =
-        import flix.runtime.spt.factio.csv.CsvRow.getFloatByLabel(String);
+    pub def getFloat32Named(label: String): CsvRowEvaluator[Float32] =
+        import flix.runtime.spt.factio.csv.CsvRow.getFloatNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getFloatByLabel(label);
+                let a = row.getFloatNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
@@ -259,11 +259,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getFloat64ByIndex(ix: Int32): CsvRowEvaluator[Float64] =
-        import flix.runtime.spt.factio.csv.CsvRow.getDoubleByIndex(Int32);
+    pub def getFloat64At(ix: Int32): CsvRowEvaluator[Float64] =
+        import flix.runtime.spt.factio.csv.CsvRow.getDoubleAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getDoubleByIndex(ix);
+                let a = row.getDoubleAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
@@ -271,11 +271,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getFloat64ByLabel(label: String): CsvRowEvaluator[Float64] =
-        import flix.runtime.spt.factio.csv.CsvRow.getDoubleByLabel(String);
+    pub def getFloat64Named(label: String): CsvRowEvaluator[Float64] =
+        import flix.runtime.spt.factio.csv.CsvRow.getDoubleNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getDoubleByLabel(label);
+                let a = row.getDoubleNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
@@ -283,11 +283,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getBigIntByIndex(ix: Int32): CsvRowEvaluator[BigInt] =
-        import flix.runtime.spt.factio.csv.CsvRow.getBigIntegerByIndex(Int32);
+    pub def getBigIntAt(ix: Int32): CsvRowEvaluator[BigInt] =
+        import flix.runtime.spt.factio.csv.CsvRow.getBigIntegerAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getBigIntegerByIndex(ix);
+                let a = row.getBigIntegerAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
@@ -295,11 +295,11 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def getBigIntByLabel(label: String): CsvRowEvaluator[BigInt] =
-        import flix.runtime.spt.factio.csv.CsvRow.getBigIntegerByLabel(String);
+    pub def getBigIntNamed(label: String): CsvRowEvaluator[BigInt] =
+        import flix.runtime.spt.factio.csv.CsvRow.getBigIntegerNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getBigIntegerByLabel(label);
+                let a = row.getBigIntegerNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
@@ -307,53 +307,53 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def evalMatchesByIndex(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
-        let* input = getStringByIndex(ix);
+    pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+        let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
         return(ans)
 
-    pub def evalMatchesByLabel(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
-        let* input = getStringByLabel(label);
+    pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+        let* input = getStringNamed(label);
         let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
         return(ans)
 
-    pub def evalContainsByIndex(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
-        let* input = getStringByIndex(ix);
+    pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+        let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
         return(ans)
 
-    pub def evalContainsByLabel(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
-        let* input = getStringByLabel(label);
+    pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+        let* input = getStringNamed(label);
         let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
         return(ans)
 
-    pub def getLocalDateByIndex(ix: Int32, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
-        let* input = getStringByIndex(ix);
+    pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
+        let* input = getStringAt(ix);
         let* ans = liftResult(Time/LocalDate.parse(input, formatter));
         return(ans)
 
-    pub def getLocalDateByLabel(label: String, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
-        let* input = getStringByLabel(label);
+    pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
+        let* input = getStringNamed(label);
         let* ans = liftResult(Time/LocalDate.parse(input, formatter));
         return(ans)
 
-    pub def getLocalDateTimeByIndex(ix: Int32, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
-        let* input = getStringByIndex(ix);
+    pub def getLocalDateTimeAt(ix: Int32, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
+        let* input = getStringAt(ix);
         let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
         return(ans)
 
-    pub def getLocalDateTimeByLabel(label: String, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
-        let* input = getStringByLabel(label);
+    pub def getLocalDateTimeNamed(label: String, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
+        let* input = getStringNamed(label);
         let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
         return(ans)
 
-    pub def getLocalTimeByIndex(ix: Int32, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
-        let* input = getStringByIndex(ix);
+    pub def getLocalTimeAt(ix: Int32, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
+        let* input = getStringAt(ix);
         let* ans = liftResult(Time/LocalTime.parse(input, formatter));
         return(ans)
 
-    pub def getLocalTimeByLabel(label: String, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
-        let* input = getStringByLabel(label);
+    pub def getLocalTimeNamed(label: String, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
+        let* input = getStringNamed(label);
         let* ans = liftResult(Time/LocalTime.parse(input, formatter));
         return(ans)
 

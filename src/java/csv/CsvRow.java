@@ -42,80 +42,80 @@ public class CsvRow {
         return empty;
     }
 
-    public String getStringByIndex(int ix) {
+    public String getStringAt(int ix) {
         return this.wrappedRow.get(ix);
     }
 
-    public String getStringByLabel(String columnLabel) {
+    public String getStringNamed(String columnLabel) {
         return this.wrappedRow.get(columnLabel);
     }
 
-    public byte getByteByIndex(int ix) throws Exception {
+    public byte getByteAt(int ix) throws Exception {
         String input = this.wrappedRow.get(ix);
         return Byte.parseByte(input.trim());
     }
 
-    public byte getByteByLabel(String columnLabel) throws Exception {
+    public byte getByteNamed(String columnLabel) throws Exception {
         String input = this.wrappedRow.get(columnLabel);
         return Byte.parseByte(input.trim());
     }
 
-    public short getShortByIndex(int ix) throws Exception {
+    public short getShortAt(int ix) throws Exception {
         String input = this.wrappedRow.get(ix);
         return Short.parseShort(input.trim());
     }
 
-    public short getShortByLabel(String columnLabel) throws Exception {
+    public short getShortNamed(String columnLabel) throws Exception {
         String input = this.wrappedRow.get(columnLabel);
         return Short.parseShort(input.trim());
     }
 
-    public int getIntByIndex(int ix) throws Exception {
+    public int getIntAt(int ix) throws Exception {
         String input = this.wrappedRow.get(ix);
         return Integer.parseInt(input.trim());
     }
 
-    public int getIntByLabel(String columnLabel) throws Exception {
+    public int getIntNamed(String columnLabel) throws Exception {
         String input = this.wrappedRow.get(columnLabel);
         return Integer.parseInt(input.trim());
     }
 
-    public long getLongByIndex(int ix) throws Exception {
+    public long getLongAt(int ix) throws Exception {
         String input = this.wrappedRow.get(ix);
         return Long.parseLong(input.trim());
     }
 
-    public long getLongByLabel(String columnLabel) throws Exception {
+    public long getLongNamed(String columnLabel) throws Exception {
         String input = this.wrappedRow.get(columnLabel);
         return Long.parseLong(input.trim());
     }
 
-    public float getFloatByIndex(int ix) throws Exception {
+    public float getFloatAt(int ix) throws Exception {
         String input = this.wrappedRow.get(ix);
         return Float.parseFloat(input.trim());
     }
 
-    public float getFloatByLabel(String columnLabel) throws Exception {
+    public float getFloatNamed(String columnLabel) throws Exception {
         String input = this.wrappedRow.get(columnLabel);
         return Float.parseFloat(input.trim());
     }
 
-    public double getDoubleByIndex(int ix) throws Exception {
+    public double getDoubleAt(int ix) throws Exception {
         String input = this.wrappedRow.get(ix);
         return Double.parseDouble(input.trim());
     }
 
-    public double getDoubleByLabel(String columnLabel) throws Exception {
+    public double getDoubleNamed(String columnLabel) throws Exception {
         String input = this.wrappedRow.get(columnLabel);
         return Double.parseDouble(input.trim());
     }
 
-    public BigInteger getBigIntegerByIndex(int ix) throws Exception {
+    public BigInteger getBigIntegerAt(int ix) throws Exception {
         String input = this.wrappedRow.get(ix);
         return new BigInteger(input.trim());
     }
 
-    public BigInteger getBigIntegerByLabel(String columnLabel) throws Exception {
+    public BigInteger getBigIntegerNamed(String columnLabel) throws Exception {
         String input = this.wrappedRow.get(columnLabel);
         return new BigInteger(input.trim());
     }

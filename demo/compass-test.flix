@@ -18,8 +18,8 @@ def makeDirection(name: String): #{ Direction } =
     Direction(name).
     
 def csvDirection1(): CsvRowEvaluator[#{Direction}] = 
-    use FactIO/CsvRowEvaluator.{map, getStringByIndex};
-    map(makeDirection, getStringByIndex(0))
+    use FactIO/CsvRowEvaluator.{map, getStringAt};
+    map(makeDirection, getStringAt(0))
 
 pub def csv01(): #{Direction} & Impure =
     use Result.flatMap;
@@ -33,8 +33,8 @@ pub def csv01(): #{Direction} & Impure =
     step() |> runResult
     
 def sqliteDirection1(): JdbcRowEvaluator[#{Direction}] = 
-    use FactIO/JdbcRowEvaluator.{map, getStringByLabel};
-    map(makeDirection, getStringByLabel("cardinal_name"))
+    use FactIO/JdbcRowEvaluator.{map, getStringNamed};
+    map(makeDirection, getStringNamed("cardinal_name"))
     
 
 pub def sqlite01(): #{Direction} & Impure =
@@ -42,7 +42,7 @@ pub def sqlite01(): #{Direction} & Impure =
     let step = () -> {
         let path = System/FilePath.new("e:/coding/flix/factio/data/compass.sqlite");
         let query = "SELECT cardinal_name FROM cardinals";
-        let* src = FactIO/JdbcImport.newJdbcStream(path, query);
+        let* src = FactIO/JdbcImport.newSQLiteStream(path, query);
         let* relns = FactIO/JdbcImport.importRows(sqliteDirection1(), src);
         Ok(solve relns)
     };

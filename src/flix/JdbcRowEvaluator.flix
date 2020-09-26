@@ -102,11 +102,11 @@ namespace FactIO/JdbcRowEvaluator {
 
     // Cell readers
 
-    pub def getStringByIndex(ix: Int32): JdbcRowEvaluator[String] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getStringByIndex(Int32);
+    pub def getStringAt(ix: Int32): JdbcRowEvaluator[String] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getStringAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getStringByIndex(ix);
+                let a = row.getStringAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -114,11 +114,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         ) 
 
-    pub def getStringByLabel(label: String): JdbcRowEvaluator[String] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getStringByLabel(String);
+    pub def getStringNamed(label: String): JdbcRowEvaluator[String] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getStringNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getStringByLabel(label);
+                let a = row.getStringNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -126,11 +126,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getInt8ByIndex(ix: Int32): JdbcRowEvaluator[Int8] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getByteByIndex(Int32);
+    pub def getInt8At(ix: Int32): JdbcRowEvaluator[Int8] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getByteAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getByteByIndex(ix);
+                let a = row.getByteAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -138,11 +138,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getInt8ByLabel(label: String): JdbcRowEvaluator[Int8] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getByteByLabel(String);
+    pub def getInt8Named(label: String): JdbcRowEvaluator[Int8] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getByteNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getByteByLabel(label);
+                let a = row.getByteNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -150,11 +150,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getInt16ByIndex(ix: Int32): JdbcRowEvaluator[Int16] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getShortByIndex(Int32);
+    pub def getInt16At(ix: Int32): JdbcRowEvaluator[Int16] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getShortAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getShortByIndex(ix);
+                let a = row.getShortAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -162,11 +162,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getInt16ByLabel(label: String): JdbcRowEvaluator[Int16] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getShortByLabel(String);
+    pub def getInt16Named(label: String): JdbcRowEvaluator[Int16] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getShortNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getShortByLabel(label);
+                let a = row.getShortNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -174,11 +174,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getInt32ByIndex(ix: Int32): JdbcRowEvaluator[Int32] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getIntByIndex(Int32);
+    pub def getInt32At(ix: Int32): JdbcRowEvaluator[Int32] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getIntAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getIntByIndex(ix);
+                let a = row.getIntAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -186,11 +186,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getInt32ByLabel(label: String): JdbcRowEvaluator[Int32] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getIntByLabel(String);
+    pub def getInt32Named(label: String): JdbcRowEvaluator[Int32] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getIntNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getIntByLabel(label);
+                let a = row.getIntNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -198,11 +198,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getInt64ByIndex(ix: Int32): JdbcRowEvaluator[Int64] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getLongByIndex(Int32);
+    pub def getInt64At(ix: Int32): JdbcRowEvaluator[Int64] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getLongAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getLongByIndex(ix);
+                let a = row.getLongAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -210,11 +210,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getInt64ByLabel(label: String): JdbcRowEvaluator[Int64] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getLongByLabel(String);
+    pub def getInt64Named(label: String): JdbcRowEvaluator[Int64] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getLongNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getLongByLabel(label);
+                let a = row.getLongNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -222,11 +222,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getFloat32ByIndex(ix: Int32): JdbcRowEvaluator[Float32] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getFloatByIndex(Int32);
+    pub def getFloat32At(ix: Int32): JdbcRowEvaluator[Float32] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getFloatAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getFloatByIndex(ix);
+                let a = row.getFloatAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -234,11 +234,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getFloat32ByLabel(label: String): JdbcRowEvaluator[Float32] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getFloatByLabel(String);
+    pub def getFloat32Named(label: String): JdbcRowEvaluator[Float32] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getFloatNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getFloatByLabel(label);
+                let a = row.getFloatNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -246,11 +246,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getFloat64ByIndex(ix: Int32): JdbcRowEvaluator[Float64] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getDoubleByIndex(Int32);
+    pub def getFloat64At(ix: Int32): JdbcRowEvaluator[Float64] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getDoubleAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getDoubleByIndex(ix);
+                let a = row.getDoubleAt(ix);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -258,11 +258,11 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def getFloat64ByLabel(label: String): JdbcRowEvaluator[Float64] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getDoubleByLabel(String);
+    pub def getFloat64Named(label: String): JdbcRowEvaluator[Float64] =
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getDoubleNamed(String);
         liftPrimRowReader(row ->       
             try {
-                let a = row.getDoubleByLabel(label);
+                let a = row.getDoubleNamed(label);
                 Ok(a)
             } catch {
                 case _: ##java.sql.SQLException => Err(Generic("SQLException"))
@@ -270,53 +270,53 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def evalMatchesByIndex(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
-        let* input = getStringByIndex(ix);
+    pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
+        let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
         return(ans)
 
-    pub def evalMatchesByLabel(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
-        let* input = getStringByLabel(label);
+    pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
+        let* input = getStringNamed(label);
         let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
         return(ans)
 
-    pub def evalContainsByIndex(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
-        let* input = getStringByIndex(ix);
+    pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
+        let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
         return(ans)
 
-    pub def evalContainsByLabel(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
-        let* input = getStringByLabel(label);
+    pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
+        let* input = getStringNamed(label);
         let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
         return(ans)
 
-    pub def getLocalDateByIndex(ix: Int32, formatter: Time/Format.DateFormatter): JdbcRowEvaluator[Time.LocalDate] =
-        let* input = getStringByIndex(ix);
+    pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): JdbcRowEvaluator[Time.LocalDate] =
+        let* input = getStringAt(ix);
         let* ans = liftResult(Time/LocalDate.parse(input, formatter));
         return(ans)
 
-    pub def getLocalDateByLabel(label: String, formatter: Time/Format.DateFormatter): JdbcRowEvaluator[Time.LocalDate] =
-        let* input = getStringByLabel(label);
+    pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): JdbcRowEvaluator[Time.LocalDate] =
+        let* input = getStringNamed(label);
         let* ans = liftResult(Time/LocalDate.parse(input, formatter));
         return(ans)
 
-    pub def getLocalDateTimeByIndex(ix: Int32, formatter: Time/Format.DateTimeFormatter): JdbcRowEvaluator[Time.LocalDateTime] =
-        let* input = getStringByIndex(ix);
+    pub def getLocalDateTimeAt(ix: Int32, formatter: Time/Format.DateTimeFormatter): JdbcRowEvaluator[Time.LocalDateTime] =
+        let* input = getStringAt(ix);
         let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
         return(ans)
 
-    pub def getLocalDateTimeByLabel(label: String, formatter: Time/Format.DateTimeFormatter): JdbcRowEvaluator[Time.LocalDateTime] =
-        let* input = getStringByLabel(label);
+    pub def getLocalDateTimeNamed(label: String, formatter: Time/Format.DateTimeFormatter): JdbcRowEvaluator[Time.LocalDateTime] =
+        let* input = getStringNamed(label);
         let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
         return(ans)
 
-    pub def getLocalTimeByIndex(ix: Int32, formatter: Time/Format.TimeFormatter): JdbcRowEvaluator[Time.LocalTime] =
-        let* input = getStringByIndex(ix);
+    pub def getLocalTimeAt(ix: Int32, formatter: Time/Format.TimeFormatter): JdbcRowEvaluator[Time.LocalTime] =
+        let* input = getStringAt(ix);
         let* ans = liftResult(Time/LocalTime.parse(input, formatter));
         return(ans)
 
-    pub def getLocalTimeByLabel(label: String, formatter: Time/Format.TimeFormatter): JdbcRowEvaluator[Time.LocalTime] =
-        let* input = getStringByLabel(label);
+    pub def getLocalTimeNamed(label: String, formatter: Time/Format.TimeFormatter): JdbcRowEvaluator[Time.LocalTime] =
+        let* input = getStringNamed(label);
         let* ans = liftResult(Time/LocalTime.parse(input, formatter));
         return(ans)
 
