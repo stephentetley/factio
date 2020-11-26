@@ -136,7 +136,7 @@ namespace FactIO/CsvImport {
     pub def evaluateRowsSkipEmptyRows(eval: CsvRowEvaluator[a],
                                       src: Stream[CsvRow]): Result[List[a], System.Error] & Impure =
         let CsvRowEvaluator(mf) = eval;
-        let src1 = Data/Stream.filter(x -> !isEmptyRow(x), src);
+        let src1 = Data/Stream.filter(x -> not isEmptyRow(x), src);
         Data/Stream.traverseToListResult(mf, src1)
 
     def isEmptyRow(row: CsvRow): Bool =
