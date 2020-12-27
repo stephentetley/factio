@@ -78,7 +78,12 @@ namespace FactIO/JdbcRowEvaluator {
 
     def liftPrimRowReader(eval: ##flix.runtime.spt.factio.jdbc.JdbcRow ~> Result[a, System.Error]): JdbcRowEvaluator[a] =
         JdbcRowEvaluator(r -> eval(r))
-    
+
+    pub def liftOption(x: Option[a], errMsg: String): JdbcRowEvaluator[a] = match x {
+        case Some(a) => return(a)
+        case None => throwError(Generic(errMsg))
+    }
+
     pub def liftResult(x: Result[a, System.Error]): JdbcRowEvaluator[a] =
         JdbcRowEvaluator(_ -> x as & Impure)
 
@@ -292,32 +297,32 @@ namespace FactIO/JdbcRowEvaluator {
 
     pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): JdbcRowEvaluator[Time.LocalDate] =
         let* input = getStringAt(ix);
-        let* ans = liftResult(Time/LocalDate.parse(input, formatter));
+        let* ans = liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateAt");
         return(ans)
 
     pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): JdbcRowEvaluator[Time.LocalDate] =
         let* input = getStringNamed(label);
-        let* ans = liftResult(Time/LocalDate.parse(input, formatter));
+        let* ans = liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateNamed");
         return(ans)
 
     pub def getLocalDateTimeAt(ix: Int32, formatter: Time/Format.DateTimeFormatter): JdbcRowEvaluator[Time.LocalDateTime] =
         let* input = getStringAt(ix);
-        let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
+        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter) , "getLocalDateTimeAt");
         return(ans)
 
     pub def getLocalDateTimeNamed(label: String, formatter: Time/Format.DateTimeFormatter): JdbcRowEvaluator[Time.LocalDateTime] =
         let* input = getStringNamed(label);
-        let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
+        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeNamed");
         return(ans)
 
     pub def getLocalTimeAt(ix: Int32, formatter: Time/Format.TimeFormatter): JdbcRowEvaluator[Time.LocalTime] =
         let* input = getStringAt(ix);
-        let* ans = liftResult(Time/LocalTime.parse(input, formatter));
+        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeAt");
         return(ans)
 
     pub def getLocalTimeNamed(label: String, formatter: Time/Format.TimeFormatter): JdbcRowEvaluator[Time.LocalTime] =
         let* input = getStringNamed(label);
-        let* ans = liftResult(Time/LocalTime.parse(input, formatter));
+        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeNamed");
         return(ans)
 
     ///

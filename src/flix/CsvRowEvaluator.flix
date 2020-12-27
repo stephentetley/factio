@@ -89,6 +89,11 @@ namespace FactIO/CsvRowEvaluator {
     def liftPrimRowReader(eval: ##flix.runtime.spt.factio.csv.CsvRow ~> Result[a, System.Error]): CsvRowEvaluator[a] =
         CsvRowEvaluator(r -> eval(r))
 
+    pub def liftOption(x: Option[a], errMsg: String): CsvRowEvaluator[a] = match x {
+        case Some(a) => return(a)
+        case None => throwError(Generic(errMsg))
+    }
+
     pub def liftResult(x: Result[a, System.Error]): CsvRowEvaluator[a] = 
         CsvRowEvaluator(_ -> x as & Impure)
 
@@ -329,32 +334,32 @@ namespace FactIO/CsvRowEvaluator {
 
     pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
         let* input = getStringAt(ix);
-        let* ans = liftResult(Time/LocalDate.parse(input, formatter));
+        let* ans = liftResult(Option.toOk(Time/LocalDate.parse(input, formatter), Generic("LocalDateParseException")));
         return(ans)
 
     pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
         let* input = getStringNamed(label);
-        let* ans = liftResult(Time/LocalDate.parse(input, formatter));
+        let* ans = liftResult(Option.toOk(Time/LocalDate.parse(input, formatter), Generic("LocalDateParseException")));
         return(ans)
 
     pub def getLocalDateTimeAt(ix: Int32, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
         let* input = getStringAt(ix);
-        let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
+        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeAt");
         return(ans)
 
     pub def getLocalDateTimeNamed(label: String, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
         let* input = getStringNamed(label);
-        let* ans = liftResult(Time/LocalDateTime.parse(input, formatter));
+        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeNamed");
         return(ans)
 
     pub def getLocalTimeAt(ix: Int32, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
         let* input = getStringAt(ix);
-        let* ans = liftResult(Time/LocalTime.parse(input, formatter));
+        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeAt");
         return(ans)
 
     pub def getLocalTimeNamed(label: String, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
         let* input = getStringNamed(label);
-        let* ans = liftResult(Time/LocalTime.parse(input, formatter));
+        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeNamed");
         return(ans)
 
     ///
