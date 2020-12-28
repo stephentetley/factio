@@ -15,7 +15,6 @@
  */
 
 use Data/Transient.DList;
-use System.Error.{IOException, Generic};
 use Text.Charset.{Charset};
 
 
@@ -32,7 +31,7 @@ use FactIO.CsvRowSetter.{CsvRowSetter};
 namespace FactIO {
 
 
-    pub opaque type CsvExport[a] = (Map[String, Int32], FactIO/Internal/Csv.Output) ~> Result[a, System.Error]
+    pub opaque type CsvExport[a] = (Map[String, Int32], FactIO/Internal/Csv.Output) ~> Result[a, String]
 
     /// CsvWriteList is a workaround because fixpoint fold is our only way of
     /// extracting data from a relation and the step function of fixpoint fold
@@ -47,7 +46,7 @@ namespace FactIO/CsvExport {
     def makeColumnIndices(headers: Array[String]): Map[String, Int32] & Impure =
         Array.foldLeft((ac, s) -> {let (m,i) = ac; (Map.insert(s, i, m), i+1)}, (Map.empty(), 0), headers) |> fst
 
-    pub def runCsvExport(mx: CsvExport[a], path: System.FilePath, format: CsvFormat, headings: Array[String], cs: Text.Charset): Result[a, System.Error] & Impure =
+    pub def runCsvExport(mx: CsvExport[a], path: System.FilePath, format: CsvFormat, headings: Array[String], cs: Text.Charset): Result[a, String] & Impure =
         use Result.flatMap;
         use System/FilePath.{normalize, toString};
         use FactIO/Internal/Csv/Output.{new => newOutput, close};
@@ -63,10 +62,10 @@ namespace FactIO/CsvExport {
     pub def return(x: a): CsvExport[a] =
         CsvExport((_,_) -> Ok(x) as & Impure)
 
-    pub def fail(e: System.Error): CsvExport[a] =
+    pub def fail(e: String): CsvExport[a] =
        CsvExport((_,_) -> Err(e) as & Impure)
 
-    def apply1(x: CsvExport[a], headers: Map[String, Int], r: FactIO/Internal/Csv.Output): Result[a, System.Error] & Impure =
+    def apply1(x: CsvExport[a], headers: Map[String, Int], r: FactIO/Internal/Csv.Output): Result[a, String] & Impure =
         let CsvExport(f) = x;
         f(headers, r)
 
@@ -110,7 +109,7 @@ namespace FactIO/CsvExport {
             mapMHelper(headers, r, mf, xs, e -> Err(e), ys -> Ok(ys))
         )
 
-    def mapMHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, mf: a -> CsvExport[b], xs: List[a], fk: System.Error -> Result[List[b], System.Error], sk: List[b] -> Result[List[b], System.Error]): Result[List[b], System.Error] & Impure =
+    def mapMHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, mf: a -> CsvExport[b], xs: List[a], fk: String -> Result[List[b], String], sk: List[b] -> Result[List[b], String]): Result[List[b], String] & Impure =
         match xs {
             case Nil => sk(Nil)
             case x :: rs => {
@@ -127,7 +126,7 @@ namespace FactIO/CsvExport {
             mapXHelper(headers, r, mf, xs, e -> Err(e), _ -> Ok())
         )
 
-    def mapXHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, mf: a -> CsvExport[b], xs: List[a], fk: System.Error -> Result[Unit, System.Error], sk: Unit -> Result[Unit, System.Error]): Result[Unit, System.Error] & Impure =
+    def mapXHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, mf: a -> CsvExport[b], xs: List[a], fk: String -> Result[Unit, String], sk: Unit -> Result[Unit, String]): Result[Unit, String] & Impure =
         match xs {
             case Nil => sk()
             case x :: rs => {
@@ -147,7 +146,7 @@ namespace FactIO/CsvExport {
     ///
     /// Helper function for `sequence`.
     ///
-    def sequenceHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, xs: List[CsvExport[a]], fk: System.Error -> Result[List[a], System.Error], sk: List[a] -> Result[List[a], System.Error]): Result[List[a], System.Error] & Impure =
+    def sequenceHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, xs: List[CsvExport[a]], fk: String -> Result[List[a], String], sk: List[a] -> Result[List[a], String]): Result[List[a], String] & Impure =
         match xs {
             case Nil => sk(Nil)
             case mx :: rs => match apply1(mx, headers, r) {
@@ -159,7 +158,7 @@ namespace FactIO/CsvExport {
     pub def liftAction(fn: Unit ~> a): CsvExport[a] =
         CsvExport((_,_) -> { let a = fn(); Ok(a) })
 
-    pub def liftActionResult(fn: Unit ~> Result[a, System.Error]): CsvExport[a] =
+    pub def liftActionResult(fn: Unit ~> Result[a, String]): CsvExport[a] =
         CsvExport((_,_) -> fn())
 
     pub def emptyCsvWriteList(): CsvWriteList =
@@ -268,7 +267,7 @@ namespace FactIO/CsvExport {
             foldMHelper(hdrs, r, mf, start, xs, e -> Err(e), ac -> Ok(ac))
         )
 
-    def foldMHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, mf: (b, a) -> CsvExport[b], acc: b, xs: List[a], fk: System.Error -> Result[b, System.Error], sk: b -> Result[b, System.Error]): Result[b, System.Error] & Impure =
+    def foldMHelper(headers: Map[String, Int32], r: FactIO/Internal/Csv.Output, mf: (b, a) -> CsvExport[b], acc: b, xs: List[a], fk: String -> Result[b, String], sk: b -> Result[b, String]): Result[b, String] & Impure =
         match xs {
             case Nil => sk(acc)
             case x :: rs => {
@@ -290,8 +289,8 @@ namespace FactIO/CsvExport {
                         mf: (ac, a) -> CsvExport[(ac, b)],
                         ac: ac,
                         xs: List[a],
-                        fk: System.Error -> Result[(ac, List[b]), System.Error],
-                        sk: (ac, List[b]) -> Result[(ac, List[b]), System.Error]): Result[(ac, List[b]), System.Error] & Impure =
+                        fk: String -> Result[(ac, List[b]), String],
+                        sk: (ac, List[b]) -> Result[(ac, List[b]), String]): Result[(ac, List[b]), String] & Impure =
         match xs {
             case Nil => sk(ac, Nil)
             case x :: rs => {

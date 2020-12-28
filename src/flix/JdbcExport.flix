@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-use Data/Transient.DList;
-use System.Error.{IOException, Generic};
-use Text.Charset.{Charset};
-
-use FactIO.JdbcExport;
-use FactIO.JdbcExport.{JdbcExport};
-use FactIO.JdbcWriteList;
-use FactIO.JdbcWriteList.{JdbcWriteList};
-
-use FactIO.JdbcRowSetter;
-use FactIO.JdbcRowSetter.{JdbcRowSetter};
 
 
 
 namespace FactIO {
 
-    pub opaque type JdbcExport[a] = FactIO/Internal/Jdbc.Output ~> Result[a, System.Error]
+    use Data/Transient.DList;
+    
+    pub opaque type JdbcExport[a] = FactIO/Internal/Jdbc.Output ~> Result[a, String]
 
     ///
     /// CsvWriteList is a workaround because fixpoint fold is our only way of
@@ -44,20 +35,32 @@ namespace FactIO {
 
 namespace FactIO/JdbcExport {
 
+
+    use Data/Transient.DList;
+    use Text.Charset.{Charset};
+
+    use FactIO.JdbcExport;
+    use FactIO.JdbcExport.{JdbcExport};
+    use FactIO.JdbcWriteList;
+    use FactIO.JdbcWriteList.{JdbcWriteList};
+
+    use FactIO.JdbcRowSetter;
+    use FactIO.JdbcRowSetter.{JdbcRowSetter};
+
     type alias PreparedStatement = FactIO/Internal/Jdbc.PreparedStatement
 
-    pub def runJdbcExport(ma: JdbcExport[a], url: String): Result[a, System.Error] & Impure =
+    pub def runJdbcExport(ma: JdbcExport[a], url: String): Result[a, String] & Impure =
         use Result.flatMap;
         use FactIO/Internal/Jdbc/Output.{new => newOutput};
         let* store = newOutput(url);
         apply1(ma, store)
 
-    pub def runSQLiteExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, System.Error] & Impure =
+    pub def runSQLiteExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, String] & Impure =
         use System/FilePath.{normalize, toString};
         let url = "jdbc:sqlite:" + dbpath.normalize().toString();
         runJdbcExport(ma, url)
 
-    pub def runDuckDBExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, System.Error] & Impure =
+    pub def runDuckDBExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, String] & Impure =
         use System/FilePath.{normalize, toString};
         let url = "jdbc:duckdb:" +dbpath.normalize().toString();
         runJdbcExport(ma, url)
@@ -65,11 +68,11 @@ namespace FactIO/JdbcExport {
     pub def return(x: a): JdbcExport[a] =
         JdbcExport(_ -> Ok(x) as & Impure)
 
-    def apply1(x: JdbcExport[a], r: FactIO/Internal/Jdbc.Output): Result[a, System.Error] & Impure =
+    def apply1(x: JdbcExport[a], r: FactIO/Internal/Jdbc.Output): Result[a, String] & Impure =
         let JdbcExport(f) = x;
         f(r)
 
-    pub def fail(e: System.Error): JdbcExport[a] =
+    pub def fail(e: String): JdbcExport[a] =
         JdbcExport(_ -> Err(e) as & Impure)
 
     pub def map(f: a -> b & ef, x: JdbcExport[a]): JdbcExport[b] =
@@ -116,7 +119,7 @@ namespace FactIO/JdbcExport {
     ///
     /// Helper function for `mapM`.
     ///
-    def mapMHelper(r: FactIO/Internal/Jdbc.Output, mf: a -> JdbcExport[b], xs: List[a], fk: System.Error -> Result[List[b], System.Error], sk: List[b] -> Result[List[b], System.Error]): Result[List[b], System.Error] & Impure =
+    def mapMHelper(r: FactIO/Internal/Jdbc.Output, mf: a -> JdbcExport[b], xs: List[a], fk: String -> Result[List[b], String], sk: List[b] -> Result[List[b], String]): Result[List[b], String] & Impure =
         match xs {
             case Nil => sk(Nil)
             case x :: rs => {
@@ -133,7 +136,7 @@ namespace FactIO/JdbcExport {
             mapXHelper(r, mf, xs, e -> Err(e), _ -> Ok())
         )
 
-    def mapXHelper(r: FactIO/Internal/Jdbc.Output, mf: a -> JdbcExport[b], xs: List[a], fk: System.Error -> Result[Unit, System.Error], sk: Unit -> Result[Unit, System.Error]): Result[Unit, System.Error] & Impure =
+    def mapXHelper(r: FactIO/Internal/Jdbc.Output, mf: a -> JdbcExport[b], xs: List[a], fk: String -> Result[Unit, String], sk: Unit -> Result[Unit, String]): Result[Unit, String] & Impure =
         match xs {
             case Nil => sk()
             case x :: rs => {
@@ -154,7 +157,7 @@ namespace FactIO/JdbcExport {
     ///
     /// Helper function for `sequence`.
     ///
-    def sequenceHelper(r: FactIO/Internal/Jdbc.Output, xs: List[JdbcExport[a]], fk: System.Error -> Result[List[a], System.Error], sk: List[a] -> Result[List[a], System.Error]): Result[List[a], System.Error] & Impure =
+    def sequenceHelper(r: FactIO/Internal/Jdbc.Output, xs: List[JdbcExport[a]], fk: String -> Result[List[a], String], sk: List[a] -> Result[List[a], String]): Result[List[a], String] & Impure =
         match xs {
             case Nil => sk(Nil)
             case mx :: rs => match apply1(mx, r) {
@@ -193,7 +196,7 @@ namespace FactIO/JdbcExport {
             foldMHelper(r, mf, start, xs, e -> Err(e), ac -> Ok(ac))
         )
 
-    def foldMHelper(r: FactIO/Internal/Jdbc.Output, mf: (b, a) -> JdbcExport[b], acc: b, xs: List[a], fk: System.Error -> Result[b, System.Error], sk: b -> Result[b, System.Error]): Result[b, System.Error] & Impure =
+    def foldMHelper(r: FactIO/Internal/Jdbc.Output, mf: (b, a) -> JdbcExport[b], acc: b, xs: List[a], fk: String -> Result[b, String], sk: b -> Result[b, String]): Result[b, String] & Impure =
         match xs {
             case Nil => sk(acc)
             case x :: rs => {
@@ -215,8 +218,8 @@ namespace FactIO/JdbcExport {
                         mf: (ac, a) -> JdbcExport[(ac, b)],
                         ac: ac,
                         xs: List[a],
-                        fk: System.Error -> Result[(ac, List[b]), System.Error],
-                        sk: (ac, List[b]) -> Result[(ac, List[b]), System.Error]): Result[(ac, List[b]), System.Error] & Impure =
+                        fk: String -> Result[(ac, List[b]), String],
+                        sk: (ac, List[b]) -> Result[(ac, List[b]), String]): Result[(ac, List[b]), String] & Impure =
         match xs {
             case Nil => sk(ac, Nil)
             case x :: rs => {
@@ -236,11 +239,11 @@ namespace FactIO/JdbcExport {
     pub def liftAction(fn: Unit ~> a): JdbcExport[a] =
         JdbcExport(_ -> { let a = fn(); Ok(a) })
 
-    pub def liftActionResult(fn: Unit ~> Result[a, System.Error]): JdbcExport[a] =
+    pub def liftActionResult(fn: Unit ~> Result[a, String]): JdbcExport[a] =
         JdbcExport(_ -> fn())
 
     /// Not exported.
-    def liftPrim(prim: FactIO/Internal/Jdbc.Output ~> Result[a, System.Error]): JdbcExport[a] =
+    def liftPrim(prim: FactIO/Internal/Jdbc.Output ~> Result[a, String]): JdbcExport[a] =
         JdbcExport(r -> prim(r))
 
     pub def close(): JdbcExport[Unit] =

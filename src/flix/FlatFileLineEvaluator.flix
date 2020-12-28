@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-use System.Error.{InputMismatchException, Generic};
-
-use FactIO.FlatFileLineEvaluator;
-use FactIO.FlatFileLineEvaluator.{FlatFileLineEvaluator};
 
 namespace FactIO {
 
-    pub opaque type FlatFileLineEvaluator[a] = String ~> Result[a, System.Error]
+    pub opaque type FlatFileLineEvaluator[a] = String ~> Result[a, String]
 }
 
 namespace FactIO/FlatFileLineEvaluator {
 
 
+    use FactIO.FlatFileLineEvaluator;
+    use FactIO.FlatFileLineEvaluator.{FlatFileLineEvaluator};
+
     pub def return(x: a): FlatFileLineEvaluator[a] =
         FlatFileLineEvaluator(_ -> Ok(x) as & Impure)
 
-    def apply1(x: FlatFileLineEvaluator[a], s: String): Result[a, System.Error] & Impure =
+    def apply1(x: FlatFileLineEvaluator[a], s: String): Result[a, String] & Impure =
         let FlatFileLineEvaluator(f) = x;
         f(s)
 
@@ -76,21 +75,21 @@ namespace FactIO/FlatFileLineEvaluator {
             }
         )
 
-    pub def liftResult(x: Result[a, System.Error]): FlatFileLineEvaluator[a] =
+    pub def liftResult(x: Result[a, String]): FlatFileLineEvaluator[a] =
         FlatFileLineEvaluator(_ -> x as & Impure)
 
-    pub def liftOperation(f: Unit ~> Result[a, System.Error]): FlatFileLineEvaluator[a] =
+    pub def liftOperation(f: Unit ~> Result[a, String]): FlatFileLineEvaluator[a] =
         FlatFileLineEvaluator(_ -> f())
 
-    pub def throwError(err: System.Error): FlatFileLineEvaluator[a] =
+    pub def throwError(err: String): FlatFileLineEvaluator[a] =
         FlatFileLineEvaluator(_ -> Err(err) as & Impure)
 
     pub def choice(xs: List[FlatFileLineEvaluator[a]]): FlatFileLineEvaluator[a] =
         FlatFileLineEvaluator(r -> choiceHelper(r, xs))
 
-    def choiceHelper(r: String, xs: List[FlatFileLineEvaluator[a]]): Result[a, System.Error] & Impure =
+    def choiceHelper(r: String, xs: List[FlatFileLineEvaluator[a]]): Result[a, String] & Impure =
         match xs {
-            case Nil => Err(InputMismatchException) as & Impure
+            case Nil => Err("choice") as & Impure
             case x1 :: rs => match apply1(x1, r) {
                 case Ok(a) => Ok(a)
                 case Err(_) => choiceHelper(r, rs)
@@ -106,24 +105,24 @@ namespace FactIO/FlatFileLineEvaluator {
         use Result.flatMap;
         use Text/Regex.{evalMatches};
         FlatFileLineEvaluator(s ->
-            let* ans = evalMatches(s, patt, eval);
+            let* ans = evalMatches(s, patt, eval) |> Result.mapErr(e -> System/Error.toString(e));
             Ok(ans)
         )
 
     pub def matchesRegex(regex: String, eval: Text/Regex.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
-        let* patt = liftResult(Text/Regex/Pattern.compile(regex));
+        let* patt = liftResult(Text/Regex/Pattern.compile(regex) |> Result.mapErr(e -> System/Error.toString(e)));
         matches(patt, eval)
 
     pub def find(patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
         use Result.flatMap;
         use Text/Regex.{evalContains};
         FlatFileLineEvaluator(s ->
-            let* ans = evalContains(s, patt, eval);
+            let* ans = evalContains(s, patt, eval) |> Result.mapErr(e -> System/Error.toString(e));
             Ok(ans)
         )
 
     pub def findRegex(regex: String, eval: Text/Regex.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
-        let* patt = liftResult(Text/Regex/Pattern.compile(regex));
+        let* patt = liftResult(Text/Regex/Pattern.compile(regex) |> Result.mapErr(e -> System/Error.toString(e)));
         find(patt, eval)
 
     pub def ifThen(cond: FlatFileLineEvaluator[Bool], eval: FlatFileLineEvaluator[a]): FlatFileLineEvaluator[Option[a]] =

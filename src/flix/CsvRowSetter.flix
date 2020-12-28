@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-use System.Error.{Generic};
-
-use FactIO.CsvRowSetter;
-use FactIO.CsvRowSetter.{CsvRowSetter};
-
-use FactIO/Internal/Csv.Output;
-use FactIO/Internal/Csv.Output.{Output};
 
 
 namespace FactIO {
 
-    pub opaque type CsvRowSetter[a] = (Map[String, Int32], Output) ~> Result[a, System.Error]
+    use FactIO/Internal/Csv.Output;
+
+    pub opaque type CsvRowSetter[a] = (Map[String, Int32], Output) ~> Result[a, String]
 
 }
 
 namespace FactIO/CsvRowSetter {
 
+    use FactIO.CsvRowSetter;
+    use FactIO.CsvRowSetter.{CsvRowSetter};
+
+    use FactIO/Internal/Csv.Output;
+    use FactIO/Internal/Csv.Output.{Output};
+
     pub def return(x: a): CsvRowSetter[a] =
         CsvRowSetter((_,_) -> Ok(x) as & Impure)
 
-    def apply1(x: CsvRowSetter[a], headers: Map[String, Int32], r: Output): Result[a, System.Error] & Impure =
+    def apply1(x: CsvRowSetter[a], headers: Map[String, Int32], r: Output): Result[a, String] & Impure =
         let CsvRowSetter(f) = x;
         f(headers, r)
 
@@ -81,7 +82,7 @@ namespace FactIO/CsvRowSetter {
         CsvRowSetter((hdrs, r) ->
             match Map.get(label, hdrs) {
                 case Some(ix) => setCell!(r, ix, value)
-                case None => Err(Generic("Unknown label:" + label))
+                case None => Err("Unknown label: '${label}'")
              }
         )
 

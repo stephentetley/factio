@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-use System.Error.{InputMismatchException, IOException, Generic};
-
-use FactIO.JdbcRowEvaluator;
-use FactIO.JdbcRowEvaluator.{JdbcRowEvaluator};
 
 namespace FactIO {
 
-    pub opaque type JdbcRowEvaluator[a] = ##flix.runtime.spt.factio.jdbc.JdbcRow ~> Result[a, System.Error]
+    pub opaque type JdbcRowEvaluator[a] = ##flix.runtime.spt.factio.jdbc.JdbcRow ~> Result[a, String]
 }
 
 
 namespace FactIO/JdbcRowEvaluator {
 
+    use FactIO.JdbcRowEvaluator;
+    use FactIO.JdbcRowEvaluator.{JdbcRowEvaluator};
+
     pub def return(x: a): JdbcRowEvaluator[a] =
         JdbcRowEvaluator(_ -> Ok(x) as & Impure)
 
-    def apply1(x: JdbcRowEvaluator[a], r: ##flix.runtime.spt.factio.jdbc.JdbcRow): Result[a, System.Error] & Impure =
+    def apply1(x: JdbcRowEvaluator[a], r: ##flix.runtime.spt.factio.jdbc.JdbcRow): Result[a, String] & Impure =
         let JdbcRowEvaluator(f) = x;
         f(r)
 
@@ -76,29 +75,29 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.jdbc.JdbcRow ~> Result[a, System.Error]): JdbcRowEvaluator[a] =
+    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.jdbc.JdbcRow ~> Result[a, String]): JdbcRowEvaluator[a] =
         JdbcRowEvaluator(r -> eval(r))
 
     pub def liftOption(x: Option[a], errMsg: String): JdbcRowEvaluator[a] = match x {
         case Some(a) => return(a)
-        case None => throwError(Generic(errMsg))
+        case None => throwError(errMsg)
     }
 
-    pub def liftResult(x: Result[a, System.Error]): JdbcRowEvaluator[a] =
+    pub def liftResult(x: Result[a, String]): JdbcRowEvaluator[a] =
         JdbcRowEvaluator(_ -> x as & Impure)
 
-    pub def liftOperation(fn: Unit ~> Result[a, System.Error]): JdbcRowEvaluator[a] =
+    pub def liftOperation(fn: Unit ~> Result[a, String]): JdbcRowEvaluator[a] =
         JdbcRowEvaluator(_ -> fn())
 
-    pub def throwError(err: System.Error): JdbcRowEvaluator[a] =
+    pub def throwError(err: String): JdbcRowEvaluator[a] =
         JdbcRowEvaluator(_ -> Err(err) as & Impure)
 
     pub def choice(xs: List[JdbcRowEvaluator[a]]): JdbcRowEvaluator[a] =
         JdbcRowEvaluator(r -> choiceHelper(r, xs))
 
-    def choiceHelper(r: ##flix.runtime.spt.factio.jdbc.JdbcRow, xs: List[JdbcRowEvaluator[a]]): Result[a, System.Error] & Impure =
+    def choiceHelper(r: ##flix.runtime.spt.factio.jdbc.JdbcRow, xs: List[JdbcRowEvaluator[a]]): Result[a, String] & Impure =
         match xs {
-            case Nil => Err(InputMismatchException) as & Impure
+            case Nil => Err("choice") as & Impure
             case x1 :: rs => match apply1(x1, r) {
                 case Ok(a) => Ok(a)
                 case Err(_) => choiceHelper(r, rs)
@@ -114,8 +113,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getStringAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getStringAt(${ix})")
             }
         ) 
 
@@ -126,8 +124,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getStringNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getStringNamed('${label}')")
             }
         )
 
@@ -138,8 +135,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getByteAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt8At(${ix})")
             }
         )
 
@@ -150,8 +146,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getByteNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt8Named('${label}')")
             }
         )
 
@@ -162,8 +157,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getShortAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt16At(${ix})")
             }
         )
 
@@ -174,8 +168,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getShortNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt16Named('${label}')")
             }
         )
 
@@ -186,8 +179,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getIntAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt32At(${ix})")
             }
         )
 
@@ -198,8 +190,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getIntNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt32Named('${label}')")
             }
         )
 
@@ -210,8 +201,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getLongAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt64At(${ix})")
             }
         )
 
@@ -222,8 +212,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getLongNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt64Named('${label}')")
             }
         )
 
@@ -234,8 +223,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getFloatAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getFloat32At(${ix})")
             }
         )
 
@@ -246,8 +234,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getFloatNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getFloat32Named('${label}')")
             }
         )
 
@@ -258,8 +245,7 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getDoubleAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getFloat64At(${ix})")
             }
         )
 
@@ -270,29 +256,28 @@ namespace FactIO/JdbcRowEvaluator {
                 let a = row.getDoubleNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.sql.SQLException => Err(Generic("SQLException"))
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getFloat64Named('${label}')")
             }
         )
 
     pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
         let* input = getStringAt(ix);
-        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval) |> Result.mapErr(e -> System/Error.toString(e)));
         return(ans)
 
     pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
         let* input = getStringNamed(label);
-        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval) |> Result.mapErr(e -> System/Error.toString(e)));
         return(ans)
 
     pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
         let* input = getStringAt(ix);
-        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval) |> Result.mapErr(e -> System/Error.toString(e)));
         return(ans)
 
     pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
         let* input = getStringNamed(label);
-        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval) |> Result.mapErr(e -> System/Error.toString(e)));
         return(ans)
 
     pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): JdbcRowEvaluator[Time.LocalDate] =

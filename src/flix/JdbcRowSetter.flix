@@ -14,27 +14,29 @@
  * limitations under the License.
  */
 
-use System.Error.{Generic};
 
-use FactIO.JdbcRowSetter;
-use FactIO.JdbcRowSetter.{JdbcRowSetter};
-
-use FactIO/Internal/Jdbc.PreparedStatement;
-use FactIO/Internal/Jdbc.PreparedStatement.{PreparedStatement};
 
 
 namespace FactIO {
+    
+    use FactIO/Internal/Jdbc.PreparedStatement;
 
-    pub opaque type JdbcRowSetter[a] = PreparedStatement ~> Result[a, System.Error]
+    pub opaque type JdbcRowSetter[a] = PreparedStatement ~> Result[a, String]
 
 }
 
 namespace FactIO/JdbcRowSetter {
 
+    use FactIO.JdbcRowSetter;
+    use FactIO.JdbcRowSetter.{JdbcRowSetter};
+
+    use FactIO/Internal/Jdbc.PreparedStatement;
+    use FactIO/Internal/Jdbc.PreparedStatement.{PreparedStatement};
+
     pub def return(x: a): JdbcRowSetter[a] =
         JdbcRowSetter(_ -> Ok(x) as & Impure)
 
-    def apply1(x: JdbcRowSetter[a], r: PreparedStatement): Result[a, System.Error] & Impure =
+    def apply1(x: JdbcRowSetter[a], r: PreparedStatement): Result[a, String] & Impure =
         let JdbcRowSetter(f) = x;
         f(r)
 
@@ -72,7 +74,7 @@ namespace FactIO/JdbcRowSetter {
 
     pub def flatMap(k: a -> JdbcRowSetter[b], x: JdbcRowSetter[a]): JdbcRowSetter[b] = bind(x, k)
 
-    def liftPrim(update: PreparedStatement ~> Result[a, System.Error]): JdbcRowSetter[a] =
+    def liftPrim(update: PreparedStatement ~> Result[a, String]): JdbcRowSetter[a] =
         JdbcRowSetter(r -> update(r))
 
     // Note - the primitive setX! functions index from 1, we add 1 to calls

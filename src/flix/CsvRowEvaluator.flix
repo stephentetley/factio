@@ -14,32 +14,26 @@
  * limitations under the License.
  */
 
-use System.Error.{ArrayIndexOutOfBoundsException,
-        IllegalArgumentException,
-        IllegalStateException,
-        InputMismatchException,
-        IOException,
-        Generic};
-
-use Text.Charset.{Charset};
-
-use FactIO.CsvFormat;
-use FactIO.CsvRowEvaluator;
-use FactIO.CsvRowEvaluator.{CsvRowEvaluator};
 
 namespace FactIO {
 
-    pub opaque type CsvRowEvaluator[a] = ##flix.runtime.spt.factio.csv.CsvRow ~> Result[a, System.Error]
+    pub opaque type CsvRowEvaluator[a] = ##flix.runtime.spt.factio.csv.CsvRow ~> Result[a, String]
 }
 
 
 namespace FactIO/CsvRowEvaluator {
 
 
+    use Text.Charset.{Charset};
+
+    use FactIO.CsvFormat;
+    use FactIO.CsvRowEvaluator;
+    use FactIO.CsvRowEvaluator.{CsvRowEvaluator};
+
     pub def return(x: a): CsvRowEvaluator[a] = 
         CsvRowEvaluator(_ -> Ok(x) as & Impure)
 
-    def apply1(x: CsvRowEvaluator[a], r: ##flix.runtime.spt.factio.csv.CsvRow): Result[a, System.Error] & Impure =
+    def apply1(x: CsvRowEvaluator[a], r: ##flix.runtime.spt.factio.csv.CsvRow): Result[a, String] & Impure =
         let CsvRowEvaluator(f) = x;
         f(r)
 
@@ -86,29 +80,29 @@ namespace FactIO/CsvRowEvaluator {
         )
 
 
-    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.csv.CsvRow ~> Result[a, System.Error]): CsvRowEvaluator[a] =
+    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.csv.CsvRow ~> Result[a, String]): CsvRowEvaluator[a] =
         CsvRowEvaluator(r -> eval(r))
 
     pub def liftOption(x: Option[a], errMsg: String): CsvRowEvaluator[a] = match x {
         case Some(a) => return(a)
-        case None => throwError(Generic(errMsg))
+        case None => throwError(errMsg)
     }
 
-    pub def liftResult(x: Result[a, System.Error]): CsvRowEvaluator[a] = 
+    pub def liftResult(x: Result[a, String]): CsvRowEvaluator[a] = 
         CsvRowEvaluator(_ -> x as & Impure)
 
-    pub def liftOperation(fn: Unit ~> Result[a, System.Error]): CsvRowEvaluator[a] =
+    pub def liftOperation(fn: Unit ~> Result[a, String]): CsvRowEvaluator[a] =
         CsvRowEvaluator(_ -> fn())
 
-    pub def throwError(err: System.Error): CsvRowEvaluator[a] =
+    pub def throwError(err: String): CsvRowEvaluator[a] =
         CsvRowEvaluator(_ -> Err(err) as & Impure)
 
     pub def choice(xs: List[CsvRowEvaluator[a]]): CsvRowEvaluator[a] =
         CsvRowEvaluator(r -> choiceHelper(r, xs))
 
-    def choiceHelper(r: ##flix.runtime.spt.factio.csv.CsvRow, xs: List[CsvRowEvaluator[a]]): Result[a, System.Error] & Impure =
+    def choiceHelper(r: ##flix.runtime.spt.factio.csv.CsvRow, xs: List[CsvRowEvaluator[a]]): Result[a, String] & Impure =
         match xs {
-            case Nil => Err(InputMismatchException) as & Impure
+            case Nil => Err("choice") as & Impure
             case x1 :: rs => match apply1(x1, r) {
                 case Ok(a) => Ok(a)
                 case Err(_) => choiceHelper(r, rs)
@@ -124,8 +118,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getStringAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getStringAt('${ix}')")
             }
         )
 
@@ -139,8 +132,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getStringNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
-                case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
+                case _: ##java.lang.Exception => Err("getStringNamed('${label}')")
             }
         )
 
@@ -151,8 +143,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getByteAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt8At(${ix})")
             }
         )
 
@@ -163,8 +154,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getByteNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
-                case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
+                case _: ##java.lang.Exception => Err("getInt8Named('${label}')")
             }
         )
 
@@ -175,8 +165,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getShortAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt16At(${ix})")
             }
         )
 
@@ -187,8 +176,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getShortNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
-                case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
+                case _: ##java.lang.Exception => Err("getInt16Named('${label}')")
             }
         )
 
@@ -199,8 +187,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getIntAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt32At(${ix})")
             }
         )
 
@@ -211,8 +198,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getIntNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
-                case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
+                case _: ##java.lang.Exception => Err("getInt32Named('${label}')")
             }
         )
 
@@ -223,8 +209,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getLongAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getInt64At(${ix})")
             }
         )
 
@@ -235,8 +220,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getLongNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
-                case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
+                case _: ##java.lang.Exception => Err("getInt64Named('${label}')")
             }
         )
 
@@ -247,8 +231,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getFloatAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getFloat32At(${ix})")
             }
         )
 
@@ -259,8 +242,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getFloatNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
-                case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
+                case _: ##java.lang.Exception => Err("getFloat32Named('${label}')")
             }
         )
 
@@ -271,8 +253,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getDoubleAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getFloat64At(${ix})")
             }
         )
 
@@ -283,8 +264,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getDoubleNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
-                case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
+                case _: ##java.lang.Exception => Err("getFloat64Named('${label}')")
             }
         )
 
@@ -295,8 +275,7 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getBigIntegerAt(ix);
                 Ok(a)
             } catch {
-                case _: ##java.lang.ArrayIndexOutOfBoundsException => Err(ArrayIndexOutOfBoundsException)
-                case _: ##java.lang.Exception => Err(Generic("Exception"))
+                case _: ##java.lang.Exception => Err("getBigIntAt(${ix})")
             }
         )
 
@@ -307,59 +286,58 @@ namespace FactIO/CsvRowEvaluator {
                 let a = row.getBigIntegerNamed(label);
                 Ok(a)
             } catch {
-                case _: ##java.lang.IllegalStateException => Err(IllegalStateException)
-                case _: ##java.lang.IllegalArgumentException => Err(IllegalArgumentException)
+                case _: ##java.lang.Exception => Err("getBigIntNamed('${label}')")
             }
         )
 
     pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
         let* input = getStringAt(ix);
-        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval) |> Result.mapErr(e -> System/Error.toString(e)));
         return(ans)
 
     pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
         let* input = getStringNamed(label);
-        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalMatches(input, patt, eval) |> Result.mapErr(e -> System/Error.toString(e)));
         return(ans)
 
     pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
         let* input = getStringAt(ix);
-        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval) |> Result.mapErr(e -> System/Error.toString(e)));
         return(ans)
 
     pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
         let* input = getStringNamed(label);
-        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval));
+        let* ans = liftOperation(_ -> Text/Regex.evalContains(input, patt, eval) |> Result.mapErr(e -> System/Error.toString(e)));
         return(ans)
 
     pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
         let* input = getStringAt(ix);
-        let* ans = liftResult(Option.toOk(Time/LocalDate.parse(input, formatter), Generic("LocalDateParseException")));
+        let* ans = liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateAt(${ix})");
         return(ans)
 
     pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
         let* input = getStringNamed(label);
-        let* ans = liftResult(Option.toOk(Time/LocalDate.parse(input, formatter), Generic("LocalDateParseException")));
+        let* ans = liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateNamed('${label}')");
         return(ans)
 
     pub def getLocalDateTimeAt(ix: Int32, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
         let* input = getStringAt(ix);
-        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeAt");
+        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeAt(${ix})");
         return(ans)
 
     pub def getLocalDateTimeNamed(label: String, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
         let* input = getStringNamed(label);
-        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeNamed");
+        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeNamed('${label}')");
         return(ans)
 
     pub def getLocalTimeAt(ix: Int32, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
         let* input = getStringAt(ix);
-        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeAt");
+        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeAt(${ix})");
         return(ans)
 
     pub def getLocalTimeNamed(label: String, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
         let* input = getStringNamed(label);
-        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeNamed");
+        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeNamed('${label}')");
         return(ans)
 
     ///

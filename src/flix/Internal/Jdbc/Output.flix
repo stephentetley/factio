@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-use System.Error.{Generic};
-
-use FactIO/Internal/Jdbc.Output;
-use FactIO/Internal/Jdbc.Output.{Output};
-use FactIO/Internal/Jdbc.PreparedStatement;
-use FactIO/Internal/Jdbc.PreparedStatement.{PreparedStatement};
 
 namespace FactIO/Internal/Jdbc {
 
@@ -28,89 +22,94 @@ namespace FactIO/Internal/Jdbc {
 
 namespace FactIO/Internal/Jdbc/Output {
 
+    use FactIO/Internal/Jdbc.Output;
+    use FactIO/Internal/Jdbc.Output.{Output};
+    use FactIO/Internal/Jdbc.PreparedStatement;
+    use FactIO/Internal/Jdbc.PreparedStatement.{PreparedStatement};
+
     ///
     /// Returns a new Output handle.
     ///
-    pub def new(url: String): Result[Output, System.Error] & Impure =
+    pub def new(url: String): Result[Output, String] & Impure =
         import new flix.runtime.spt.factio.jdbc.JdbcOutput(String) as newOutput;
         try {
             let ans = Output(newOutput(url));
             Ok(ans)
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("Output.new"))
+            case _: ##java.lang.Exception => Err("new")
         }
 
     ///
     /// Close the internal connection to the DB.
     ///
-    pub def close(x: Output): Result[Unit, System.Error] & Impure =
+    pub def close(x: Output): Result[Unit, String] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.close();
         try {
             let Output(x1) = x;
             x1.close();
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("Output.close"))
+            case _: ##java.lang.Exception => Err("close")
         }
 
-    pub def setAutoCommit(x: Output, autoCommit: Bool): Result[Unit, System.Error] & Impure =
+    pub def setAutoCommit(x: Output, autoCommit: Bool): Result[Unit, String] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.setAutoCommit(Bool);
         try {
             let Output(x1) = x;
             x1.setAutoCommit(autoCommit);
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("Output.setAutoCommit"))
+            case _: ##java.lang.Exception => Err("setAutoCommit(${autoCommit})")
         }
 
-    pub def getAutoCommit(x: Output): Result[Bool, System.Error] & Impure =
+    pub def getAutoCommit(x: Output): Result[Bool, String] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.getAutoCommit();
         try {
             let Output(x1) = x;
             let ans = x1.getAutoCommit();
             Ok(ans)
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("Output.getAutoCommit"))
+            case _: ##java.lang.Exception => Err("getAutoCommit")
         }
 
-    pub def commit(x: Output): Result[Unit, System.Error] & Impure =
+    pub def commit(x: Output): Result[Unit, String] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.commit();
         try {
             let Output(x1) = x;
             x1.commit();
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("Output.commit"))
+            case _: ##java.lang.Exception => Err("commit")
         }
 
-    pub def rollback(x: Output): Result[Unit, System.Error] & Impure =
+    pub def rollback(x: Output): Result[Unit, String] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.rollback();
         try {
             let Output(x1) = x;
             x1.rollback();
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("Output.rollback"))
+            case _: ##java.lang.Exception => Err("rollback")
         }
 
-    pub def prepareStatement(x: Output, sql: String): Result[PreparedStatement, System.Error] & Impure =
+    pub def prepareStatement(x: Output, sql: String): Result[PreparedStatement, String] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.prepareStatement(String);
         try {
             let Output(x1) = x;
             let ans = x1.prepareStatement(sql);
             Ok(PreparedStatement(ans))
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("Output.prepareStatement"))
+            case _: ##java.lang.Exception => Err("prepareStatement('${sql}')")
         }
 
-    pub def execute(x: Output, sql: String): Result[Bool, System.Error] & Impure =
+    pub def execute(x: Output, sql: String): Result[Bool, String] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.execute(String);
         try {
             let Output(x1) = x;
             let ans = x1.execute(sql);
             Ok(ans)
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("Output.execute"))
+            case _: ##java.lang.Exception => Err("execute('${sql}')")
         }
 
 }

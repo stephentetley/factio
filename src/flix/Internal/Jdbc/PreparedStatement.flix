@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-use System.Error.{Generic};
 
-use FactIO/Internal/Jdbc.PreparedStatement;
-use FactIO/Internal/Jdbc.PreparedStatement.{PreparedStatement};
 
 namespace FactIO/Internal/Jdbc {
 
@@ -26,119 +23,122 @@ namespace FactIO/Internal/Jdbc {
 
 namespace FactIO/Internal/Jdbc/PreparedStatement {
 
+    use FactIO/Internal/Jdbc.PreparedStatement;
+    use FactIO/Internal/Jdbc.PreparedStatement.{PreparedStatement};
+
     pub def sql_type_null(): Int32 =
         import get java.sql.Types:NULL as get_NULL;
         get_NULL() as & Pure
 
-    pub def clearParameters!(x: PreparedStatement): Result[Unit, System.Error] & Impure =
+    pub def clearParameters!(x: PreparedStatement): Result[Unit, String] & Impure =
         import java.sql.PreparedStatement.clearParameters();
         try {
             let PreparedStatement(x1) = x;
             x1.clearParameters();
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException.clearParameters"))
+            case _: ##java.lang.Exception => Err("clearParameters")
         }
 
-    pub def setNull!(x: PreparedStatement, ix: Int32, sqlType: Int32): Result[Unit, System.Error] & Impure =
+    pub def setNull!(x: PreparedStatement, ix: Int32, sqlType: Int32): Result[Unit, String] & Impure =
         import java.sql.PreparedStatement.setNull(Int32, Int32);
         try {
             let PreparedStatement(x1) = x;
             x1.setNull(ix, sqlType);
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
+            case _: ##java.lang.Exception => Err("setNull!(${ix})")
         }
 
-    pub def setString!(x: PreparedStatement, ix: Int32, str: String): Result[Unit, System.Error] & Impure =
+    pub def setString!(x: PreparedStatement, ix: Int32, str: String): Result[Unit, String] & Impure =
         import java.sql.PreparedStatement.setString(Int32, String);
         try {
             let PreparedStatement(x1) = x;
             x1.setString(ix, str);
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
+            case _: ##java.lang.Exception => Err("setString!(${ix})")
         }
 
-    pub def setBool!(x: PreparedStatement, ix: Int32, b: Bool): Result[Unit, System.Error] & Impure =
+    pub def setBool!(x: PreparedStatement, ix: Int32, b: Bool): Result[Unit, String] & Impure =
         import java.sql.PreparedStatement.setBoolean(Int32, Bool);
         try {
             let PreparedStatement(x1) = x;
             x1.setBoolean(ix, b);
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
+            case _: ##java.lang.Exception => Err("setBool!(${ix})")
         }
 
-    pub def setInt8!(x: PreparedStatement, ix: Int32, n: Int8): Result[Unit, System.Error] & Impure =
+    pub def setInt8!(x: PreparedStatement, ix: Int32, n: Int8): Result[Unit, String] & Impure =
         import java.sql.PreparedStatement.setByte(Int32, Int8);
         try {
             let PreparedStatement(x1) = x;
             x1.setByte(ix, n);
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
+            case _: ##java.lang.Exception => Err("setInt8!(${ix})")
         }
 
-    pub def setInt16!(x: PreparedStatement, ix: Int32, n: Int16): Result[Unit, System.Error] & Impure =
+    pub def setInt16!(x: PreparedStatement, ix: Int32, n: Int16): Result[Unit, String] & Impure =
         import java.sql.PreparedStatement.setShort(Int32, Int16);
         try {
             let PreparedStatement(x1) = x;
             x1.setShort(ix, n);
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
+            case _: ##java.lang.Exception => Err("setInt16!(${ix})")
         }
 
-    pub def setInt32!(x: PreparedStatement, ix: Int32, n: Int32): Result[Unit, System.Error] & Impure =
+    pub def setInt32!(x: PreparedStatement, ix: Int32, n: Int32): Result[Unit, String] & Impure =
         import java.sql.PreparedStatement.setInt(Int32, Int32);
         try {
             let PreparedStatement(x1) = x;
             x1.setInt(ix, n);
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
+            case _: ##java.lang.Exception => Err("setInt32!(${ix})")
         }
 
-    pub def setInt64!(x: PreparedStatement, ix: Int32, n: Int64): Result[Unit, System.Error] & Impure =
+    pub def setInt64!(x: PreparedStatement, ix: Int32, n: Int64): Result[Unit, String] & Impure =
         import java.sql.PreparedStatement.setLong(Int32, Int64);
         try {
             let PreparedStatement(x1) = x;
             x1.setLong(ix, n);
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
+            case _: ##java.lang.Exception => Err("setInt64!(${ix})")
         }
 
-    pub def setFloat32!(x: PreparedStatement, ix: Int32, d: Float32): Result[Unit, System.Error] & Impure =
+    pub def setFloat32!(x: PreparedStatement, ix: Int32, d: Float32): Result[Unit, String] & Impure =
         import java.sql.PreparedStatement.setFloat(Int32, Float32);
         try {
             let PreparedStatement(x1) = x;
             x1.setFloat(ix, d);
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
+            case _: ##java.lang.Exception => Err("setFloat32!(${ix})")
         }
 
-    pub def setFloat64!(x: PreparedStatement, ix: Int32, d: Float64): Result[Unit, System.Error] & Impure =
+    pub def setFloat64!(x: PreparedStatement, ix: Int32, d: Float64): Result[Unit, String] & Impure =
         import java.sql.PreparedStatement.setDouble(Int32, Float64);
         try {
             let PreparedStatement(x1) = x;
             x1.setDouble(ix, d);
             Ok()
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("SQLException"))
+            case _: ##java.lang.Exception => Err("setFloat64!(${ix})")
         }
 
 
-    pub def executeUpdate(x: PreparedStatement): Result[Int32, System.Error] & Impure =
+    pub def executeUpdate(x: PreparedStatement): Result[Int32, String] & Impure =
         import java.sql.PreparedStatement.executeUpdate();
         try {
             let PreparedStatement(x1) = x;
             let ans = x1.executeUpdate();
             Ok(ans)
         } catch {
-            case _: ##java.sql.SQLException => Err(Generic("PreparedStatement.executeUpdate"))
+            case _: ##java.lang.Exception => Err("executeUpdate")
         }
 
 
