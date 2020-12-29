@@ -75,6 +75,12 @@ namespace FactIO/FlatFileLineEvaluator {
             }
         )
 
+    pub def liftOption(x: Option[a], errMsg: String): FlatFileLineEvaluator[a] = match x {
+        case Some(x1) => return(x1)
+        case None => throwError(errMsg)
+    }
+
+
     pub def liftResult(x: Result[a, String]): FlatFileLineEvaluator[a] =
         FlatFileLineEvaluator(_ -> x as & Impure)
 
@@ -105,24 +111,24 @@ namespace FactIO/FlatFileLineEvaluator {
         use Result.flatMap;
         use Text/Regex.{evalMatches};
         FlatFileLineEvaluator(s ->
-            let* ans = evalMatches(s, patt, eval) |> Result.mapErr(e -> System/Error.toString(e));
+            let* ans = evalMatches(s, patt, eval);
             Ok(ans)
         )
 
     pub def matchesRegex(regex: String, eval: Text/Regex.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
-        let* patt = liftResult(Text/Regex/Pattern.compile(regex) |> Result.mapErr(e -> System/Error.toString(e)));
+        let* patt = liftOption(Text/Regex/Pattern.compile(regex), "matchesRegex('${regex}')");
         matches(patt, eval)
 
     pub def find(patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
         use Result.flatMap;
         use Text/Regex.{evalContains};
         FlatFileLineEvaluator(s ->
-            let* ans = evalContains(s, patt, eval) |> Result.mapErr(e -> System/Error.toString(e));
+            let* ans = evalContains(s, patt, eval);
             Ok(ans)
         )
 
     pub def findRegex(regex: String, eval: Text/Regex.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
-        let* patt = liftResult(Text/Regex/Pattern.compile(regex) |> Result.mapErr(e -> System/Error.toString(e)));
+        let* patt = liftOption(Text/Regex/Pattern.compile(regex), "findRegex('${regex}')");
         find(patt, eval)
 
     pub def ifThen(cond: FlatFileLineEvaluator[Bool], eval: FlatFileLineEvaluator[a]): FlatFileLineEvaluator[Option[a]] =
