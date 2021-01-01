@@ -24,6 +24,8 @@ use FactIO.CsvRowEvaluator.{CsvRowEvaluator};
 
 namespace FactIO/CsvImport {
 
+    use ToString.toString;
+
     ///
     /// Represents a CSV row.
     ///
@@ -42,7 +44,7 @@ namespace FactIO/CsvImport {
         try {
             let CsvFormat(fmt1) = format;
             let Charset(cs1) = cs;
-            let iter = newCsvIterator(System/FilePath.toString(filepath), fmt1, cs1);
+            let iter = newCsvIterator(toString(filepath), fmt1, cs1);
             let streamiter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = () -> ffiNext(iter)
@@ -67,7 +69,7 @@ namespace FactIO/CsvImport {
         try {
             let CsvFormat(fmt1) = format;
             let Charset(cs1) = cs;
-            let iter = newCsvIteratorWithBOM(System/FilePath.toString(filepath), fmt1, cs1);
+            let iter = newCsvIteratorWithBOM(toString(filepath), fmt1, cs1);
             let streamiter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = () -> ffiNext(iter)

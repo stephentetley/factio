@@ -17,6 +17,7 @@
 
 namespace FactIO/FlatFileImport {
 
+    use ToString.toString;
 
     use Data.Stream;
     use Text.Charset.{Charset};
@@ -35,7 +36,7 @@ namespace FactIO/FlatFileImport {
         import flix.runtime.spt.factio.flatfile.LinesIterator.close() as ffiClose;
         try {
             let Charset(cs1) = cs;
-            let iter = newLinesIterator(System/FilePath.toString(filepath), cs1);
+            let iter = newLinesIterator(toString(filepath), cs1);
             let streamiter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = () -> ffiNext(iter)

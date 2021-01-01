@@ -56,13 +56,13 @@ namespace FactIO/JdbcExport {
         apply1(ma, store)
 
     pub def runSQLiteExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, String] & Impure =
-        use System/FilePath.{normalize, toString};
-        let url = "jdbc:sqlite:" + dbpath.normalize().toString();
+        use System/FilePath.{normalize};
+        let url = "jdbc:sqlite:${normalize(dbpath)}";
         runJdbcExport(ma, url)
 
     pub def runDuckDBExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, String] & Impure =
-        use System/FilePath.{normalize, toString};
-        let url = "jdbc:duckdb:" +dbpath.normalize().toString();
+        use System/FilePath.{normalize};
+        let url = "jdbc:duckdb:${normalize(dbpath)}";
         runJdbcExport(ma, url)
 
     pub def return(x: a): JdbcExport[a] =

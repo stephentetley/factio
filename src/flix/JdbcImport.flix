@@ -52,8 +52,7 @@ namespace FactIO/JdbcImport {
     ///
     pub def newSQLiteStream(filepath: System.FilePath,
                             query: String): Result[Stream[JdbcRow], String] & Impure =
-        use System/FilePath.{toString};
-        let url = "jdbc:sqlite:" + filepath.toString();
+        let url = "jdbc:sqlite:${filepath}";
         newDbStream(url, query)
 
     ///
@@ -61,8 +60,7 @@ namespace FactIO/JdbcImport {
     ///
     pub def newDuckDBStream(filepath: System.FilePath,
                             query: String): Result[Stream[JdbcRow], String] & Impure =
-        use System/FilePath.{toString};
-        let url = "jdbc:duckdb:" + filepath.toString();
+        let url = "jdbc:duckdb:${filepath}";
         newDbStream(url, query)
 
     ///
