@@ -48,7 +48,7 @@ def writeOutput(): CsvExport[Unit] =
 
 
 
-def test01(): Result[Unit, System.Error] & Impure = 
+def test01(): Result[Unit, String] & Impure = 
     use Result.flatMap;
     use FactIO/CsvExport.{runCsvExport};
     let path = System/FilePath.new("e:/coding/flix/factio/data/output/dummy_export.csv");
@@ -57,6 +57,11 @@ def test01(): Result[Unit, System.Error] & Impure =
     Ok()
 
 
-def main(): Result[Unit, System.Error] & Impure = test01()
+def main(_args: Array[String]): Int32 & Impure = 
+    match test01() {
+        case Ok() => 0
+        case Err(msg) => {Console.printLine(msg); 1}
+    }
+
 
 

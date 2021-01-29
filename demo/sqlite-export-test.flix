@@ -41,12 +41,18 @@ def writeCells(src: (String, Int32)): JdbcRowSetter[Unit] =
     return()
 
 
-def main(): Result[Bool, System.Error] & Impure =
+def main(_args: Array[String]): Int32 & Impure =
     use Result.flatMap;
     use FactIO/JdbcExport.{runSQLiteExport};
-    let path = System/FilePath.new("e://coding/flix/factio/data/output/db1.sqlite");    
-    let* _ = System/File.deleteIfExists(path);
-    let* _ = runSQLiteExport(writeOutput(), path);
-    Ok(true)
+    let step = () -> {
+        let path = System/FilePath.new("e://coding/flix/factio/data/output/db1.sqlite");    
+        let* _ = System/File.deleteIfExists(path) |> Result.mapErr(e -> "${e}");
+        let* _ = runSQLiteExport(writeOutput(), path);
+        Ok(true)
+    };
+    match step() {
+        case Ok(_) => {Console.printLine("Ok"); 0}
+        case Err(msg) => {Console.printLine(msg); 1}
+    }
 
 // def main(): Int32 = fold Dbms 0 mkWriteStep() (solve databases())

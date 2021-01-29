@@ -4,10 +4,10 @@ use FactIO/JdbcImport.{JdbcRow, JdbcResult};
 use FactIO.JdbcRowEvaluator;
 use FactIO.FlatFileLineEvaluator;
 
-def runResult(r1: Result[#{| reln}, System.Error]): #{| reln} & Impure = match r1 {
+def runResult(r1: Result[#{| reln}, String]): #{| reln} & Impure = match r1 {
     case Ok(reln) => reln
-    case Err(e) => {
-        Console.printLine(System/Error.toString(e));
+    case Err(msg) => {
+        Console.printLine(msg);
         #{ }
     }
 }
@@ -64,5 +64,7 @@ pub def lines01(): #{ Direction } & Impure =
     step() |> runResult
     
 
-def main(): #{ Direction } & Impure =
-    lines01()
+def main(_args: Array[String]): Int32 & Impure =
+    let ans = lines01();
+    Console.printLine(unsafeToString(ans));
+    0

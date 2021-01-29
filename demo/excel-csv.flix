@@ -1,9 +1,9 @@
 use FactIO.CsvRowEvaluator;
 use FactIO/CsvFormat.{withFirstRecordAsHeader};
 
-def runResult(r: Result[#{| reln}, System.Error]): #{| reln} & Impure = match r {
+def runResult(r: Result[#{| reln}, String]): #{| reln} & Impure = match r {
     case Ok(reln) => reln
-    case Err(e) => { Console.printLine(System/Error.toString(e)); #{ }}
+    case Err(msg) => { Console.printLine(msg); #{ }}
 }
 
     
@@ -64,4 +64,7 @@ pub def test04(): #{Lang} & Impure =
     Console.printLine("Should run...");
     step() |> runResult
     
-def main(): #{Lang} & Impure = test04()
+def main(_args: Array[String]): Int32 & Impure = 
+    let ans = test04();
+    Console.printLine(unsafeToString(ans));
+    0

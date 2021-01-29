@@ -1,11 +1,8 @@
 use FactIO.FlatFileLineEvaluator;
 
-def runResult(r1: Result[#{| reln}, System.Error]): #{| reln} & Impure = match r1 {
+def runResult(r1: Result[#{| reln}, String]): #{| reln} & Impure = match r1 {
     case Ok(reln) => reln
-    case Err(e) => {
-        Console.printLine(System/Error.toString(e));
-        #{ }
-    }
+    case Err(msg) => {Console.printLine(msg); #{ } }
 }
 
 rel Colour(name: String)
@@ -30,6 +27,9 @@ pub def test01(): #{ Colour } & Impure =
     step() |> runResult
 
 
-def main(): #{ Colour } & Impure = test01()
+def main(_args: Array[String]): Int32 & Impure = 
+    let ans = test01();
+    Console.printLine(unsafeToString(ans));
+    0
 
 
