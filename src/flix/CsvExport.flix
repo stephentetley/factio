@@ -50,14 +50,13 @@ namespace FactIO/CsvExport {
 
     pub def runCsvExport(mx: CsvExport[a], path: System.FilePath, format: CsvFormat, headings: Array[String], cs: Text.Charset): Result[a, String] & Impure =
         use Result.flatMap;
-        /// use System/FilePath.{normalize};
         use FactIO/Internal/Csv/Output.{new => newOutput, close};
         let CsvFormat(fmt1) = format;
-        let cellcount = Array.length(headings);
-        let headers = makeColumnIndices(headings);
-        let* handle = newOutput(toString(path), fmt1, cellcount, cs);
-        let* ans = apply1(bind(writeLine(headings), _ -> mx), headers, handle);
-        let _ = handle.close();
+        let cellcount       = Array.length(headings);
+        let headers         = makeColumnIndices(headings);
+        let* handle         = Option.toOk(newOutput(toString(path), fmt1, cellcount, cs), "runCsvExport failed");
+        let* ans            = apply1(bind(writeLine(headings), _ -> mx), headers, handle);
+        let _               = handle.close();
         Ok(ans)
 
 
@@ -210,10 +209,10 @@ namespace FactIO/CsvExport {
         return()
 
     def clearCells!(): CsvExport[Unit] =
-        CsvExport((_, r) -> FactIO/Internal/Csv/Output.clearCells!(r))
+        CsvExport((_, r) -> Option.toOk(FactIO/Internal/Csv/Output.clearCells!(r), "clearCells!"))
 
     def primWriteRow(): CsvExport[Unit] =
-        CsvExport((_, r) -> FactIO/Internal/Csv/Output.writeRow(r))
+        CsvExport((_, r) -> Option.toOk(FactIO/Internal/Csv/Output.writeRow(r), "primWriteRow"))
 
     def execCsvRowSetter(mx: CsvRowSetter[a]): CsvExport[Unit] =
         CsvExport((hdrs, r) ->

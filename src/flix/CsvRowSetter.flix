@@ -75,13 +75,13 @@ namespace FactIO/CsvRowSetter {
 
     def primWriteCell(ix: Int32, value: String): CsvRowSetter[Unit] =
         use FactIO/Internal/Csv/Output.{setCell!};
-        CsvRowSetter((_, r) -> setCell!(r, ix, value))
+        CsvRowSetter((_, r) -> Option.toOk(setCell!(r, ix, value), "primWriteCell"))
 
     def primWriteNamedCell(label: String, value: String): CsvRowSetter[Unit] =
         use FactIO/Internal/Csv/Output.{setCell!};
         CsvRowSetter((hdrs, r) ->
             match Map.get(label, hdrs) {
-                case Some(ix) => setCell!(r, ix, value)
+                case Some(ix) => Option.toOk(setCell!(r, ix, value), "primWriteNamedCell")
                 case None => Err("Unknown label: '${label}'")
              }
         )

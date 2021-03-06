@@ -52,7 +52,7 @@ namespace FactIO/JdbcExport {
     pub def runJdbcExport(ma: JdbcExport[a], url: String): Result[a, String] & Impure =
         use Result.flatMap;
         use FactIO/Internal/Jdbc/Output.{new => newOutput};
-        let* store = newOutput(url);
+        let* store = Option.toOk(newOutput(url), "Could not connect to '${url}'");
         apply1(ma, store)
 
     pub def runSQLiteExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, String] & Impure =
@@ -243,20 +243,20 @@ namespace FactIO/JdbcExport {
         JdbcExport(_ -> fn())
 
     /// Not exported.
-    def liftPrim(prim: FactIO/Internal/Jdbc.Output ~> Result[a, String]): JdbcExport[a] =
-        JdbcExport(r -> prim(r))
+    def liftOptionPrim(prim: FactIO/Internal/Jdbc.Output ~> Option[a], errMsg: String): JdbcExport[a] =
+        JdbcExport(r -> Option.toOk(prim(r), errMsg))
 
     pub def close(): JdbcExport[Unit] =
         use FactIO/Internal/Jdbc/Output.{close};
-        liftPrim(x -> x.close())
+        liftOptionPrim(x -> x.close(), "close")
 
     pub def setAutoCommit(autoCommit: Bool): JdbcExport[Unit] =
         use FactIO/Internal/Jdbc/Output.{setAutoCommit};
-        liftPrim(x -> x.setAutoCommit(autoCommit))
+        liftOptionPrim(x -> x.setAutoCommit(autoCommit), "setAutoCommit(${autoCommit})")
 
     pub def getAutoCommit(): JdbcExport[Bool] =
         use FactIO/Internal/Jdbc/Output.{getAutoCommit};
-        liftPrim(x -> x.getAutoCommit())
+        liftOptionPrim(x -> x.getAutoCommit(), "getAutoCommit")
 
     /// Performs a check first...
     pub def setAutoCommitOff(): JdbcExport[Unit] =
@@ -265,16 +265,16 @@ namespace FactIO/JdbcExport {
 
     pub def commit(): JdbcExport[Unit] =
         use FactIO/Internal/Jdbc/Output.{commit};
-        liftPrim(x -> x.commit())
+        liftOptionPrim(x -> x.commit(), "commit")
 
     pub def execute(sql: String): JdbcExport[Bool] =
         use FactIO/Internal/Jdbc/Output.{execute};
-        liftPrim(x -> x.execute(sql))
+        liftOptionPrim(x -> x.execute(sql), "execute(``${sql}``)")
 
 
     pub def prepareStatement(sql: String): JdbcExport[PreparedStatement] =
         use FactIO/Internal/Jdbc/Output.{prepareStatement};
-        liftPrim(x -> x.prepareStatement(sql))
+        liftOptionPrim(x -> x.prepareStatement(sql), "prepareStatement(``${sql}``)")
 
     pub def emptyJdbcWriteList(): JdbcWriteList =
         use Data/Transient/DList.{empty};
@@ -302,9 +302,9 @@ namespace FactIO/JdbcExport {
 
     pub def writeRow(stmt: PreparedStatement, mx: JdbcRowSetter[a]): JdbcExport[Int32] =
         let JdbcRowSetter(mf) = mx;
-        let* _ = liftActionResult(_ -> FactIO/Internal/Jdbc/PreparedStatement.clearParameters!(stmt));
+        let* _ = liftOptionPrim(_ -> FactIO/Internal/Jdbc/PreparedStatement.clearParameters!(stmt), "writeRow");
         let* _ = liftActionResult(_ -> mf(stmt));
-        let* n = liftActionResult(_ -> FactIO/Internal/Jdbc/PreparedStatement.executeUpdate(stmt));
+        let* n = liftOptionPrim(_ -> FactIO/Internal/Jdbc/PreparedStatement.executeUpdate(stmt), "writeRow");
         return(n)
 
     ///

@@ -74,39 +74,39 @@ namespace FactIO/JdbcRowSetter {
 
     pub def flatMap(k: a -> JdbcRowSetter[b], x: JdbcRowSetter[a]): JdbcRowSetter[b] = bind(x, k)
 
-    def liftPrim(update: PreparedStatement ~> Result[a, String]): JdbcRowSetter[a] =
-        JdbcRowSetter(r -> update(r))
+    def liftOptionPrim(update: PreparedStatement ~> Option[a], errMsg: String): JdbcRowSetter[a] =
+        JdbcRowSetter(r -> Option.toOk(update(r), errMsg))
 
     // Note - the primitive setX! functions index from 1, we add 1 to calls
     // so FactIO's API indexes from 0.
 
     pub def putNull!(ix: Int32): JdbcRowSetter[Unit] =
         use FactIO/Internal/Jdbc/PreparedStatement.{sql_type_null};
-        liftPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setNull!(x, ix + 1, sql_type_null()))
+        liftOptionPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setNull!(x, ix + 1, sql_type_null()), "putNull!(${ix})")
 
     pub def putString!(ix: Int32, str: String): JdbcRowSetter[Unit] =
-        liftPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setString!(x, ix + 1, str))
+        liftOptionPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setString!(x, ix + 1, str), "putString!(${ix})")
 
     pub def putBool!(ix: Int32, b: Bool): JdbcRowSetter[Unit] =
-        liftPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setBool!(x, ix + 1, b))
+        liftOptionPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setBool!(x, ix + 1, b), "putBool!(${ix})")
 
     pub def putInt8!(ix: Int32, n: Int8): JdbcRowSetter[Unit] =
-        liftPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setInt8!(x, ix + 1, n))
+        liftOptionPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setInt8!(x, ix + 1, n), "putInt8!(${ix})")
 
     pub def putInt16!(ix: Int32, n: Int16): JdbcRowSetter[Unit] =
-        liftPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setInt16!(x, ix + 1, n))
+        liftOptionPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setInt16!(x, ix + 1, n), "putInt16!(${ix})")
 
     pub def putInt32!(ix: Int32, n: Int32): JdbcRowSetter[Unit] =
-        liftPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setInt32!(x, ix + 1, n))
+        liftOptionPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setInt32!(x, ix + 1, n), "putInt32!(${ix})")
 
     pub def putInt64!(ix: Int32, n: Int64): JdbcRowSetter[Unit] =
-        liftPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setInt64!(x, ix + 1, n))
+        liftOptionPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setInt64!(x, ix + 1, n), "putInt64!(${ix})")
 
     pub def putFloat32!(ix: Int32, n: Float32): JdbcRowSetter[Unit] =
-        liftPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setFloat32!(x, ix + 1, n))
+        liftOptionPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setFloat32!(x, ix + 1, n), "putFloat32!(${ix})")
 
     pub def putFloat64!(ix: Int32, n: Float64): JdbcRowSetter[Unit] =
-        liftPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setFloat64!(x, ix + 1, n))
+        liftOptionPrim(x -> FactIO/Internal/Jdbc/PreparedStatement.setFloat64!(x, ix + 1, n), "putFloat64!(${ix})")
 
 
 

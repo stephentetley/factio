@@ -30,60 +30,58 @@ namespace FactIO/Internal/Csv/Output {
     ///
     /// Returns a new Output handle.
     ///
-    pub def new(path: String, format: ##org.apache.commons.csv.CSVFormat, cellcount: Int32, cs: Text.Charset): Result[Output, String] & Impure =
+    pub def new(path: String, format: ##org.apache.commons.csv.CSVFormat, cellcount: Int32, cs: Text.Charset): Option[Output] & Impure =
         import new flix.runtime.spt.factio.csv.CsvOutput(String, ##org.apache.commons.csv.CSVFormat, Int32, ##java.nio.charset.Charset) as newCsvOutput;
         use Result.flatMap;
         try {
             let Charset(cs1) = cs;
             let ans = Output(newCsvOutput(path, format, cellcount, cs1));
-            Ok(ans)
+            Some(ans)
         } catch {
-            case _: ##java.lang.Exception => Err("new")
+            case _: ##java.lang.Exception => None
         }
 
     ///
-    /// Close the CSv output stream.
+    /// Close the CSV output stream.
     ///
-    pub def close(x: Output): Result[Unit, String] & Impure =
+    pub def close(x: Output): Option[Unit] & Impure =
         import flix.runtime.spt.factio.csv.CsvOutput.close();
         try {
             let Output(x1) = x;
-            x1.close();
-            Ok()
+            close(x1);
+            Some()
         } catch {
-            case _: ##java.lang.Exception => Err("close")
+            case _: ##java.lang.Exception => None
         }
 
-
-
-    pub def setCell!(x: Output, ix: Int32, value: String): Result[Unit, String] & Impure =
+    pub def setCell!(x: Output, ix: Int32, value: String): Option[Unit] & Impure =
         import flix.runtime.spt.factio.csv.CsvOutput.setCell(Int32, String);
         try {
             let Output(x1) = x;
-            let ans = x1.setCell(ix, value);
-            Ok(ans)
+            let _ = setCell(x1, ix, value);
+            Some()
         } catch {
-            case _: ##java.lang.Exception => Err("setCell!(${ix})")
+            case _: ##java.lang.Exception => None
         }
 
-    pub def writeRow(x: Output): Result[Unit, String] & Impure =
+    pub def writeRow(x: Output): Option[Unit] & Impure =
         import flix.runtime.spt.factio.csv.CsvOutput.writeRow();
         try {
             let Output(x1) = x;
-            let ans = x1.writeRow();
-            Ok(ans)
+            let _ = writeRow(x1);
+            Some()
         } catch {
-            case _: ##java.lang.Exception => Err("writeRow")
+            case _: ##java.lang.Exception => None
         }
 
-    pub def clearCells!(x: Output): Result[Unit, String] & Impure =
+    pub def clearCells!(x: Output): Option[Unit] & Impure =
         import flix.runtime.spt.factio.csv.CsvOutput.clearCells();
         try {
             let Output(x1) = x;
-            let ans = x1.clearCells();
-            Ok(ans)
+            let _ = clearCells(x1);
+            Some()
         } catch {
-            case _: ##java.lang.Exception => Err("clearCells")
+            case _: ##java.lang.Exception => None
         }
 
 }

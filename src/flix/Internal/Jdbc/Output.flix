@@ -30,86 +30,86 @@ namespace FactIO/Internal/Jdbc/Output {
     ///
     /// Returns a new Output handle.
     ///
-    pub def new(url: String): Result[Output, String] & Impure =
+    pub def new(url: String): Option[Output] & Impure =
         import new flix.runtime.spt.factio.jdbc.JdbcOutput(String) as newOutput;
         try {
             let ans = Output(newOutput(url));
-            Ok(ans)
+            Some(ans)
         } catch {
-            case _: ##java.lang.Exception => Err("new")
+            case _: ##java.lang.Exception => None
         }
 
     ///
     /// Close the internal connection to the DB.
     ///
-    pub def close(x: Output): Result[Unit, String] & Impure =
+    pub def close(x: Output): Option[Unit] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.close();
         try {
             let Output(x1) = x;
-            x1.close();
-            Ok()
+            close(x1);
+            Some()
         } catch {
-            case _: ##java.lang.Exception => Err("close")
+            case _: ##java.lang.Exception => None
         }
 
-    pub def setAutoCommit(x: Output, autoCommit: Bool): Result[Unit, String] & Impure =
+    pub def setAutoCommit(x: Output, autoCommit: Bool): Option[Unit] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.setAutoCommit(Bool);
         try {
             let Output(x1) = x;
-            x1.setAutoCommit(autoCommit);
-            Ok()
+            setAutoCommit(x1, autoCommit);
+            Some()
         } catch {
-            case _: ##java.lang.Exception => Err("setAutoCommit(${autoCommit})")
+            case _: ##java.lang.Exception => None
         }
 
-    pub def getAutoCommit(x: Output): Result[Bool, String] & Impure =
+    pub def getAutoCommit(x: Output): Option[Bool] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.getAutoCommit();
         try {
             let Output(x1) = x;
-            let ans = x1.getAutoCommit();
-            Ok(ans)
+            let ans = getAutoCommit(x1);
+            Some(ans)
         } catch {
-            case _: ##java.lang.Exception => Err("getAutoCommit")
+            case _: ##java.lang.Exception => None
         }
 
-    pub def commit(x: Output): Result[Unit, String] & Impure =
+    pub def commit(x: Output): Option[Unit] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.commit();
         try {
             let Output(x1) = x;
-            x1.commit();
-            Ok()
+            commit(x1);
+            Some()
         } catch {
-            case _: ##java.lang.Exception => Err("commit")
+            case _: ##java.lang.Exception => None
         }
 
-    pub def rollback(x: Output): Result[Unit, String] & Impure =
+    pub def rollback(x: Output): Option[Unit] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.rollback();
         try {
             let Output(x1) = x;
-            x1.rollback();
-            Ok()
+            rollback(x1);
+            Some()
         } catch {
-            case _: ##java.lang.Exception => Err("rollback")
+            case _: ##java.lang.Exception => None
         }
 
-    pub def prepareStatement(x: Output, sql: String): Result[PreparedStatement, String] & Impure =
+    pub def prepareStatement(x: Output, sql: String): Option[PreparedStatement] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.prepareStatement(String);
         try {
             let Output(x1) = x;
-            let ans = x1.prepareStatement(sql);
-            Ok(PreparedStatement(ans))
+            let ans = prepareStatement(x1, sql);
+            Some(PreparedStatement(ans))
         } catch {
-            case _: ##java.lang.Exception => Err("prepareStatement('${sql}')")
+            case _: ##java.lang.Exception => None
         }
 
-    pub def execute(x: Output, sql: String): Result[Bool, String] & Impure =
+    pub def execute(x: Output, sql: String): Option[Bool] & Impure =
         import flix.runtime.spt.factio.jdbc.JdbcOutput.execute(String);
         try {
             let Output(x1) = x;
-            let ans = x1.execute(sql);
-            Ok(ans)
+            let ans = execute(x1, sql);
+            Some(ans)
         } catch {
-            case _: ##java.lang.Exception => Err("execute('${sql}')")
+            case _: ##java.lang.Exception => None
         }
 
 }
