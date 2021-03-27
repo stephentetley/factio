@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-use Data/Transient.DList;
-use Text.Charset.{Charset};
 
 
-use FactIO.CsvExport;
-use FactIO.CsvExport.{CsvExport};
-use FactIO.CsvWriteList;
-use FactIO.CsvWriteList.{CsvWriteList};
-use FactIO.CsvFormat;
-use FactIO.CsvFormat.{CsvFormat};
 
-use FactIO.CsvRowSetter;
-use FactIO.CsvRowSetter.{CsvRowSetter};
+
 
 namespace FactIO {
 
@@ -37,13 +28,24 @@ namespace FactIO {
     /// extracting data from a relation and the step function of fixpoint fold
     /// must be pure - solution we build a list of impure "write" functions
     /// to be invoked after the fold.
-    pub opaque type CsvWriteList = DList[CsvRowSetter[Unit]]
+    pub opaque type CsvWriteList = Chain[CsvRowSetter[Unit]]
 
 }
 
 namespace FactIO/CsvExport {
 
-    use ToString.toString;
+    use Text.Charset.{Charset};
+
+    use FactIO.CsvExport;
+    use FactIO.CsvExport.{CsvExport};
+    use FactIO.CsvWriteList;
+    use FactIO.CsvWriteList.{CsvWriteList};
+    use FactIO.CsvFormat;
+    use FactIO.CsvFormat.{CsvFormat};
+
+    use FactIO.CsvRowSetter;
+    use FactIO.CsvRowSetter.{CsvRowSetter};
+
 
     def makeColumnIndices(headers: Array[String]): Map[String, Int32] & Impure =
         Array.foldLeft((ac, s) -> {let (m,i) = ac; (Map.insert(s, i, m), i+1)}, (Map.empty(), 0), headers) |> fst
@@ -54,7 +56,7 @@ namespace FactIO/CsvExport {
         let CsvFormat(fmt1) = format;
         let cellcount       = Array.length(headings);
         let headers         = makeColumnIndices(headings);
-        let* handle         = Option.toOk(newOutput(toString(path), fmt1, cellcount, cs), "runCsvExport failed");
+        let* handle         = Option.toOk(newOutput(ToString.toString(path), fmt1, cellcount, cs), "runCsvExport failed");
         let* ans            = apply1(bind(writeLine(headings), _ -> mx), headers, handle);
         let _               = handle.close();
         Ok(ans)
@@ -162,19 +164,17 @@ namespace FactIO/CsvExport {
     pub def liftActionResult(fn: Unit ~> Result[a, String]): CsvExport[a] =
         CsvExport((_,_) -> fn())
 
-    pub def emptyCsvWriteList(): CsvWriteList =
-        use Data/Transient/DList.{empty};
-        CsvWriteList(empty())
+    pub def emptyCsvWriteList(): CsvWriteList = CsvWriteList(Chain.empty())
 
     pub def makeCsvWriteStep(f: x -> CsvRowSetter[Unit]): (x, CsvWriteList) -> CsvWriteList =
         (x, ws) ->
             let CsvWriteList(ws1) = ws;
             let w1 = f(x);
-            CsvWriteList(Data/Transient/DList.snoc(ws1, w1))
+            CsvWriteList(Chain.snoc(ws1, w1))
 
     pub def execWriteList(xs: CsvWriteList): CsvExport[Unit] =
         let CsvWriteList(xs1) = xs;
-        let writes = Data/Transient/DList.toList(xs1);
+        let writes = Chain.toList(xs1);
         execWriteListHelper(writes)
 
     def execWriteListHelper(xs: List[CsvRowSetter[Unit]]): CsvExport[Unit] = match xs {
@@ -233,10 +233,9 @@ namespace FactIO/CsvExport {
         }
     }
 
-    pub def streamRowSetterX(f: a -> CsvRowSetter[b], ss: Data.Stream[a]): CsvExport[Unit] =
-        use Data/Stream.{foreachResult};
+    pub def streamRowSetterX(f: a -> CsvRowSetter[b], ss: Cursor[a]): CsvExport[Unit] =
         CsvExport((hdrs, r) ->
-            foreachResult(x -> apply1(writeRow(f(x)), hdrs, r), ss)
+            Cursor.foreachResult(x -> apply1(writeRow(f(x)), hdrs, r), ss)
         )
 
     ///

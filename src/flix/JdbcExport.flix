@@ -19,8 +19,6 @@
 
 namespace FactIO {
 
-    use Data/Transient.DList;
-    
     pub opaque type JdbcExport[a] = FactIO/Internal/Jdbc.Output ~> Result[a, String]
 
     ///
@@ -29,14 +27,13 @@ namespace FactIO {
     /// must be pure - solution we build a list of impure "write" functions
     /// to be invoked after the fold.
     ///
-    pub opaque type JdbcWriteList = DList[JdbcRowSetter[Unit]]
+    pub opaque type JdbcWriteList = Chain[JdbcRowSetter[Unit]]
 
 }
 
 namespace FactIO/JdbcExport {
 
 
-    use Data/Transient.DList;
     use Text.Charset.{Charset};
 
     use FactIO.JdbcExport;
@@ -276,19 +273,17 @@ namespace FactIO/JdbcExport {
         use FactIO/Internal/Jdbc/Output.{prepareStatement};
         liftOptionPrim(x -> x.prepareStatement(sql), "prepareStatement(``${sql}``)")
 
-    pub def emptyJdbcWriteList(): JdbcWriteList =
-        use Data/Transient/DList.{empty};
-        JdbcWriteList(empty())
+    pub def emptyJdbcWriteList(): JdbcWriteList = JdbcWriteList(Chain.empty())
 
     pub def makeJdbcWriteStep(f: x -> JdbcRowSetter[Unit]): (x, JdbcWriteList) -> JdbcWriteList =
         (x, ws) ->
             let JdbcWriteList(ws1) = ws;
             let w1 = f(x);
-            JdbcWriteList(Data/Transient/DList.snoc(ws1, w1))
+            JdbcWriteList(Chain.snoc(ws1, w1))
 
     pub def execWriteList(sql: String, xs: JdbcWriteList): JdbcExport[Int32] =
         let JdbcWriteList(xs1) = xs;
-        let writes = Data/Transient/DList.toList(xs1);
+        let writes = Chain.toList(xs1);
         let* stmt = prepareStatement(sql);
         execWriteListHelper(stmt, 0, writes)
 
@@ -317,10 +312,9 @@ namespace FactIO/JdbcExport {
         }
     }
 
-    pub def streamRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], ss: Data.Stream[a]): JdbcExport[Unit] =
-        use Data/Stream.{foreachResult};
+    pub def streamRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], ss: Cursor[a]): JdbcExport[Unit] =
         JdbcExport(r ->
-            foreachResult(x -> apply1(writeRow(stmt, f(x)), r), ss)
+            Cursor.foreachResult(x -> apply1(writeRow(stmt, f(x)), r), ss)
         )
 
  }

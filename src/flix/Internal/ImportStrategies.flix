@@ -17,23 +17,18 @@
 
 namespace FactIO/Internal/ImportStrategies {
 
-
-    use Data.Stream;
-    use Data/Transient.{DList};
-    use Data/Transient/DList.{empty, snoc, toList};
-
     ///
     /// Process all rows of the input.
     ///
     /// Note - a `relation` is naturally monoidal - a `rowreader` can generate zero, one or many facts from a `row`.
     ///
     pub def importRows(rowreader: row -> Result[#{| reln}, String] & Impure,
-                        s: Stream[row]): Result[#{| reln}, String] & Impure =
+                        s: Cursor[row]): Result[#{| reln}, String] & Impure =
         let step = (ac, r1) -> match rowreader(r1) { 
             case Ok(a1) => Ok(ac <+> a1)
             case Err(e) => Err(e)
         };        
-        Data/Stream.foldResult(step, #{ }, s)
+        Cursor.foldResult(step, #{ }, s)
 
 
     ///
@@ -42,7 +37,7 @@ namespace FactIO/Internal/ImportStrategies {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRowsWithCount(rowreader: (row, Int32) ~> Result[#{| reln}, String],
-                                s: Stream[row]): Result[#{| reln}, String] & Impure =
+                                s: Cursor[row]): Result[#{| reln}, String] & Impure =
         let step = (xy, row) -> {
             let (relns, n) = xy; 
             match rowreader(row, n) { 
@@ -50,7 +45,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };        
-        Data/Stream.foldResult(step, (#{ }, 0), s)
+        Cursor.foldResult(step, (#{ }, 0), s)
             |> Result.map(fst)
 
 
@@ -61,7 +56,7 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     pub def importRowsWithAccum(rowreader: (row, acc) ~> Result[(#{| reln}, acc), String],
                                 st: acc,
-                                s: Stream[row]): Result[(#{| reln}, acc), String] & Impure =
+                                s: Cursor[row]): Result[(#{| reln}, acc), String] & Impure =
         let step = (xy, row) -> {
             let (relns, s1) = xy; 
             match rowreader(row, s1) { 
@@ -69,7 +64,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };        
-        Data/Stream.foldResult(step, (#{ }, st), s)
+        Cursor.foldResult(step, (#{ }, st), s)
     
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
@@ -78,7 +73,7 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     pub def importRowsWithCountAndAccum(rowreader: (row, Int32, acc) ~> Result[(#{| reln}, acc), String],
                                         st: acc,
-                                        s: Stream[row]): Result[(#{| reln}, acc), String] & Impure =
+                                        s: Cursor[row]): Result[(#{| reln}, acc), String] & Impure =
         let step = (xyz, row) -> {
             let (relns, n, s1) = xyz; 
             match rowreader(row, n, s1) { 
@@ -86,15 +81,15 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };        
-        Data/Stream.foldResult(step, (#{ }, 0, st), s)
+        Cursor.foldResult(step, (#{ }, 0, st), s)
             |> Result.map(xyz -> let (x, _, z) = xyz; (x,z))
 
     ///
     /// Process all rows of the input.
     ///
     pub def getRows(rowreader: row ~> Result[a, String],
-                    s: Stream[row]): Result[List[a], String] & Impure =
-        Data/Stream.traverseToListResult(rowreader, s)
+                    s: Cursor[row]): Result[List[a], String] & Impure =
+        Cursor.traverseToListResult(rowreader, s)
 
 
 }
