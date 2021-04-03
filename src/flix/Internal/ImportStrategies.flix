@@ -23,11 +23,11 @@ namespace FactIO/Internal/ImportStrategies {
     /// Note - a `relation` is naturally monoidal - a `rowreader` can generate zero, one or many facts from a `row`.
     ///
     pub def importRows(rowreader: row -> Result[#{| reln}, String] & Impure,
-                        s: Cursor[row]): Result[#{| reln}, String] & Impure =
-        let step = (ac, r1) -> match rowreader(r1) { 
+                        s: Cursor[String, row]): Result[#{| reln}, String] & Impure =
+        let step = (ac, r1) -> match rowreader(r1) {
             case Ok(a1) => Ok(ac <+> a1)
             case Err(e) => Err(e)
-        };        
+        };
         Cursor.foldResult(step, #{ }, s)
 
 
@@ -37,7 +37,7 @@ namespace FactIO/Internal/ImportStrategies {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRowsWithCount(rowreader: (row, Int32) ~> Result[#{| reln}, String],
-                                s: Cursor[row]): Result[#{| reln}, String] & Impure =
+                                s: Cursor[String, row]): Result[#{| reln}, String] & Impure =
         let step = (xy, row) -> {
             let (relns, n) = xy; 
             match rowreader(row, n) { 
@@ -56,7 +56,7 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     pub def importRowsWithAccum(rowreader: (row, acc) ~> Result[(#{| reln}, acc), String],
                                 st: acc,
-                                s: Cursor[row]): Result[(#{| reln}, acc), String] & Impure =
+                                s: Cursor[String, row]): Result[(#{| reln}, acc), String] & Impure =
         let step = (xy, row) -> {
             let (relns, s1) = xy; 
             match rowreader(row, s1) { 
@@ -73,7 +73,7 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     pub def importRowsWithCountAndAccum(rowreader: (row, Int32, acc) ~> Result[(#{| reln}, acc), String],
                                         st: acc,
-                                        s: Cursor[row]): Result[(#{| reln}, acc), String] & Impure =
+                                        s: Cursor[String, row]): Result[(#{| reln}, acc), String] & Impure =
         let step = (xyz, row) -> {
             let (relns, n, s1) = xyz; 
             match rowreader(row, n, s1) { 
@@ -88,8 +88,9 @@ namespace FactIO/Internal/ImportStrategies {
     /// Process all rows of the input.
     ///
     pub def getRows(rowreader: row ~> Result[a, String],
-                    s: Cursor[row]): Result[List[a], String] & Impure =
-        Cursor.traverseToListResult(rowreader, s)
+                    ss: Cursor[String, row]): Result[List[a], String] & Impure =
+        ss  |> Cursor.mapResult(rowreader)
+            |> Cursor.toList
 
 
 }

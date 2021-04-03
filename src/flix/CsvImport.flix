@@ -34,7 +34,7 @@ namespace FactIO/CsvImport {
     ///
     pub def newCsvStream(filepath: System.FilePath,
                         format: CsvFormat,
-                        cs: Text.Charset): Result[Cursor[CsvRow], String] & Impure =
+                        cs: Text.Charset): Cursor[String, CsvRow] & Impure =
         import flix.runtime.spt.factio.csv.CsvIterator:createIteratorforFile(String, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset) as newCsvIterator;
         import flix.runtime.spt.factio.csv.CsvIterator.hasNext() as ffiHasNext;
         import flix.runtime.spt.factio.csv.CsvIterator.next() as ffiNext;
@@ -43,15 +43,21 @@ namespace FactIO/CsvImport {
             let CsvFormat(fmt1) = format;
             let Charset(cs1) = cs;
             let iter = newCsvIterator(ToString.toString(filepath), fmt1, cs1);
+            let nextF = () ->
+                try {
+                    Ok(ffiNext(iter))
+                } catch {
+                    case _: ##java.lang.Exception => Err("next failed")
+                };
             let cursorIter =  {
                   hasNext = () -> ffiHasNext(iter)
-                , next = () -> ffiNext(iter)
+                , next = nextF
                 , finalize = () -> ffiClose(iter)
             };
-            Ok(Cursor.makeCursor(cursorIter))
+            Cursor.makeCursor(cursorIter)
         } catch {
-            case _: ##java.io.FileNotFoundException => Err("newCsvStream - file not found")
-            case _: ##java.io.IOException => Err("IOException")
+            case _: ##java.io.FileNotFoundException => Cursor.failure("newCsvStream - file not found")
+            case _: ##java.io.IOException => Cursor.failure("IOException")
         }
 
     ///
@@ -59,7 +65,7 @@ namespace FactIO/CsvImport {
     ///
     pub def newCsvStreamWithBOM(filepath: System.FilePath,
                                 format: CsvFormat,
-                                cs: Text.Charset): Result[Cursor[CsvRow], String] & Impure =
+                                cs: Text.Charset): Cursor[String, CsvRow] & Impure =
         import flix.runtime.spt.factio.csv.CsvIterator:createIteratorforBOMFile(String, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset) as newCsvIteratorWithBOM;
         import flix.runtime.spt.factio.csv.CsvIterator.hasNext() as ffiHasNext;
         import flix.runtime.spt.factio.csv.CsvIterator.next() as ffiNext;
@@ -70,13 +76,13 @@ namespace FactIO/CsvImport {
             let iter = newCsvIteratorWithBOM(ToString.toString(filepath), fmt1, cs1);
             let cursorIter =  {
                   hasNext = () -> ffiHasNext(iter)
-                , next = () -> ffiNext(iter)
+                , next = Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
                 , finalize = () -> ffiClose(iter)
             };
-            Ok(Cursor.makeCursor(cursorIter))
+            Cursor.makeCursor(cursorIter)
         } catch {
-            case _: ##java.io.FileNotFoundException => Err("newCsvStream - file not found")
-            case _: ##java.io.IOException => Err("newCsvStream - io exception")
+            case _: ##java.io.FileNotFoundException => Cursor.failure("newCsvStream - file not found")
+            case _: ##java.io.IOException => Cursor.failure("newCsvStream - io exception")
         }
 
     ///
@@ -85,7 +91,7 @@ namespace FactIO/CsvImport {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRows(eval: CsvRowEvaluator[#{| reln}],
-                        src: Cursor[CsvRow]): Result[#{| reln}, String] & Impure =
+                        src: Cursor[String, CsvRow]): Result[#{| reln}, String] & Impure =
         let CsvRowEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.importRows(mf, src)
 
@@ -97,7 +103,7 @@ namespace FactIO/CsvImport {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRowsWithCount(eval: Int32 -> CsvRowEvaluator[#{| reln}],
-                                src: Cursor[CsvRow]): Result[#{| reln}, String] & Impure =
+                                src: Cursor[String, CsvRow]): Result[#{| reln}, String] & Impure =
         let mf = (row, ix) -> { let CsvRowEvaluator(r1) = eval(ix); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithCount(mf, src)
 
@@ -108,7 +114,7 @@ namespace FactIO/CsvImport {
     ///
     pub def importRowsWithAccum(eval: st -> CsvRowEvaluator[(#{| reln}, st)],
                                 state: st,
-                                src: Cursor[CsvRow]): Result[(#{| reln}, st), String] & Impure =
+                                src: Cursor[String, CsvRow]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, st) -> { let CsvRowEvaluator(r1) = eval(st); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithAccum(mf, state, src)
 
@@ -119,7 +125,7 @@ namespace FactIO/CsvImport {
     ///
     pub def importRowsWithCountAndAccum(eval: (Int32, st) -> CsvRowEvaluator[(#{| reln}, st)],
                                         state: st,
-                                        src: Cursor[CsvRow]): Result[(#{| reln}, st), String] & Impure =
+                                        src: Cursor[String, CsvRow]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, ix, st) -> { let CsvRowEvaluator(r1) = eval(ix, st); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(mf, state, src)
 
@@ -127,16 +133,17 @@ namespace FactIO/CsvImport {
     /// Returns a list of applying `eval` to all rows in the input stream `src`.
     ///
     pub def evaluateRows(eval: CsvRowEvaluator[a],
-                         src: Cursor[CsvRow]): Result[List[a], String] & Impure =
+                         src: Cursor[String, CsvRow]): Result[List[a], String] & Impure =
         let CsvRowEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.getRows(mf, src)
 
     /// Version of `evaluateRows` that skips empty rows in the source Csv.
     pub def evaluateRowsSkipEmptyRows(eval: CsvRowEvaluator[a],
-                                      src: Cursor[CsvRow]): Result[List[a], String] & Impure =
+                                        src: Cursor[String, CsvRow]): Result[List[a], String] & Impure =
         let CsvRowEvaluator(mf) = eval;
-        let src1 = Cursor.filter(x -> not isEmptyRow(x), src);
-        Cursor.traverseToListResult(mf, src1)
+        src |> Cursor.filter(x -> not isEmptyRow(x))
+            |> Cursor.mapResult(mf)
+            |> Cursor.toList
 
     def isEmptyRow(row: CsvRow): Bool =
         import flix.runtime.spt.factio.csv.CsvRow.isEmptyRow() as primIsEmptyRow;

@@ -19,7 +19,7 @@ pub def test01(): #{Lang} & Impure =
     let step = () -> {
         let path = System/FilePath.new("e:/coding/flix/factio/data/langs.sqlite");
         let query = "SELECT name, year FROM language";
-        let* src = FactIO/JdbcImport.newSQLiteStream(path, query);
+        let src = FactIO/JdbcImport.newSQLiteStream(path, query);
         let* relns = FactIO/JdbcImport.importRows(getLang(), src);
         Ok(solve relns)
     };
