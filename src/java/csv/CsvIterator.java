@@ -84,9 +84,13 @@ public class CsvIterator {
     }
 
     /// Call this factory method for Excel created files...
-    public static CsvIterator createIteratorforBOMFile(String filepath, CSVFormat format, Charset cs) throws Exception {
-        FileInputStream instream = new FileInputStream(filepath);
-        Reader reader = new InputStreamReader(new BOMInputStream(instream), cs);
+    public static CsvIterator createIteratorforBOMFile(String filepath, CSVFormat format) throws Exception {
+        InputStream instream = new FileInputStream(filepath);
+        BOMInputStream bomInstream = new BOMInputStream(instream);
+        String csname = bomInstream.getBOMCharsetName();
+        if (csname == null) csname = "UTF-16";
+        Charset charset = Charset.forName(csname);
+        Reader reader = new InputStreamReader(bomInstream, charset);
         return new CsvIterator(reader, format);
     }
 

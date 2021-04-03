@@ -1,9 +1,18 @@
 use FactIO.CsvRowEvaluator;
 use FactIO/CsvFormat.{withFirstRecordAsHeader};
 
-def runResult(r: Result[#{| reln}, String]): #{| reln} & Impure = match r {
-    case Ok(reln) => reln
-    case Err(msg) => { Console.printLine(msg); #{ }}
+    
+def main(_args: Array[String]): Int32 & Impure = 
+    test01();
+    test02();
+    test03();
+    test04();
+    0
+
+
+def runResult(r: Result[#{| reln}, String]): Unit & Impure = match r {
+    case Ok(reln) => reln |> unsafeToString |> println
+    case Err(msg) => Console.printLine("Error: ${msg}")
 }
 
     
@@ -15,26 +24,26 @@ def getNewDatalog(): CsvRowEvaluator[#{Lang}] =
     map(s -> { Lang(s). }, getStringNamed("Lang"))
 
 /// Should fail
-pub def test01(): #{Lang} & Impure =
+pub def test01(): Unit & Impure =
     use Result.flatMap;
     let path = System/FilePath.new("e:/coding/flix/factio/data/new-datalogs-utf8-bom.csv");
     let step =  () -> {
-        let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        let src = FactIO/CsvImport.newCsvCursor(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows(getNewDatalog(), src);
         Ok(solve relns)
     };
     Console.printLine("Should fail...");
     step() |> runResult
 
-pub def test02(): #{Lang} & Impure =
+pub def test02(): Unit & Impure =
     use Result.flatMap;
     let path = System/FilePath.new("e:/coding/flix/factio/data/new-datalogs-utf8-bom.csv");
     let step =  () -> {
-        let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        let src = FactIO/CsvImport.newCsvCursorWithBOM(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader());
         let* relns = FactIO/CsvImport.importRows(getNewDatalog(), src);
         Ok(solve relns)
     };
-    Console.printLine("Should run...");
+    Console.printLine("Should succeed...");
     step() |> runResult
 
 
@@ -42,29 +51,25 @@ def getFunctionalLang(): CsvRowEvaluator[#{Lang}] =
     use FactIO/CsvRowEvaluator.{map, getStringNamed}; 
     map(s -> { Lang(s). }, getStringNamed("Lang Name"))
 
-pub def test03(): #{Lang} & Impure =
+pub def test03(): Unit & Impure =
     use Result.flatMap;
     let path = System/FilePath.new("e:/coding/flix/factio/data/functional-langs-utf8-bom.csv");
     let step =  () -> {
-        let* src = FactIO/CsvImport.newCsvStream(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        let src = FactIO/CsvImport.newCsvCursor(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows(getFunctionalLang(), src);
         Ok(solve relns)
     };
     Console.printLine("Should fail...");
     step() |> runResult
 
-pub def test04(): #{Lang} & Impure =
+pub def test04(): Unit & Impure =
     use Result.flatMap;
     let path = System/FilePath.new("e:/coding/flix/factio/data/functional-langs-utf8-bom.csv");
     let step = () -> {
-        let* src = FactIO/CsvImport.newCsvStreamWithBOM(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
+        let src = FactIO/CsvImport.newCsvCursorWithBOM(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader());
         let* relns = FactIO/CsvImport.importRows(getFunctionalLang(), src);
         Ok(solve relns)
     };
-    Console.printLine("Should run...");
+    Console.printLine("Should succeed...");
     step() |> runResult
-    
-def main(_args: Array[String]): Int32 & Impure = 
-    let ans = test04();
-    Console.printLine(unsafeToString(ans));
-    0
+

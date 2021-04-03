@@ -2,6 +2,22 @@ use FactIO.CsvExport;
 use FactIO.CsvWriteList;
 use FactIO.CsvRowSetter;
 
+
+def main(_args: Array[String]): Int32 & Impure = 
+    match test01() {
+        case Ok() => 0
+        case Err(msg) => {Console.printLine(msg); 1}
+    }
+
+def test01(): Result[Unit, String] & Impure = 
+    use Result.flatMap;
+    use FactIO/CsvExport.{runCsvExport};
+    let path = System/FilePath.new("e:/coding/flix/factio/data/output/dummy_export.csv");
+    let headers = ["name", "intval"];
+    let* _ = runCsvExport(writeOutput(), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
+    Ok()
+
+
 /// TODO - work out how to use CsvExport for "non-relations"...
 
 // @test
@@ -48,20 +64,6 @@ def writeOutput(): CsvExport[Unit] =
 
 
 
-def test01(): Result[Unit, String] & Impure = 
-    use Result.flatMap;
-    use FactIO/CsvExport.{runCsvExport};
-    let path = System/FilePath.new("e:/coding/flix/factio/data/output/dummy_export.csv");
-    let headers = ["name", "intval"];
-    let* _ = runCsvExport(writeOutput(), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
-    Ok()
-
-
-def main(_args: Array[String]): Int32 & Impure = 
-    match test01() {
-        case Ok() => 0
-        case Err(msg) => {Console.printLine(msg); 1}
-    }
 
 
 

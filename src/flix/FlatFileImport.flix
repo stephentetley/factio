@@ -25,7 +25,7 @@ namespace FactIO/FlatFileImport {
     ///
     /// Returns a new Flat File Stream.
     ///
-    pub def newFlatFileStream(filepath: System.FilePath,
+    pub def newFlatFileCursor(filepath: System.FilePath,
                               cs: Text.Charset): Cursor[String, String] & Impure =
         import new flix.runtime.spt.factio.flatfile.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
         import flix.runtime.spt.factio.flatfile.LinesIterator.hasNext() as ffiHasNext;

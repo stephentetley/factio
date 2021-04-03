@@ -28,7 +28,7 @@ namespace FactIO/JdbcImport {
     ///
     /// Returns a new Jdbc Cursor.
     ///
-    pub def newDbStream(url: String, query: String): Cursor[String, JdbcRow] & Impure =
+    pub def newDbCursor(url: String, query: String): Cursor[String, JdbcRow] & Impure =
         import new flix.runtime.spt.factio.jdbc.JdbcIterator(String, String) as newJdbcIterator;
         import flix.runtime.spt.factio.jdbc.JdbcIterator.next() as ffiHasNext;
         import flix.runtime.spt.factio.jdbc.JdbcIterator.getRow() as ffiNext;
@@ -46,20 +46,18 @@ namespace FactIO/JdbcImport {
         }
 
     ///
-    /// Returns a new SQLite Stream.
+    /// Returns a new SQLite Cursor.
     ///
-    pub def newSQLiteStream(filepath: System.FilePath,
+    pub def newSQLiteCursor(filepath: System.FilePath,
                             query: String): Cursor[String, JdbcRow] & Impure =
-        let url = "jdbc:sqlite:${filepath}";
-        newDbStream(url, query)
+        newDbCursor("jdbc:sqlite:${filepath}", query)
 
     ///
-    /// Returns a new DuckDB Stream.
+    /// Returns a new DuckDB Cursor.
     ///
-    pub def newDuckDBStream(filepath: System.FilePath,
+    pub def newDuckDBCursor(filepath: System.FilePath,
                             query: String): Cursor[String, JdbcRow] & Impure =
-        let url = "jdbc:duckdb:${filepath}";
-        newDbStream(url, query)
+        newDbCursor("jdbc:duckdb:${filepath}", query)
 
     ///
     /// Process all rows of the input.

@@ -1,9 +1,25 @@
 use FactIO.FlatFileLineEvaluator;
 
-def runResult(r1: Result[#{| reln}, String]): #{| reln} & Impure = match r1 {
-    case Ok(reln) => reln
-    case Err(msg) => {Console.printLine(msg); #{ } }
+
+def main(_args: Array[String]): Int32 & Impure = 
+    test01();
+    0
+
+def runResult(r: Result[#{| reln}, String]): Unit & Impure = match r {
+    case Ok(reln) => reln |> unsafeToString |> println
+    case Err(msg) => Console.printLine("Error: ${msg}")
 }
+
+
+pub def test01(): Unit & Impure =
+    use Result.flatMap;
+    let step = () -> {
+        let path = System/FilePath.new("e:/coding/flix/factio/data/colours.txt");
+        let src = FactIO/FlatFileImport.newFlatFileCursor(path, Text/Charset.utf_8());
+        let* relns = FactIO/FlatFileImport.importRows(getColour(), src);
+        Ok(solve relns)
+    };
+    step() |> runResult
 
 rel Colour(name: String)
 
@@ -15,21 +31,3 @@ def getColour(): FlatFileLineEvaluator[#{ Colour }] =
     let ans = makeColour(str);
     return(ans)
     
-
-pub def test01(): #{ Colour } & Impure =
-    use Result.flatMap;
-    let step = () -> {
-        let path = System/FilePath.new("e:/coding/flix/factio/data/colours.txt");
-        let* src = FactIO/FlatFileImport.newFlatFileStream(path, Text/Charset.utf_8());
-        let* relns = FactIO/FlatFileImport.importRows(getColour(), src);
-        Ok(solve relns)
-    };
-    step() |> runResult
-
-
-def main(_args: Array[String]): Int32 & Impure = 
-    let ans = test01();
-    Console.printLine(unsafeToString(ans));
-    0
-
-
