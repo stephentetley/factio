@@ -17,6 +17,7 @@
 
 namespace FactIO/FlatFileImport {
 
+    use System.FilePath.{FilePath};
     use Text.Charset.{Charset};
 
     use FactIO.FlatFileLineEvaluator;
@@ -25,15 +26,16 @@ namespace FactIO/FlatFileImport {
     ///
     /// Returns a new Flat File Stream.
     ///
-    pub def newFlatFileCursor(filepath: System.FilePath,
+    pub def newFlatFileCursor(path: System.FilePath,
                               cs: Text.Charset): Cursor[String, String] & Impure =
-        import new flix.runtime.spt.factio.flatfile.LinesIterator(String, ##java.nio.charset.Charset) as newLinesIterator;
-        import flix.runtime.spt.factio.flatfile.LinesIterator.hasNext() as ffiHasNext;
-        import flix.runtime.spt.factio.flatfile.LinesIterator.next() as ffiNext;
-        import flix.runtime.spt.factio.flatfile.LinesIterator.close() as ffiClose;
+        import new flix.runtime.spt.factio.flatfile.LinesCursor(##java.nio.file.Path, ##java.nio.charset.Charset) as newLinesCursor;
+        import flix.runtime.spt.factio.flatfile.LinesCursor.hasNext() as ffiHasNext;
+        import flix.runtime.spt.factio.flatfile.LinesCursor.next() as ffiNext;
+        import flix.runtime.spt.factio.flatfile.LinesCursor.close() as ffiClose;
         try {
+            let FilePath(path1) = path;
             let Charset(cs1) = cs;
-            let iter = newLinesIterator(ToString.toString(filepath), cs1);
+            let iter = newLinesCursor(path1, cs1);
             let cursorIter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = Cursor.guardThunk(_ -> ffiNext(iter), "next failed")

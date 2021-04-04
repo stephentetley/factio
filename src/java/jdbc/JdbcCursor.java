@@ -18,16 +18,16 @@ package flix.runtime.spt.factio.jdbc;
 
 import java.sql.*;
 
-/// Dependency:
+/// Dependency when using SQLite:
 /// https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/
 
-public class JdbcIterator {
+public class JdbcCursor {
 
     private ResultSet rs = null;
     private Statement stmt = null;
     private Connection conn = null;
 
-    public JdbcIterator(String url, String query) throws Exception {
+    public JdbcCursor(String url, String query) throws Exception {
         this.conn = DriverManager.getConnection(url);
         this.stmt = this.conn.createStatement();
         this.rs = this.stmt.executeQuery(query);

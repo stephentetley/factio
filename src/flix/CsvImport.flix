@@ -17,6 +17,7 @@
 
 namespace FactIO/CsvImport {
 
+    use System.FilePath.{FilePath};
     use Text.Charset.{Charset};
 
     use FactIO.CsvFormat;
@@ -32,26 +33,21 @@ namespace FactIO/CsvImport {
     ///
     /// Returns a new Csv Cursor.
     ///
-    pub def newCsvCursor(filepath: System.FilePath,
+    pub def newCsvCursor(path: System.FilePath,
                         format: CsvFormat,
                         cs: Text.Charset): Cursor[String, CsvRow] & Impure =
-        import flix.runtime.spt.factio.csv.CsvIterator:createIteratorforFile(String, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset) as newCsvIterator;
-        import flix.runtime.spt.factio.csv.CsvIterator.hasNext() as ffiHasNext;
-        import flix.runtime.spt.factio.csv.CsvIterator.next() as ffiNext;
-        import flix.runtime.spt.factio.csv.CsvIterator.close() as ffiClose;
+        import flix.runtime.spt.factio.csv.CsvCursor:createCursorForFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset);
+        import flix.runtime.spt.factio.csv.CsvCursor.hasNext() as ffiHasNext;
+        import flix.runtime.spt.factio.csv.CsvCursor.next() as ffiNext;
+        import flix.runtime.spt.factio.csv.CsvCursor.close() as ffiClose;
         try {
+            let FilePath(path1) = path;
             let CsvFormat(fmt1) = format;
             let Charset(cs1) = cs;
-            let iter = newCsvIterator(ToString.toString(filepath), fmt1, cs1);
-            let nextF = () ->
-                try {
-                    Ok(ffiNext(iter))
-                } catch {
-                    case _: ##java.lang.Exception => Err("next failed")
-                };
+            let iter = createCursorForFile(path1, fmt1, cs1);
             let cursorIter =  {
                   hasNext = () -> ffiHasNext(iter)
-                , next = nextF
+                , next = Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
                 , finalize = () -> ffiClose(iter)
             };
             Cursor.makeCursor(cursorIter)
@@ -63,15 +59,16 @@ namespace FactIO/CsvImport {
     ///
     /// Returns a new Csv Stream from a file with a BOM.
     ///
-    pub def newCsvCursorWithBOM(filepath: System.FilePath,
+    pub def newCsvCursorWithBOM(path: System.FilePath,
                                 format: CsvFormat): Cursor[String, CsvRow] & Impure =
-        import flix.runtime.spt.factio.csv.CsvIterator:createIteratorforBOMFile(String, ##org.apache.commons.csv.CSVFormat) as newCsvIteratorWithBOM;
-        import flix.runtime.spt.factio.csv.CsvIterator.hasNext() as ffiHasNext;
-        import flix.runtime.spt.factio.csv.CsvIterator.next() as ffiNext;
-        import flix.runtime.spt.factio.csv.CsvIterator.close() as ffiClose;
+        import flix.runtime.spt.factio.csv.CsvCursor:createCursorForBOMFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat);
+        import flix.runtime.spt.factio.csv.CsvCursor.hasNext() as ffiHasNext;
+        import flix.runtime.spt.factio.csv.CsvCursor.next() as ffiNext;
+        import flix.runtime.spt.factio.csv.CsvCursor.close() as ffiClose;
         try {
+            let FilePath(path1) = path;
             let CsvFormat(fmt1) = format;
-            let iter = newCsvIteratorWithBOM(ToString.toString(filepath), fmt1);
+            let iter = createCursorForBOMFile(path1, fmt1);
             let cursorIter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = Cursor.guardThunk(_ -> ffiNext(iter), "next failed")

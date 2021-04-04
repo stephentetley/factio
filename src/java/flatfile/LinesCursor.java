@@ -24,13 +24,12 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-public class LinesIterator {
+public class LinesCursor {
 
     private BufferedReader bufreader;
     private Iterator<String> iter;
 
-    public LinesIterator(String filepath, Charset cs) throws Exception {
-        Path path = Paths.get(filepath);
+    public LinesCursor(Path path, Charset cs) throws Exception {
         bufreader = Files.newBufferedReader(path, cs);
         Stream<String> stream = bufreader.lines();
         this.iter = stream.iterator();

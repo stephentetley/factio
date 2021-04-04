@@ -22,9 +22,10 @@ import org.apache.commons.io.input.BOMInputStream;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.Iterator;
 
-public class CsvIterator {
+public class CsvCursor {
 
     private Reader inputReader;
     private Iterator<CSVRecord> csvIterator;
@@ -70,28 +71,28 @@ public class CsvIterator {
         }
     }
 
-    public CsvIterator(Reader reader, CSVFormat format) throws Exception {
+    public CsvCursor(Reader reader, CSVFormat format) throws Exception {
         inputReader = reader;
         Iterable<CSVRecord> iterable = format.parse(inputReader);
         csvIterator = iterable.iterator();
     }
 
 
-    public static CsvIterator createIteratorforFile(String filepath, CSVFormat format, Charset cs) throws Exception {
-        FileInputStream instream = new FileInputStream(filepath);
+    public static CsvCursor createCursorForFile(Path path, CSVFormat format, Charset cs) throws Exception {
+        FileInputStream instream = new FileInputStream(path.toString());
         Reader reader = new InputStreamReader(instream, cs);
-        return new CsvIterator(reader, format);
+        return new CsvCursor(reader, format);
     }
 
     /// Call this factory method for Excel created files...
-    public static CsvIterator createIteratorforBOMFile(String filepath, CSVFormat format) throws Exception {
-        InputStream instream = new FileInputStream(filepath);
+    public static CsvCursor createCursorForBOMFile(Path path, CSVFormat format) throws Exception {
+        InputStream instream = new FileInputStream(path.toString());
         BOMInputStream bomInstream = new BOMInputStream(instream);
         String csname = bomInstream.getBOMCharsetName();
         if (csname == null) csname = "UTF-16";
         Charset charset = Charset.forName(csname);
         Reader reader = new InputStreamReader(bomInstream, charset);
-        return new CsvIterator(reader, format);
+        return new CsvCursor(reader, format);
     }
 
     public boolean hasNext() {

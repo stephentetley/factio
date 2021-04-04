@@ -29,12 +29,12 @@ namespace FactIO/JdbcImport {
     /// Returns a new Jdbc Cursor.
     ///
     pub def newDbCursor(url: String, query: String): Cursor[String, JdbcRow] & Impure =
-        import new flix.runtime.spt.factio.jdbc.JdbcIterator(String, String) as newJdbcIterator;
-        import flix.runtime.spt.factio.jdbc.JdbcIterator.next() as ffiHasNext;
-        import flix.runtime.spt.factio.jdbc.JdbcIterator.getRow() as ffiNext;
-        import flix.runtime.spt.factio.jdbc.JdbcIterator.close() as ffiClose;
+        import new flix.runtime.spt.factio.jdbc.JdbcCursor(String, String) as newJdbcCursor;
+        import flix.runtime.spt.factio.jdbc.JdbcCursor.next() as ffiHasNext;
+        import flix.runtime.spt.factio.jdbc.JdbcCursor.getRow() as ffiNext;
+        import flix.runtime.spt.factio.jdbc.JdbcCursor.close() as ffiClose;
         try {
-            let iter = newJdbcIterator(url, query);
+            let iter = newJdbcCursor(url, query);
             let cursorIter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
