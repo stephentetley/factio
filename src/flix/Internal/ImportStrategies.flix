@@ -22,13 +22,13 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     /// Note - a `relation` is naturally monoidal - a `rowreader` can generate zero, one or many facts from a `row`.
     ///
-    pub def importRows(rowreader: row -> Result[#{| reln}, String] & Impure,
+    pub def importRows!(rowreader: row -> Result[#{| reln}, String] & Impure,
                         s: Cursor[String, row]): Result[#{| reln}, String] & Impure =
         let step = (ac, r1) -> match rowreader(r1) {
             case Ok(a1) => Ok(ac <+> a1)
             case Err(e) => Err(e)
         };
-        Cursor.foldResult(step, #{ }, s)
+        Cursor.foldResult!(step, #{ }, s)
 
 
     ///
@@ -36,7 +36,7 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCount(rowreader: (row, Int32) ~> Result[#{| reln}, String],
+    pub def importRowsWithCount!(rowreader: (row, Int32) ~> Result[#{| reln}, String],
                                 s: Cursor[String, row]): Result[#{| reln}, String] & Impure =
         let step = (xy, row) -> {
             let (relns, n) = xy; 
@@ -45,7 +45,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };        
-        Cursor.foldResult(step, (#{ }, 0), s)
+        Cursor.foldResult!(step, (#{ }, 0), s)
             |> Result.map(fst)
 
 
@@ -54,7 +54,7 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithAccum(rowreader: (row, acc) ~> Result[(#{| reln}, acc), String],
+    pub def importRowsWithAccum!(rowreader: (row, acc) ~> Result[(#{| reln}, acc), String],
                                 st: acc,
                                 s: Cursor[String, row]): Result[(#{| reln}, acc), String] & Impure =
         let step = (xy, row) -> {
@@ -64,14 +64,14 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };        
-        Cursor.foldResult(step, (#{ }, st), s)
+        Cursor.foldResult!(step, (#{ }, st), s)
     
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCountAndAccum(rowreader: (row, Int32, acc) ~> Result[(#{| reln}, acc), String],
+    pub def importRowsWithCountAndAccum!(rowreader: (row, Int32, acc) ~> Result[(#{| reln}, acc), String],
                                         st: acc,
                                         s: Cursor[String, row]): Result[(#{| reln}, acc), String] & Impure =
         let step = (xyz, row) -> {
@@ -81,16 +81,16 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };        
-        Cursor.foldResult(step, (#{ }, 0, st), s)
+        Cursor.foldResult!(step, (#{ }, 0, st), s)
             |> Result.map(xyz -> let (x, _, z) = xyz; (x,z))
 
     ///
     /// Process all rows of the input.
     ///
-    pub def getRows(rowreader: row ~> Result[a, String],
+    pub def getRows!(rowreader: row ~> Result[a, String],
                     ss: Cursor[String, row]): Result[List[a], String] & Impure =
         ss  |> Cursor.mapResult(rowreader)
-            |> Cursor.toList
+            |> Cursor.toList!
 
 
 }

@@ -233,9 +233,9 @@ namespace FactIO/CsvExport {
         }
     }
 
-    pub def streamRowSetterX(f: a -> CsvRowSetter[b], ss: Cursor[String, a]): CsvExport[Unit] =
+    pub def streamRowSetterX!(f: a -> CsvRowSetter[b], ss: Cursor[String, a]): CsvExport[Unit] =
         CsvExport((hdrs, r) ->
-            Cursor.foreachResult(x -> apply1(writeRow(f(x)), hdrs, r), ss)
+            Cursor.foreachResult!(x -> apply1(writeRow(f(x)), hdrs, r), ss)
         )
 
     ///

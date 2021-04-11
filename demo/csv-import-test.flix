@@ -18,7 +18,7 @@ pub def test01(): Unit & Impure =
     let step = () -> {
         let path = System/FilePath.new("e:/coding/flix/factio/data/stations.csv");
         let src = FactIO/CsvImport.newCsvCursor(path, FactIO/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
-        let* ans = FactIO/CsvImport.importRows(getName(), src);
+        let* ans = FactIO/CsvImport.importRows!(getName(), src);
         Ok(solve ans)        
     };
     step() |> runResult
@@ -40,7 +40,7 @@ pub def test02(): Unit & Impure =
     let step = () -> {
         let path = System/FilePath.new("e:/coding/flix/factio/data/stations.csv");
         let src = FactIO/CsvImport.newCsvCursor(path, FactIO/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
-        let* relns = FactIO/CsvImport.importRows(getStation(), src);
+        let* relns = FactIO/CsvImport.importRows!(getStation(), src);
         Ok(solve relns)
     };
     step() |> runResult

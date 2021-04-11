@@ -29,7 +29,7 @@ pub def test01(): Unit & Impure =
     let path = System/FilePath.new("e:/coding/flix/factio/data/new-datalogs-utf8-bom.csv");
     let step =  () -> {
         let src = FactIO/CsvImport.newCsvCursor(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
-        let* relns = FactIO/CsvImport.importRows(getNewDatalog(), src);
+        let* relns = FactIO/CsvImport.importRows!(getNewDatalog(), src);
         Ok(solve relns)
     };
     Console.printLine("Should fail...");
@@ -40,7 +40,7 @@ pub def test02(): Unit & Impure =
     let path = System/FilePath.new("e:/coding/flix/factio/data/new-datalogs-utf8-bom.csv");
     let step =  () -> {
         let src = FactIO/CsvImport.newCsvCursorWithBOM(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader());
-        let* relns = FactIO/CsvImport.importRows(getNewDatalog(), src);
+        let* relns = FactIO/CsvImport.importRows!(getNewDatalog(), src);
         Ok(solve relns)
     };
     Console.printLine("Should succeed...");
@@ -56,7 +56,7 @@ pub def test03(): Unit & Impure =
     let path = System/FilePath.new("e:/coding/flix/factio/data/functional-langs-utf8-bom.csv");
     let step =  () -> {
         let src = FactIO/CsvImport.newCsvCursor(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
-        let* relns = FactIO/CsvImport.importRows(getFunctionalLang(), src);
+        let* relns = FactIO/CsvImport.importRows!(getFunctionalLang(), src);
         Ok(solve relns)
     };
     Console.printLine("Should fail...");
@@ -67,7 +67,7 @@ pub def test04(): Unit & Impure =
     let path = System/FilePath.new("e:/coding/flix/factio/data/functional-langs-utf8-bom.csv");
     let step = () -> {
         let src = FactIO/CsvImport.newCsvCursorWithBOM(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader());
-        let* relns = FactIO/CsvImport.importRows(getFunctionalLang(), src);
+        let* relns = FactIO/CsvImport.importRows!(getFunctionalLang(), src);
         Ok(solve relns)
     };
     Console.printLine("Should succeed...");

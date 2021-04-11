@@ -43,7 +43,7 @@ namespace FactIO/FlatFileImport {
             };
             Cursor.makeCursor(cursorIter)
         } catch {
-            case _: ##java.lang.Exception => Cursor.failure("newFlatFileStream")
+            case _: ##java.lang.Exception => Cursor.failure("newFlatFileCursor")
         }
 
     ///
@@ -51,49 +51,49 @@ namespace FactIO/FlatFileImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRows(eval: FlatFileLineEvaluator[#{| reln}],
-                       src: Cursor[String, String]): Result[#{| reln}, String] & Impure =
+    pub def importRows!(eval: FlatFileLineEvaluator[#{| reln}],
+                        src: Cursor[String, String]): Result[#{| reln}, String] & Impure =
         let FlatFileLineEvaluator(mf) = eval;
-        FactIO/Internal/ImportStrategies.importRows(mf, src)
+        FactIO/Internal/ImportStrategies.importRows!(mf, src)
 
     ///
     /// Process all rows of the input with a zero indexed row count.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCount(eval: Int32 -> FlatFileLineEvaluator[#{| reln}],
+    pub def importRowsWithCount!(eval: Int32 -> FlatFileLineEvaluator[#{| reln}],
                                 src: Cursor[String, String]): Result[#{| reln}, String] & Impure =
         let mf = (row, ix) -> { let FlatFileLineEvaluator(r1) = eval(ix); r1(row) };
-        FactIO/Internal/ImportStrategies.importRowsWithCount(mf, src)
+        FactIO/Internal/ImportStrategies.importRowsWithCount!(mf, src)
 
     ///
     /// Process all rows of the input with a threaded state.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithAccum(eval: st -> FlatFileLineEvaluator[(#{| reln}, st)],
+    pub def importRowsWithAccum!(eval: st -> FlatFileLineEvaluator[(#{| reln}, st)],
                                 state: st,
                                 src: Cursor[String, String]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, st) -> { let FlatFileLineEvaluator(r1) = eval(st); r1(row) };
-        FactIO/Internal/ImportStrategies.importRowsWithAccum(mf, state, src)
+        FactIO/Internal/ImportStrategies.importRowsWithAccum!(mf, state, src)
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCountAndAccum(eval: (Int32, st) -> FlatFileLineEvaluator[(#{| reln}, st)],
+    pub def importRowsWithCountAndAccum!(eval: (Int32, st) -> FlatFileLineEvaluator[(#{| reln}, st)],
                                         state: st,
                                         src: Cursor[String, String]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, ix, st) -> { let FlatFileLineEvaluator(r1) = eval(ix, st); r1(row) };
-        FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(mf, state, src)
+        FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum!(mf, state, src)
 
     ///
     /// Returns a list of applying `eval` to all rows in the input stream `src`.
     ///
-    pub def evaluateRows(eval: FlatFileLineEvaluator[a],
+    pub def evaluateRows!(eval: FlatFileLineEvaluator[a],
                          src: Cursor[String, String]): Result[List[a], String] & Impure =
         let FlatFileLineEvaluator(mf) = eval;
-        FactIO/Internal/ImportStrategies.getRows(mf, src)
+        FactIO/Internal/ImportStrategies.getRows!(mf, src)
 
 }

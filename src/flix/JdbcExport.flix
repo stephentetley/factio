@@ -312,9 +312,9 @@ namespace FactIO/JdbcExport {
         }
     }
 
-    pub def streamRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], ss: Cursor[String, a]): JdbcExport[Unit] =
+    pub def streamRowSetterX!(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], ss: Cursor[String, a]): JdbcExport[Unit] =
         JdbcExport(r ->
-            Cursor.foreachResult(x -> apply1(writeRow(stmt, f(x)), r), ss)
+            Cursor.foreachResult!(x -> apply1(writeRow(stmt, f(x)), r), ss)
         )
 
  }

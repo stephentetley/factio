@@ -16,7 +16,7 @@ def test01(): Unit & Impure =
         let path = System/FilePath.new("e:/coding/flix/factio/data/langs.duckdb");
         let query = "SELECT name, year FROM langs";
         let src = FactIO/JdbcImport.newDuckDBCursor(path, query);
-        let* relns = FactIO/JdbcImport.importRows(getLang(), src);
+        let* relns = FactIO/JdbcImport.importRows!(getLang(), src);
         Ok(solve relns)
     };
     step() |> runResult

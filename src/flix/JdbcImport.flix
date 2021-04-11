@@ -64,49 +64,49 @@ namespace FactIO/JdbcImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRows(eval: JdbcRowEvaluator[#{| reln}],
+    pub def importRows!(eval: JdbcRowEvaluator[#{| reln}],
                        src: Cursor[String, JdbcRow]): Result[#{| reln}, String] & Impure =
         let JdbcRowEvaluator(mf) = eval;
-        FactIO/Internal/ImportStrategies.importRows(mf, src)
+        FactIO/Internal/ImportStrategies.importRows!(mf, src)
 
     ///
     /// Process all rows of the input with a zero indexed row count.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCount(eval: Int32 -> JdbcRowEvaluator[#{| reln}],
+    pub def importRowsWithCount!(eval: Int32 -> JdbcRowEvaluator[#{| reln}],
                                 src: Cursor[String, JdbcRow]): Result[#{| reln}, String] & Impure =
         let mf = (row, ix) -> { let JdbcRowEvaluator(r1) = eval(ix); r1(row) };
-        FactIO/Internal/ImportStrategies.importRowsWithCount(mf, src)
+        FactIO/Internal/ImportStrategies.importRowsWithCount!(mf, src)
 
     ///
     /// Process all rows of the input with a threaded state.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithAccum(eval: st -> JdbcRowEvaluator[(#{| reln}, st)],
+    pub def importRowsWithAccum!(eval: st -> JdbcRowEvaluator[(#{| reln}, st)],
                                 state: st,
                                 src: Cursor[String, JdbcRow]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, st) -> { let JdbcRowEvaluator(r1) = eval(st); r1(row) };
-        FactIO/Internal/ImportStrategies.importRowsWithAccum(mf, state, src)
+        FactIO/Internal/ImportStrategies.importRowsWithAccum!(mf, state, src)
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCountAndAccum(eval: (Int32, st) -> JdbcRowEvaluator[(#{| reln}, st)],
+    pub def importRowsWithCountAndAccum!(eval: (Int32, st) -> JdbcRowEvaluator[(#{| reln}, st)],
                                         state: st,
                                         src: Cursor[String, JdbcRow]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, ix, st) -> { let JdbcRowEvaluator(r1) = eval(ix, st); r1(row) };
-        FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(mf, state, src)
+        FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum!(mf, state, src)
 
     ///
     /// Returns a list of applying `eval` to all rows in the input stream `src`.
     ///
-    pub def evaluateRows(eval: JdbcRowEvaluator[a],
-                         src: Cursor[String, JdbcRow]): Result[List[a], String] & Impure =
+    pub def evaluateRows!(eval: JdbcRowEvaluator[a],
+                          src: Cursor[String, JdbcRow]): Result[List[a], String] & Impure =
         let JdbcRowEvaluator(mf) = eval;
-        FactIO/Internal/ImportStrategies.getRows(mf, src)
+        FactIO/Internal/ImportStrategies.getRows!(mf, src)
 
 }

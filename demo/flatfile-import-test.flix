@@ -16,7 +16,7 @@ pub def test01(): Unit & Impure =
     let step = () -> {
         let path = System/FilePath.new("e:/coding/flix/factio/data/colours.txt");
         let src = FactIO/FlatFileImport.newFlatFileCursor(path, Text/Charset.utf_8());
-        let* relns = FactIO/FlatFileImport.importRows(getColour(), src);
+        let* relns = FactIO/FlatFileImport.importRows!(getColour(), src);
         Ok(solve relns)
     };
     step() |> runResult

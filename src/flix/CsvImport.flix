@@ -85,10 +85,10 @@ namespace FactIO/CsvImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRows(eval: CsvRowEvaluator[#{| reln}],
+    pub def importRows!(eval: CsvRowEvaluator[#{| reln}],
                         src: Cursor[String, CsvRow]): Result[#{| reln}, String] & Impure =
         let CsvRowEvaluator(mf) = eval;
-        FactIO/Internal/ImportStrategies.importRows(mf, src)
+        FactIO/Internal/ImportStrategies.importRows!(mf, src)
 
 
 
@@ -97,48 +97,48 @@ namespace FactIO/CsvImport {
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCount(eval: Int32 -> CsvRowEvaluator[#{| reln}],
+    pub def importRowsWithCount!(eval: Int32 -> CsvRowEvaluator[#{| reln}],
                                 src: Cursor[String, CsvRow]): Result[#{| reln}, String] & Impure =
         let mf = (row, ix) -> { let CsvRowEvaluator(r1) = eval(ix); r1(row) };
-        FactIO/Internal/ImportStrategies.importRowsWithCount(mf, src)
+        FactIO/Internal/ImportStrategies.importRowsWithCount!(mf, src)
 
     ///
     /// Process all rows of the input with a threaded state.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithAccum(eval: st -> CsvRowEvaluator[(#{| reln}, st)],
+    pub def importRowsWithAccum!(eval: st -> CsvRowEvaluator[(#{| reln}, st)],
                                 state: st,
                                 src: Cursor[String, CsvRow]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, st) -> { let CsvRowEvaluator(r1) = eval(st); r1(row) };
-        FactIO/Internal/ImportStrategies.importRowsWithAccum(mf, state, src)
+        FactIO/Internal/ImportStrategies.importRowsWithAccum!(mf, state, src)
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
     ///
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
-    pub def importRowsWithCountAndAccum(eval: (Int32, st) -> CsvRowEvaluator[(#{| reln}, st)],
+    pub def importRowsWithCountAndAccum!(eval: (Int32, st) -> CsvRowEvaluator[(#{| reln}, st)],
                                         state: st,
                                         src: Cursor[String, CsvRow]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, ix, st) -> { let CsvRowEvaluator(r1) = eval(ix, st); r1(row) };
-        FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(mf, state, src)
+        FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum!(mf, state, src)
 
     ///
     /// Returns a list of applying `eval` to all rows in the input stream `src`.
     ///
-    pub def evaluateRows(eval: CsvRowEvaluator[a],
+    pub def evaluateRows!(eval: CsvRowEvaluator[a],
                          src: Cursor[String, CsvRow]): Result[List[a], String] & Impure =
         let CsvRowEvaluator(mf) = eval;
-        FactIO/Internal/ImportStrategies.getRows(mf, src)
+        FactIO/Internal/ImportStrategies.getRows!(mf, src)
 
     /// Version of `evaluateRows` that skips empty rows in the source Csv.
-    pub def evaluateRowsSkipEmptyRows(eval: CsvRowEvaluator[a],
+    pub def evaluateRowsSkipEmptyRows!(eval: CsvRowEvaluator[a],
                                         src: Cursor[String, CsvRow]): Result[List[a], String] & Impure =
         let CsvRowEvaluator(mf) = eval;
         src |> Cursor.filter(x -> not isEmptyRow(x))
             |> Cursor.mapResult(mf)
-            |> Cursor.toList
+            |> Cursor.toList!
 
     def isEmptyRow(row: CsvRow): Bool =
         import flix.runtime.spt.factio.csv.CsvRow.isEmptyRow() as primIsEmptyRow;
