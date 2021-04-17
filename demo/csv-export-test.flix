@@ -11,58 +11,42 @@ def main(_args: Array[String]): Int32 & Impure =
 
 def test01(): Result[Unit, String] & Impure = 
     use Result.flatMap;
-    use FactIO/CsvExport.{runCsvExport};
-    let path = System/FilePath.new("e:/coding/flix/factio/data/output/dummy_export.csv");
+    use FactIO/CsvExport.{exportCsv};
+    let outpath = System/FilePath.new("e:/coding/flix/factio/data/output/dummy_export.csv");
     let headers = ["name", "intval"];
-    let* _ = runCsvExport(writeOutput(), path, FactIO/CsvFormat.default(), headers, Text/Charset.utf_8());
+    let db = dummyRelations();
+    let arr = query db select (n, v) from Dummy(n, v);
+    let* _ = exportCsv(FactIO/CsvFormat.default(), Text/Charset.utf_8(), headers, writeRow, arr, outpath);
+    let* _ = temp01();
     Ok()
 
 
-/// TODO - work out how to use CsvExport for "non-relations"...
-
-// @test
-// def stations01(): Result[Unit, System.Error] & Impure =
-//     use Result.flatMap;
-//     let dest    = "e:/coding/flix/factio/data/output/stations_export.csv";
-//     let* writer = FactIO/CsvExport.new(dest, Text/Charset.utf_8(), ["Name", "Grid_Ref"]);
-//     let* _      = FactIO/CsvExport.writeRow(writer, ["Bradford Interchange", "SE1657832808"]);
-//     let* _      = FactIO/CsvExport.writeRow(writer, ["Halifax", "SE0973324980"]);
-//     let* _      = FactIO/CsvExport.writeRow(writer, ["Low Moor", "SE1633428224"]);
-//     let* _      = FactIO/CsvExport.writeRow(writer, ["Mytholmroyd", "SE0127125846"]);
-//     let* _      = FactIO/CsvExport.writeRow(writer, ["Sowerby Bridge", "SE0624023505"]);
-//     let* _      = FactIO/CsvExport.close(writer);
-//     Ok()
 
 
 rel Dummy(name: String, intval: Int32)
 
-pub def dummyRelations(): #{ Dummy } = solve #{
+pub def dummyRelations(): #{Dummy | r} = solve #{
     Dummy("a", 0).
     Dummy("b", 0).
     Dummy("c", 1).
     Dummy("d", 1).
+    Dummy("e", 2).
+    Dummy("f", 2).
 }
 
+def temp01(): Result[Unit, String] & Impure = 
+    let db = dummyRelations();
+    let arr = query db select (n, v) from Dummy(n, v);
+    Console.printLine("Length: ${Array.length(arr)}");
+    Ok()
 
 /// A RowWriter for the body of Dummy.
-def writeRow(src: (String,Int)): CsvRowSetter[Unit] = 
+def writeRow(src: (String, Int)): CsvRowSetter[Unit] = 
     use FactIO/CsvRowSetter.{flatMap, return, putString!, putInt32!};
     let (name,i) = src;
     let* _ = putString!(0, name);
     let* _ = putInt32!(1, i);
     return()
-
-
-def writeStep(): ((String, Int32), CsvWriteList) -> CsvWriteList = 
-    FactIO/CsvExport.makeCsvWriteStep(writeRow)
-
-def writeOutput(): CsvExport[Unit] =
-    use FactIO/CsvExport.{flatMap, return, emptyCsvWriteList, execWriteList};
-    let writes      = fold Dummy emptyCsvWriteList() writeStep() (solve dummyRelations());
-    let* _          = execWriteList(writes);
-    return()
-
-
 
 
 
