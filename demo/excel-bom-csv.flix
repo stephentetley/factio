@@ -10,8 +10,8 @@ def main(_args: Array[String]): Int32 & Impure =
     0
 
 
-def runResult(r: Result[#{| reln}, String]): Unit & Impure = match r {
-    case Ok(reln) => reln |> unsafeToString |> println
+def printResult(rarr: Result[Array[a], String]): Unit & Impure with ToString[a] = match rarr {
+    case Ok(arr) => {Console.printLine("Success:"); Array.foreach(x -> Console.printLine("${x}"), arr) }
     case Err(msg) => Console.printLine("Error: ${msg}")
 }
 
@@ -19,7 +19,7 @@ def runResult(r: Result[#{| reln}, String]): Unit & Impure = match r {
 
 rel Lang(name: String)
 
-def getNewDatalog(): CsvRowEvaluator[#{Lang}] =
+def getNewDatalog(): CsvRowEvaluator[#{Lang | r}] =
     use FactIO/CsvRowEvaluator.{map, getStringNamed}; 
     map(s -> { Lang(s). }, getStringNamed("Lang"))
 
@@ -30,10 +30,11 @@ pub def test01(): Unit & Impure =
     let step =  () -> {
         let src = FactIO/CsvImport.newCsvCursor(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows!(getNewDatalog(), src);
-        Ok(solve relns)
+        let arr = query relns select (x) from Lang(x);
+        Ok(arr)
     };
     Console.printLine("Should fail...");
-    step() |> runResult
+    step() |> printResult
 
 pub def test02(): Unit & Impure =
     use Result.flatMap;
@@ -41,13 +42,14 @@ pub def test02(): Unit & Impure =
     let step =  () -> {
         let src = FactIO/CsvImport.newCsvCursorWithBOM(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader());
         let* relns = FactIO/CsvImport.importRows!(getNewDatalog(), src);
-        Ok(solve relns)
+        let arr = query relns select (x) from Lang(x);
+        Ok(arr)
     };
     Console.printLine("Should succeed...");
-    step() |> runResult
+    step() |> printResult
 
 
-def getFunctionalLang(): CsvRowEvaluator[#{Lang}] = 
+def getFunctionalLang(): CsvRowEvaluator[#{Lang | r}] = 
     use FactIO/CsvRowEvaluator.{map, getStringNamed}; 
     map(s -> { Lang(s). }, getStringNamed("Lang Name"))
 
@@ -57,10 +59,11 @@ pub def test03(): Unit & Impure =
     let step =  () -> {
         let src = FactIO/CsvImport.newCsvCursor(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows!(getFunctionalLang(), src);
-        Ok(solve relns)
+        let arr = query relns select (x) from Lang(x);
+        Ok(arr)
     };
     Console.printLine("Should fail...");
-    step() |> runResult
+    step() |> printResult
 
 pub def test04(): Unit & Impure =
     use Result.flatMap;
@@ -68,8 +71,9 @@ pub def test04(): Unit & Impure =
     let step = () -> {
         let src = FactIO/CsvImport.newCsvCursorWithBOM(path, FactIO/CsvFormat.excel().withFirstRecordAsHeader());
         let* relns = FactIO/CsvImport.importRows!(getFunctionalLang(), src);
-        Ok(solve relns)
+        let arr = query relns select (x) from Lang(x);
+        Ok(arr)
     };
     Console.printLine("Should succeed...");
-    step() |> runResult
+    step() |> printResult
 

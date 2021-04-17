@@ -7,8 +7,8 @@ def main(_args: Array[String]): Int32 & Impure =
     0
 
 
-def runResult(rarr: Result[Array[a], String]): Unit & Impure with ToString[a] = match rarr {
-    case Ok(arr) => Array.foreach(x -> Console.printLine("${x}"), arr)
+def printResult(rarr: Result[Array[a], String]): Unit & Impure with ToString[a] = match rarr {
+    case Ok(arr) => {Console.printLine("Success:"); Array.foreach(x -> Console.printLine("${x}"), arr) }
     case Err(msg) => Console.printLine("Error: ${msg}")
 }
 
@@ -22,7 +22,7 @@ pub def test01(): Unit & Impure =
         let arr = query relns select (x) from Name(x);
         Ok(arr)
     };
-    step() |> runResult
+    step() |> printResult
 
 rel Name(name: String)
 
@@ -44,7 +44,7 @@ pub def test02(): Unit & Impure =
         let* relns = FactIO/CsvImport.importRows!(getStation(), src);
         Ok(query relns select (x,y) from Station(x, y))
     };
-    step() |> runResult
+    step() |> printResult
 
 
 rel Station(name: String, gridref: String)

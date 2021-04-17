@@ -7,6 +7,8 @@ https://github.com/stephentetley/sheetio is a complementary project
 to read and write Excel files. This adds a lot of dependencies as
 it is built on top of Apache POI so it is developed as a separate project.
 
+This project now uses Flix's new solver.
+
 ## Build instructions
 
 I currently build factio within a Flix compiler project in IntelliJ.

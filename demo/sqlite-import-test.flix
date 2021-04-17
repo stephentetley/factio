@@ -5,8 +5,8 @@ def main(_args: Array[String]): Int32 & Impure =
     test01();
     0
 
-def runResult(r: Result[#{| reln}, String]): Unit & Impure = match r {
-    case Ok(reln) => reln |> unsafeToString |> println
+def printResult(rarr: Result[Array[a], String]): Unit & Impure with ToString[a] = match rarr {
+    case Ok(arr) => {Console.printLine("Success:"); Array.foreach(x -> Console.printLine("${x}"), arr) }
     case Err(msg) => Console.printLine("Error: ${msg}")
 }
 
@@ -17,13 +17,14 @@ def test01(): Unit & Impure =
         let query = "SELECT name, year FROM language";
         let src = FactIO/JdbcImport.newSQLiteCursor(path, query);
         let* relns = FactIO/JdbcImport.importRows!(getLang(), src);
-        Ok(solve relns)
+         let arr = query relns select (x, y) from Lang(x, y);
+        Ok(arr)
     };
-    step() |> runResult
+    step() |> printResult
 
 rel Lang(name: String, year: Int32)
 
-def getLang (): JdbcRowEvaluator[#{Lang}] = 
+def getLang (): JdbcRowEvaluator[#{Lang | r}] = 
     use FactIO/JdbcRowEvaluator.{flatMap, getStringNamed, getInt32Named, return};
     let* x = getStringNamed("name");
     let* y = getInt32Named("year");

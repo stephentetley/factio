@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-
-
-
-
 namespace FactIO/JdbcExport {
 
-
     use Text.Charset.{Charset};
-
+    
     use FactIO/Internal/Jdbc.OutputHandle;
     use FactIO.JdbcRowSetter;
     use FactIO.JdbcRowSetter.{JdbcRowSetter};
