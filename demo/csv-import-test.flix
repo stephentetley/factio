@@ -7,8 +7,8 @@ def main(_args: Array[String]): Int32 & Impure =
     0
 
 
-def runResult(r1: Result[#{| reln}, String]): Unit & Impure = match r1 {
-    case Ok(reln) => reln |> unsafeToString |> println
+def runResult(rarr: Result[Array[a], String]): Unit & Impure with ToString[a] = match rarr {
+    case Ok(arr) => Array.foreach(x -> Console.printLine("${x}"), arr)
     case Err(msg) => Console.printLine("Error: ${msg}")
 }
 
@@ -18,17 +18,18 @@ pub def test01(): Unit & Impure =
     let step = () -> {
         let path = System/FilePath.new("e:/coding/flix/factio/data/stations.csv");
         let src = FactIO/CsvImport.newCsvCursor(path, FactIO/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
-        let* ans = FactIO/CsvImport.importRows!(getName(), src);
-        Ok(solve ans)        
+        let* relns = FactIO/CsvImport.importRows!(getName(), src);
+        let arr = query relns select (x) from Name(x);
+        Ok(arr)
     };
     step() |> runResult
 
 rel Name(name: String)
 
-def makeName(name: String): #{ Name } = 
+def makeName(name: String): #{Name  | r} = 
     Name(name).
 
-def getName(): CsvRowEvaluator[#{Name}] = 
+def getName(): CsvRowEvaluator[#{Name | r}] = 
     use FactIO/CsvRowEvaluator.{map, getStringNamed};
     map(makeName, getStringNamed("Name")) 
 
@@ -41,7 +42,7 @@ pub def test02(): Unit & Impure =
         let path = System/FilePath.new("e:/coding/flix/factio/data/stations.csv");
         let src = FactIO/CsvImport.newCsvCursor(path, FactIO/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8());
         let* relns = FactIO/CsvImport.importRows!(getStation(), src);
-        Ok(solve relns)
+        Ok(query relns select (x,y) from Station(x, y))
     };
     step() |> runResult
 
@@ -49,7 +50,7 @@ pub def test02(): Unit & Impure =
 rel Station(name: String, gridref: String)
 
 
-def getStation(): CsvRowEvaluator[#{Station}] = 
+def getStation(): CsvRowEvaluator[#{Station | r}] = 
     use FactIO/CsvRowEvaluator.{flatMap, getStringNamed, return};
     let* x = getStringNamed("Name");
     let* y = getStringNamed("Grid_Ref");

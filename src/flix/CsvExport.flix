@@ -67,9 +67,9 @@ namespace FactIO/CsvExport {
                 handle: OutputHandle,
                 rowWriter: a -> CsvRowSetter[Unit],
                 rows: Array[a]): Result[Unit, String] & Impure =
-        writeRowsHelper(hdrs, handle, rowWriter, 0, rows)
+        writeRowsHelper!(hdrs, handle, rowWriter, 0, rows)
 
-    def writeRowsHelper(hdrs: Map[String, Int32],
+    def writeRowsHelper!(hdrs: Map[String, Int32],
                         handle: OutputHandle,
                         rowWriter: a -> CsvRowSetter[Unit],
                         ix: Int32,
@@ -77,22 +77,22 @@ namespace FactIO/CsvExport {
         if (ix < Array.length(rows)) {
             let x = rows[ix];
             let setter = rowWriter(x);
-            match writeRow(hdrs, handle, setter) {
-                case Ok() => writeRowsHelper(hdrs, handle, rowWriter, ix + 1, rows)
+            match writeRow!(hdrs, handle, setter) {
+                case Ok() => writeRowsHelper!(hdrs, handle, rowWriter, ix + 1, rows)
                 case Err(msg) => Err(msg)
             }
         } else Ok()
 
-    def writeRow(hdrs: Map[String, Int32], handle: OutputHandle, mx: CsvRowSetter[a]): Result[Unit, String] & Impure =
+    def writeRow!(hdrs: Map[String, Int32], handle: OutputHandle, mx: CsvRowSetter[a]): Result[Unit, String] & Impure =
         use Result.{flatMap};
-        use FactIO/Internal/Csv/OutputHandle.{clearCells!, writeRow! => primWriteRow!, setCellString!};
+        use FactIO/Internal/Csv/OutputHandle.{clearCells!, writeRow! => primWriteRow!};
         let* _ = Option.toOk(clearCells!(handle), "writeRow! - clearCells!");
-        let* _ = execCsvRowSetter(hdrs, handle, mx);
+        let* _ = execCsvRowSetter!(hdrs, handle, mx);
         let* _ = Option.toOk(primWriteRow!(handle), "writeRow! - primWriteRow!");
         Ok()
 
 
-    def execCsvRowSetter(hdrs: Map[String, Int32], handle: OutputHandle, mx: CsvRowSetter[a]): Result[Unit, String] & Impure =
+    def execCsvRowSetter!(hdrs: Map[String, Int32], handle: OutputHandle, mx: CsvRowSetter[a]): Result[Unit, String] & Impure =
         let CsvRowSetter(mf) = mx;
         match mf(hdrs, handle) {
             case Ok(_) => Ok()
