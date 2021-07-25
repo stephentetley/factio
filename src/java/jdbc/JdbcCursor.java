@@ -18,8 +18,9 @@ package flix.runtime.spt.factio.jdbc;
 
 import java.sql.*;
 
-/// Dependency when using SQLite:
-/// https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/
+/// Warning - this is not a proper iterator.
+/// goNext(): bool actually moves to next so it is not same as next()
+/// Needs to be rewritten with a JDBC library that generates a proper iterator.
 
 public class JdbcCursor {
 
@@ -37,7 +38,7 @@ public class JdbcCursor {
         return new JdbcRow(this.rs);
     }
 
-    public boolean next() throws Exception {
+    public boolean goNext() throws Exception {
         return this.rs.next();
     }
 
