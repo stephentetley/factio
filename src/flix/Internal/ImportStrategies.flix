@@ -17,9 +17,18 @@
 
 namespace FactIO/Internal/ImportStrategies {
 
-    use X.Cursor;
-    use X.Cursor.{Cursor};
-
+    ///
+    /// This is a missing function and needs needs adding to `Iterator.flix`:
+    ///
+    /// pub def foldLeftM(f: (b, a) -> Result[b, e] & f, s: b, iter: Iterator[Result[a, e]]): Result[b, e] & Impure =
+    ///     let Iterator(done, next) = iter;
+    ///     if (not done()) {
+    ///         match Result.flatMap(f(s), next()) {
+    ///             case Err(e) => Err(e)
+    ///             case Ok(s1) => foldLeftM(f, s1, iter)
+    ///         }
+    ///     }
+    ///     else Ok(s)
 
 
     ///

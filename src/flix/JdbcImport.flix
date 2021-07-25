@@ -17,8 +17,6 @@
 
 namespace FactIO/JdbcImport {
 
-    use X.Cursor;
-    use X.Cursor.{Cursor};
     use FactIO.JdbcRowEvaluator;
     use FactIO.JdbcRowEvaluator.{JdbcRowEvaluator};
 

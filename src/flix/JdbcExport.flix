@@ -33,8 +33,6 @@ namespace FactIO {
 
 namespace FactIO/JdbcExport {
 
-    use X.Cursor;
-    use X.Cursor.{Cursor};
     use Text.Charset.{Charset};
 
     use FactIO.JdbcExport;
@@ -246,15 +244,15 @@ namespace FactIO/JdbcExport {
 
     pub def close(): JdbcExport[Unit] =
         use FactIO/Internal/Jdbc/Output.{close};
-        liftOptionPrim(x -> x.close(), "close")
+        liftOptionPrim(x1 -> close(x1), "close")
 
     pub def setAutoCommit(autoCommit: Bool): JdbcExport[Unit] =
         use FactIO/Internal/Jdbc/Output.{setAutoCommit};
-        liftOptionPrim(x -> x.setAutoCommit(autoCommit), "setAutoCommit(${autoCommit})")
+        liftOptionPrim(x1 -> setAutoCommit(x1, autoCommit), "setAutoCommit(${autoCommit})")
 
     pub def getAutoCommit(): JdbcExport[Bool] =
         use FactIO/Internal/Jdbc/Output.{getAutoCommit};
-        liftOptionPrim(x -> x.getAutoCommit(), "getAutoCommit")
+        liftOptionPrim(x1 -> getAutoCommit(x1), "getAutoCommit")
 
     /// Performs a check first...
     pub def setAutoCommitOff(): JdbcExport[Unit] =
@@ -263,16 +261,16 @@ namespace FactIO/JdbcExport {
 
     pub def commit(): JdbcExport[Unit] =
         use FactIO/Internal/Jdbc/Output.{commit};
-        liftOptionPrim(x -> x.commit(), "commit")
+        liftOptionPrim(x1 -> commit(x1), "commit")
 
     pub def execute(sql: String): JdbcExport[Bool] =
         use FactIO/Internal/Jdbc/Output.{execute};
-        liftOptionPrim(x -> x.execute(sql), "execute(``${sql}``)")
+        liftOptionPrim(x1 -> execute(x1, sql), "execute(``${sql}``)")
 
 
     pub def prepareStatement(sql: String): JdbcExport[PreparedStatement] =
         use FactIO/Internal/Jdbc/Output.{prepareStatement};
-        liftOptionPrim(x -> x.prepareStatement(sql), "prepareStatement(``${sql}``)")
+        liftOptionPrim(x1 -> prepareStatement(x1, sql), "prepareStatement(``${sql}``)")
 
     pub def emptyJdbcWriteList(): JdbcWriteList = JdbcWriteList(Chain.empty())
 
@@ -313,9 +311,10 @@ namespace FactIO/JdbcExport {
         }
     }
 
-    pub def streamRowSetterX!(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], ss: Cursor[String, a]): JdbcExport[Unit] =
+    pub def streamRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], iter: Iterator[Result[a, String]]): JdbcExport[Unit] =
         JdbcExport(r ->
-            X/Cursor.foreachResult!(x -> apply1(writeRow(stmt, f(x)), r), ss)
+            Iterator.foldLeftM((_, x1) -> apply1(writeRow(stmt, f(x1)), r), 0, iter)
+                |> Result.map(constant(()))
         )
 
  }

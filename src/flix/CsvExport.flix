@@ -29,8 +29,6 @@ namespace FactIO {
 
 namespace FactIO/CsvExport {
 
-    use X.Cursor;
-    use X.Cursor.{Cursor};
     use Text.Charset.{Charset};
 
     use FactIO.CsvExport;
@@ -230,9 +228,9 @@ namespace FactIO/CsvExport {
         }
     }
 
-    pub def streamRowSetterX!(f: a -> CsvRowSetter[b], ss: Cursor[String, a]): CsvExport[Unit] =
+    pub def streamRowSetterX(f: a -> CsvRowSetter[b], iter: Iterator[Result[a, String]]): CsvExport[Unit] =
         CsvExport((hdrs, r) ->
-            X/Cursor.foreachResult!(x -> apply1(writeRow(f(x)), hdrs, r), ss)
+            Iterator.foldLeftM((_, x1) -> {let a1 = f(x1); apply1(writeRow(a1), hdrs, r)}, (), iter)
         )
 
     ///
