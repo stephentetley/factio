@@ -18,15 +18,13 @@
 
 namespace FactIO {
 
-    use FactIO/Internal/Csv.OutputHandle;
+    use FactIO/Internal/Csv.Output;
 
-    pub opaque type CsvRowSetter[a] = (Map[String, Int32], OutputHandle) ~> Result[a, String]
+    pub opaque type CsvRowSetter[a] = (Map[String, Int32], Output) ~> Result[a, String]
 
 }
 
 namespace FactIO/CsvRowSetter {
-
-    use FactIO/Internal/Csv.OutputHandle;
 
     use FactIO.CsvRowSetter;
     use FactIO.CsvRowSetter.{CsvRowSetter};
@@ -37,12 +35,12 @@ namespace FactIO/CsvRowSetter {
     pub def return(x: a): CsvRowSetter[a] =
         CsvRowSetter((_,_) -> Ok(x) as & Impure)
 
-    def apply1(x: CsvRowSetter[a], headers: Map[String, Int32], r: OutputHandle): Result[a, String] & Impure =
+    def apply1(x: CsvRowSetter[a], headers: Map[String, Int32], r: Output): Result[a, String] & Impure =
         let CsvRowSetter(f) = x;
         f(headers, r)
 
     pub def map(f: a -> b & ef, x: CsvRowSetter[a]): CsvRowSetter[b] =
-        CsvRowSetter((hdrs, r) ->
+        CsvRowSetter((hdrs,r) ->
             match apply1(x, hdrs, r) {
                 case Ok(a) => {
                     let ans = f(a) as & Impure;
@@ -76,22 +74,22 @@ namespace FactIO/CsvRowSetter {
     pub def flatMap(k: a -> CsvRowSetter[b], x: CsvRowSetter[a]): CsvRowSetter[b] = bind(x, k)
 
     def primWriteCell(ix: Int32, value: String): CsvRowSetter[Unit] =
-        use FactIO/Internal/Csv/OutputHandle.{setCellString!};
-        CsvRowSetter((_, r) -> Option.toOk(setCellString!(r, ix, value), "primWriteCell"))
+        use FactIO/Internal/Csv/Output.{setCell!};
+        CsvRowSetter((_, r) -> Option.toOk(setCell!(r, ix, value), "primWriteCell"))
 
     def primWriteNamedCell(label: String, value: String): CsvRowSetter[Unit] =
-        use FactIO/Internal/Csv/OutputHandle.{setCellString!};
+        use FactIO/Internal/Csv/Output.{setCell!};
         CsvRowSetter((hdrs, r) ->
             match Map.get(label, hdrs) {
-                case Some(ix) => Option.toOk(setCellString!(r, ix, value), "primWriteNamedCell")
-                case None => Err("primWriteNamedCell - unknown label: '${label}'")
+                case Some(ix) => Option.toOk(setCell!(r, ix, value), "primWriteNamedCell")
+                case None => Err("Unknown label: '${label}'")
              }
         )
 
-    pub def putEmpty!(ix: Int32): CsvRowSetter[Unit] =
+    pub def putNull!(ix: Int32): CsvRowSetter[Unit] =
         primWriteCell(ix, "")
 
-    pub def putEmptyByLabel!(label: String): CsvRowSetter[Unit] =
+    pub def putNullByLabel!(label: String): CsvRowSetter[Unit] =
         primWriteNamedCell(label, "")
 
     pub def putString!(ix: Int32, str: String): CsvRowSetter[Unit] =
@@ -151,92 +149,92 @@ namespace FactIO/CsvRowSetter {
 
     pub def putOptionString!(ix: Int32, x: Option[String]): CsvRowSetter[Unit] = match x {
         case Some(s) => putString!(ix, s)
-        case None => putEmpty!(ix)
+        case None => putNull!(ix)
     }
 
     pub def putOptionStringByLabel!(label: String, x: Option[String]): CsvRowSetter[Unit] = match x {
         case Some(s) => putStringByLabel!(label, s)
-        case None => putEmptyByLabel!(label)
+        case None => putNullByLabel!(label)
     }
 
     pub def putOptionBool!(ix: Int32, x: Option[Bool]): CsvRowSetter[Unit] = match x {
         case Some(b) => putBool!(ix, b)
-        case None => putEmpty!(ix)
+        case None => putNull!(ix)
     }
 
     pub def putOptionBoolByLabel!(label: String, x: Option[Bool]): CsvRowSetter[Unit] = match x {
         case Some(b) => putBoolByLabel!(label, b)
-        case None => putEmptyByLabel!(label)
+        case None => putNullByLabel!(label)
     }
 
     pub def putOptionInt8!(ix: Int32, x: Option[Int8]): CsvRowSetter[Unit] = match x {
         case Some(n) => putInt8!(ix, n)
-        case None => putEmpty!(ix)
+        case None => putNull!(ix)
     }
 
     pub def putOptionInt8ByLabel!(label: String, x: Option[Int8]): CsvRowSetter[Unit] = match x {
         case Some(n) => putInt8ByLabel!(label, n)
-        case None => putEmptyByLabel!(label)
+        case None => putNullByLabel!(label)
     }
 
     pub def putOptionInt16!(ix: Int32, x: Option[Int16]): CsvRowSetter[Unit] = match x {
         case Some(n) => putInt16!(ix, n)
-        case None => putEmpty!(ix)
+        case None => putNull!(ix)
     }
 
     pub def putOptionInt16ByLabel!(label: String, x: Option[Int16]): CsvRowSetter[Unit] = match x {
         case Some(n) => putInt16ByLabel!(label, n)
-        case None => putEmptyByLabel!(label)
+        case None => putNullByLabel!(label)
     }
 
     pub def putOptionInt32!(ix: Int32, x: Option[Int32]): CsvRowSetter[Unit] = match x {
         case Some(n) => putInt32!(ix, n)
-        case None => putEmpty!(ix)
+        case None => putNull!(ix)
     }
 
     pub def putOptionInt32ByLabel!(label: String, x: Option[Int32]): CsvRowSetter[Unit] = match x {
         case Some(n) => putInt32ByLabel!(label, n)
-        case None => putEmptyByLabel!(label)
+        case None => putNullByLabel!(label)
     }
 
     pub def putOptionInt64!(ix: Int32, x: Option[Int64]): CsvRowSetter[Unit] = match x {
         case Some(n) => putInt64!(ix, n)
-        case None => putEmpty!(ix)
+        case None => putNull!(ix)
     }
 
     pub def putOptionInt64ByLabel!(label: String, x: Option[Int64]): CsvRowSetter[Unit] = match x {
         case Some(n) => putInt64ByLabel!(label, n)
-        case None => putEmptyByLabel!(label)
+        case None => putNullByLabel!(label)
     }
 
     pub def putOptionBigInt!(ix: Int32, x: Option[BigInt]): CsvRowSetter[Unit] = match x {
         case Some(n) => putBigInt!(ix, n)
-        case None => putEmpty!(ix)
+        case None => putNull!(ix)
     }
 
     pub def putOptionBigIntByLabel!(label: String, x: Option[BigInt]): CsvRowSetter[Unit] = match x {
         case Some(n) => putBigIntByLabel!(label, n)
-        case None => putEmptyByLabel!(label)
+        case None => putNullByLabel!(label)
     }
 
     pub def putOptionFloat32!(ix: Int32, x: Option[Float32]): CsvRowSetter[Unit] = match x {
         case Some(n) => putFloat32!(ix, n)
-        case None => putEmpty!(ix)
+        case None => putNull!(ix)
     }
 
     pub def putOptionFloat32ByLabel!(label: String, x: Option[Float32]): CsvRowSetter[Unit] = match x {
         case Some(n) => putFloat32ByLabel!(label, n)
-        case None => putEmptyByLabel!(label)
+        case None => putNullByLabel!(label)
     }
 
     pub def putOptionFloat64!(ix: Int32, x: Option[Float64]): CsvRowSetter[Unit] = match x {
         case Some(n) => putFloat64!(ix, n)
-        case None => putEmpty!(ix)
+        case None => putNull!(ix)
     }
 
     pub def putOptionFloat64ByLabel!(label: String, x: Option[Float64]): CsvRowSetter[Unit] = match x {
         case Some(n) => putFloat64ByLabel!(label, n)
-        case None => putEmptyByLabel!(label)
+        case None => putNullByLabel!(label)
     }
 
     ///
@@ -362,29 +360,6 @@ namespace FactIO/CsvRowSetter {
                    o9: CsvRowSetter[t9],
                    o10: CsvRowSetter[t10]): CsvRowSetter[u] =
         ap(lift9(f, o1, o2, o3, o4, o5, o6, o7, o8, o9), o10)
-
-    pub def foldM(mf: (b, a) -> CsvRowSetter[b], start: b, xs: List[a]): CsvRowSetter[b] =
-        CsvRowSetter((hdrs, r) ->
-            foldMHelper(hdrs, r, mf, start, xs, e -> Err(e), ac -> Ok(ac))
-        )
-
-    def foldMHelper(hdrs: Map[String, Int32],
-                    r: OutputHandle,
-                    mf: (b, a) -> CsvRowSetter[b],
-                    acc: b,
-                    xs: List[a],
-                    fk: String -> Result[b, String],
-                    sk: b -> Result[b, String]): Result[b, String] & Impure =
-        match xs {
-            case Nil => sk(acc)
-            case x :: rs => {
-                let ma = mf(acc, x);
-                match apply1(ma, hdrs, r) {
-                    case Err(e) => fk(e)
-                    case Ok(acc1) => foldMHelper(hdrs, r, mf, acc1, rs, fk, sk)
-                }
-            }
-        }
 
 
 }

@@ -131,7 +131,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
         }
 
 
-    pub def executeUpdate!(x: PreparedStatement): Option[Int32] & Impure =
+    pub def executeUpdate(x: PreparedStatement): Option[Int32] & Impure =
         import java.sql.PreparedStatement.executeUpdate();
         try {
             let PreparedStatement(x1) = x;

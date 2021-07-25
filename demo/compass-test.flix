@@ -47,7 +47,7 @@ pub def sqlite01(): Unit & Impure =
         let query = "SELECT cardinal_name FROM cardinals";
         let src = FactIO/JdbcImport.newSQLiteCursor(path, query);
         let* relns = FactIO/JdbcImport.importRows!(sqliteDirection1(), src);
-         let arr = query relns select (x) from Direction(x);
+        let arr = query relns select (x) from Direction(x);
         Ok(arr)
     };
     step() |> printResult

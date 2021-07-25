@@ -17,6 +17,8 @@
 
 namespace FactIO/FlatFileImport {
 
+    use X.Cursor;
+    use X.Cursor.{Cursor};
     use System.FilePath.{FilePath};
     use Text.Charset.{Charset};
 
@@ -38,12 +40,12 @@ namespace FactIO/FlatFileImport {
             let iter = newLinesCursor(path1, cs1);
             let cursorIter =  {
                   hasNext = () -> ffiHasNext(iter)
-                , next = Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
+                , next = X/Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
                 , finalize = () -> ffiClose(iter)
             };
-            Cursor.makeCursor(cursorIter)
+            X/Cursor.makeCursor(cursorIter)
         } catch {
-            case _: ##java.lang.Exception => Cursor.failure("newFlatFileCursor")
+            case _: ##java.lang.Exception => X/Cursor.failure("newFlatFileCursor")
         }
 
     ///

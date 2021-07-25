@@ -22,6 +22,7 @@ import org.apache.commons.csv.CSVRecord;
 
 
 public class CsvRow {
+
     private CSVRecord wrappedRow;
 
     public CsvRow(CSVRecord row) {

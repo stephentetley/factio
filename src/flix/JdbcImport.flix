@@ -17,6 +17,8 @@
 
 namespace FactIO/JdbcImport {
 
+    use X.Cursor;
+    use X.Cursor.{Cursor};
     use FactIO.JdbcRowEvaluator;
     use FactIO.JdbcRowEvaluator.{JdbcRowEvaluator};
 
@@ -37,12 +39,12 @@ namespace FactIO/JdbcImport {
             let iter = newJdbcCursor(url, query);
             let cursorIter =  {
                   hasNext = () -> ffiHasNext(iter)
-                , next = Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
+                , next = X/Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
                 , finalize = () -> ffiClose(iter)
             };
-            Cursor.makeCursor(cursorIter)
+            X/Cursor.makeCursor(cursorIter)
         } catch {
-            case _: ##java.lang.Exception => Cursor.failure("newDbStream")
+            case _: ##java.lang.Exception => X/Cursor.failure("newDbStream")
         }
 
     ///

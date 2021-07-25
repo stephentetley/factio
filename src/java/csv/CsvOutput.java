@@ -26,25 +26,18 @@ import java.util.Arrays;
 
 public class CsvOutput {
 
-    /// This is a nested writer "handle".
-    /// There are two levels - at the `row` we set individual cells;
-    /// at the `printer` level we write a row to the output stream.
-    /// The handle `outw` is at class level so we can close it manually.
-    /// The decision not to move a row represented as Array[String] from
-    /// Flix to Java was due to a runtime errors in the (automatic)
-    /// marshalling which might not still be present.
     private final Writer outw;
     private final CSVPrinter printer;
     private final String[] row;
 
-    public CsvOutput(String filename, CSVFormat format, int columnCount, Charset cs) throws Exception {
+    public CsvOutput(String filename, CSVFormat format, int cellcount, Charset cs) throws Exception {
         outw = new OutputStreamWriter(new FileOutputStream(filename), cs);
         printer = format.print(outw);
-        row = new String[columnCount];
+        row = new String[cellcount];
         return;
     }
 
-    public void setCellString(int ix, String value) {
+    public void setCell(int ix, String value) {
         row[ix] = value;
     }
 
