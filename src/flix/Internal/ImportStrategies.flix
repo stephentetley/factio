@@ -17,18 +17,6 @@
 
 namespace FactIO/Internal/ImportStrategies {
 
-    ///
-    /// This is a missing function and needs needs adding to `Iterator.flix`:
-    ///
-    /// pub def foldLeftM(f: (b, a) -> Result[b, e] & f, s: b, iter: Iterator[Result[a, e]]): Result[b, e] & Impure =
-    ///     let Iterator(done, next) = iter;
-    ///     if (not done()) {
-    ///         match Result.flatMap(f(s), next()) {
-    ///             case Err(e) => Err(e)
-    ///             case Ok(s1) => foldLeftM(f, s1, iter)
-    ///         }
-    ///     }
-    ///     else Ok(s)
 
 
     ///
@@ -42,7 +30,7 @@ namespace FactIO/Internal/ImportStrategies {
             case Ok(a1) => Ok(ac <+> a1)
             case Err(e) => Err(e)
         };
-        Iterator.foldLeftM(step, #{}, iter)
+        X/IteratorExtras.foldLeftM(step, #{}, iter)
 
 
     ///
@@ -59,7 +47,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };
-        Iterator.foldLeftM(step, (#{ }, 0), iter)
+        X/IteratorExtras.foldLeftM(step, (#{ }, 0), iter)
             |> Result.map(fst)
 
 
@@ -78,7 +66,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };
-        Iterator.foldLeftM(step, (#{}, st), iter)
+        X/IteratorExtras.foldLeftM(step, (#{}, st), iter)
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
@@ -95,7 +83,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };
-        Iterator.foldLeftM(step, (#{}, 0, st), iter)
+        X/IteratorExtras.foldLeftM(step, (#{}, 0, st), iter)
             |> Result.map(xyz -> let (x, _, z) = xyz; (x,z))
 
     ///
@@ -111,7 +99,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };
-        Iterator.foldLeftM(step, Nil, iter)
+        X/IteratorExtras.foldLeftM(step, Nil, iter)
             |> Result.map(List.reverse)
 
 

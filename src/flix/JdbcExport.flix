@@ -313,7 +313,7 @@ namespace FactIO/JdbcExport {
 
     pub def streamRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], iter: Iterator[Result[a, String]]): JdbcExport[Unit] =
         JdbcExport(r ->
-            Iterator.foldLeftM((_, x1) -> apply1(writeRow(stmt, f(x1)), r), 0, iter)
+            X/IteratorExtras.foldLeftM((_, x1) -> apply1(writeRow(stmt, f(x1)), r), 0, iter)
                 |> Result.map(constant(()))
         )
 

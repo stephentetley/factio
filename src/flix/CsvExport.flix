@@ -230,7 +230,7 @@ namespace FactIO/CsvExport {
 
     pub def streamRowSetterX(f: a -> CsvRowSetter[b], iter: Iterator[Result[a, String]]): CsvExport[Unit] =
         CsvExport((hdrs, r) ->
-            Iterator.foldLeftM((_, x1) -> {let a1 = f(x1); apply1(writeRow(a1), hdrs, r)}, (), iter)
+            X/IteratorExtras.foldLeftM((_, x1) -> {let a1 = f(x1); apply1(writeRow(a1), hdrs, r)}, (), iter)
         )
 
     ///

@@ -170,7 +170,7 @@ namespace FactIO/CsvImport {
             |> Iterator.filter(x1 -> match x1 {
                     case Err(_) => true
                     case Ok(r1) => not isEmptyRow(r1)})
-            |> Iterator.foldLeftM(step, Nil)
+            |> X/IteratorExtras.foldLeftM(step, Nil)
             |> Result.map(List.reverse)
 
 
