@@ -116,7 +116,7 @@ namespace FactIO/FlatFileLineEvaluator {
         )
 
     pub def matchesRegex(regex: String, eval: Text/Regex.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
-        let* patt = liftOption(Text/Regex/Pattern.compile(regex), "matchesRegex('${regex}')");
+        let* patt = liftResult(Text/Regex/Pattern.compile(regex) |> Result.mapErr(constant("matchesRegex('${regex}')")));
         matches(patt, eval)
 
     pub def find(patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
@@ -128,7 +128,7 @@ namespace FactIO/FlatFileLineEvaluator {
         )
 
     pub def findRegex(regex: String, eval: Text/Regex.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
-        let* patt = liftOption(Text/Regex/Pattern.compile(regex), "findRegex('${regex}')");
+        let* patt = liftResult(Text/Regex/Pattern.compile(regex) |> Result.mapErr(constant("findRegex('${regex}')")));
         find(patt, eval)
 
     pub def ifThen(cond: FlatFileLineEvaluator[Bool], eval: FlatFileLineEvaluator[a]): FlatFileLineEvaluator[Option[a]] =
