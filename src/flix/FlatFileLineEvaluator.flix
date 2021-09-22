@@ -111,7 +111,7 @@ namespace FactIO/FlatFileLineEvaluator {
         use Result.flatMap;
         use Text/Regex.{evalMatches};
         FlatFileLineEvaluator(s ->
-            let* ans = evalMatches(s, patt, eval);
+            let* ans = evalMatches(patt, eval, s);
             Ok(ans)
         )
 
@@ -123,7 +123,7 @@ namespace FactIO/FlatFileLineEvaluator {
         use Result.flatMap;
         use Text/Regex.{evalContains};
         FlatFileLineEvaluator(s ->
-            let* ans = evalContains(s, patt, eval);
+            let* ans = evalContains(patt, eval, s);
             Ok(ans)
         )
 
