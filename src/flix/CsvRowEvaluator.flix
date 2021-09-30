@@ -312,32 +312,32 @@ namespace FactIO/CsvRowEvaluator {
 
     pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
         let* input = getStringAt(ix);
-        let* ans = liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateAt(${ix})");
+        let* ans = liftOption(Time/LocalDate.parse(formatter, input), "getLocalDateAt(${ix})");
         return(ans)
 
     pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): CsvRowEvaluator[Time.LocalDate] =
         let* input = getStringNamed(label);
-        let* ans = liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateNamed('${label}')");
+        let* ans = liftOption(Time/LocalDate.parse(formatter, input), "getLocalDateNamed('${label}')");
         return(ans)
 
     pub def getLocalDateTimeAt(ix: Int32, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
         let* input = getStringAt(ix);
-        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeAt(${ix})");
+        let* ans = liftOption(Time/LocalDateTime.parse(formatter, input), "getLocalDateTimeAt(${ix})");
         return(ans)
 
     pub def getLocalDateTimeNamed(label: String, formatter: Time/Format.DateTimeFormatter): CsvRowEvaluator[Time.LocalDateTime] =
         let* input = getStringNamed(label);
-        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeNamed('${label}')");
+        let* ans = liftOption(Time/LocalDateTime.parse(formatter, input), "getLocalDateTimeNamed('${label}')");
         return(ans)
 
     pub def getLocalTimeAt(ix: Int32, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
         let* input = getStringAt(ix);
-        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeAt(${ix})");
+        let* ans = liftOption(Time/LocalTime.parse(formatter, input), "getLocalTimeAt(${ix})");
         return(ans)
 
     pub def getLocalTimeNamed(label: String, formatter: Time/Format.TimeFormatter): CsvRowEvaluator[Time.LocalTime] =
         let* input = getStringNamed(label);
-        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeNamed('${label}')");
+        let* ans = liftOption(Time/LocalTime.parse(formatter, input), "getLocalTimeNamed('${label}')");
         return(ans)
 
     ///

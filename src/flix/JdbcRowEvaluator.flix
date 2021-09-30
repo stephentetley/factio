@@ -282,32 +282,32 @@ namespace FactIO/JdbcRowEvaluator {
 
     pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): JdbcRowEvaluator[Time.LocalDate] =
         let* input = getStringAt(ix);
-        let* ans = liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateAt");
+        let* ans = liftOption(Time/LocalDate.parse(formatter, input), "getLocalDateAt");
         return(ans)
 
     pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): JdbcRowEvaluator[Time.LocalDate] =
         let* input = getStringNamed(label);
-        let* ans = liftOption(Time/LocalDate.parse(input, formatter), "getLocalDateNamed");
+        let* ans = liftOption(Time/LocalDate.parse(formatter, input), "getLocalDateNamed");
         return(ans)
 
     pub def getLocalDateTimeAt(ix: Int32, formatter: Time/Format.DateTimeFormatter): JdbcRowEvaluator[Time.LocalDateTime] =
         let* input = getStringAt(ix);
-        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter) , "getLocalDateTimeAt");
+        let* ans = liftOption(Time/LocalDateTime.parse(formatter, input) , "getLocalDateTimeAt");
         return(ans)
 
     pub def getLocalDateTimeNamed(label: String, formatter: Time/Format.DateTimeFormatter): JdbcRowEvaluator[Time.LocalDateTime] =
         let* input = getStringNamed(label);
-        let* ans = liftOption(Time/LocalDateTime.parse(input, formatter), "getLocalDateTimeNamed");
+        let* ans = liftOption(Time/LocalDateTime.parse(formatter, input), "getLocalDateTimeNamed");
         return(ans)
 
     pub def getLocalTimeAt(ix: Int32, formatter: Time/Format.TimeFormatter): JdbcRowEvaluator[Time.LocalTime] =
         let* input = getStringAt(ix);
-        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeAt");
+        let* ans = liftOption(Time/LocalTime.parse(formatter, input), "getLocalTimeAt");
         return(ans)
 
     pub def getLocalTimeNamed(label: String, formatter: Time/Format.TimeFormatter): JdbcRowEvaluator[Time.LocalTime] =
         let* input = getStringNamed(label);
-        let* ans = liftOption(Time/LocalTime.parse(input, formatter), "getLocalTimeNamed");
+        let* ans = liftOption(Time/LocalTime.parse(formatter, input), "getLocalTimeNamed");
         return(ans)
 
     ///
