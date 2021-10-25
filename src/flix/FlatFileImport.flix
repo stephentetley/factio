@@ -17,54 +17,35 @@
 
 namespace FactIO/FlatFileImport {
 
+    use X.Cursor;
+    use X.Cursor.{Cursor};
     use System.FilePath.{FilePath};
     use Text.Charset.{Charset};
 
     use FactIO.FlatFileLineEvaluator;
     use FactIO.FlatFileLineEvaluator.{FlatFileLineEvaluator};
 
-    pub opaque type FlatFileReadHandle[a] = (##flix.runtime.spt.factio.flatfile.LinesCursor, Iterator[Result[a, String]])
-
-    pub def close(handle: FlatFileReadHandle[a]): Result[Unit, String] & Impure =
-        import flix.runtime.spt.factio.flatfile.LinesCursor.close();
-        let FlatFileReadHandle((x1, _)) = handle;
-        try {
-            close(x1);
-            Ok()
-        } catch {
-            case _: ##java.lang.Exception => Err("close")
-        }
-
-    pub def getIterator(handle: FlatFileReadHandle[a]): Iterator[Result[a, String]] =
-        let FlatFileReadHandle((_, i1)) = handle;
-        i1
-
-
     ///
     /// Returns a new Flat File Stream.
     ///
-    pub def newFlatFileReadHandle(path: System.FilePath,
-                              cs: Text.Charset): Result[FlatFileReadHandle[String], String] & Impure =
+    pub def newFlatFileCursor(path: System.FilePath,
+                              cs: Text.Charset): Cursor[String, String] & Impure =
         import new flix.runtime.spt.factio.flatfile.LinesCursor(##java.nio.file.Path, ##java.nio.charset.Charset) as newLinesCursor;
-        import flix.runtime.spt.factio.flatfile.LinesCursor.hasNext();
-        import flix.runtime.spt.factio.flatfile.LinesCursor.next();
+        import flix.runtime.spt.factio.flatfile.LinesCursor.hasNext() as ffiHasNext;
+        import flix.runtime.spt.factio.flatfile.LinesCursor.next() as ffiNext;
+        import flix.runtime.spt.factio.flatfile.LinesCursor.close() as ffiClose;
         try {
             let FilePath(path1) = path;
             let Charset(cs1) = cs;
-            let primIter = newLinesCursor(path1, cs1);
-            let iterDone = () -> if (hasNext(primIter)) false else true;
-            let iterNext = () -> {
-                try {
-                    Ok(next(primIter))
-                } catch {
-                    case _: ##java.lang.Exception => Err("flatFileReadIter[next]")
-                }
+            let iter = newLinesCursor(path1, cs1);
+            let cursorIter =  {
+                  hasNext = () -> ffiHasNext(iter)
+                , next = X/Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
+                , finalize = () -> ffiClose(iter)
             };
-            let iter1 = Iterator(iterDone, iterNext);
-            let hdl = FlatFileReadHandle((primIter, iter1));
-            Ok(hdl)
+            X/Cursor.makeCursor(cursorIter)
         } catch {
-            case _: ##java.lang.Exception => Err("newFlatFileReadHandle")
+            case _: ##java.lang.Exception => X/Cursor.failure("newFlatFileCursor")
         }
 
     ///
@@ -73,7 +54,7 @@ namespace FactIO/FlatFileImport {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRows(eval: FlatFileLineEvaluator[#{| reln}],
-                        iter: Iterator[Result[String, String]]): Result[#{| reln}, String] & Impure =
+                        iter: Cursor[String, String]): Result[#{| reln}, String] & Impure =
         let FlatFileLineEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.importRows(mf, iter)
 
@@ -83,7 +64,7 @@ namespace FactIO/FlatFileImport {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRowsWithCount!(eval: Int32 -> FlatFileLineEvaluator[#{| reln}],
-                                iter: Iterator[Result[String, String]]): Result[#{| reln}, String] & Impure =
+                                iter: Cursor[String, String]): Result[#{| reln}, String] & Impure =
         let mf = (row, ix) -> { let FlatFileLineEvaluator(r1) = eval(ix); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithCount(mf, iter)
 
@@ -94,7 +75,7 @@ namespace FactIO/FlatFileImport {
     ///
     pub def importRowsWithAccum(eval: st -> FlatFileLineEvaluator[(#{| reln}, st)],
                                 state: st,
-                                iter: Iterator[Result[String, String]]): Result[(#{| reln}, st), String] & Impure =
+                                iter: Cursor[String, String]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, st) -> { let FlatFileLineEvaluator(r1) = eval(st); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithAccum(mf, state, iter)
 
@@ -105,7 +86,7 @@ namespace FactIO/FlatFileImport {
     ///
     pub def importRowsWithCountAndAccum(eval: (Int32, st) -> FlatFileLineEvaluator[(#{| reln}, st)],
                                         state: st,
-                                        iter: Iterator[Result[String, String]]): Result[(#{| reln}, st), String] & Impure =
+                                        iter: Cursor[String, String]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, ix, st) -> { let FlatFileLineEvaluator(r1) = eval(ix, st); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(mf, state, iter)
 
@@ -113,7 +94,7 @@ namespace FactIO/FlatFileImport {
     /// Returns a list of applying `eval` to all rows in the input stream `src`.
     ///
     pub def evaluateRows(eval: FlatFileLineEvaluator[a],
-                         iter: Iterator[Result[String, String]]): Result[List[a], String] & Impure =
+                         iter: Cursor[String, String]): Result[List[a], String] & Impure =
         let FlatFileLineEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.getRows(mf, iter)
 

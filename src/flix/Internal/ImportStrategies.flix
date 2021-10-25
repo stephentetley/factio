@@ -17,20 +17,21 @@
 
 namespace FactIO/Internal/ImportStrategies {
 
-
+    use X.Cursor;
+    use X.Cursor.{Cursor};
 
     ///
     /// Process all rows of the input.
     ///
     /// Note - a `relation` is naturally monoidal - a `rowreader` can generate zero, one or many facts from a `row`.
     ///
-    pub def importRows(rowreader: row -> Result[#{| reln}, err] & Impure,
-                        iter: Iterator[Result[row, err]]): Result[#{| reln}, err] & Impure =
+    pub def importRows(rowreader: row ~> Result[#{| reln}, err],
+                        s: Cursor[err, row]): Result[#{| reln}, err] & Impure =
         let step = (ac, r1) -> match rowreader(r1) {
             case Ok(a1) => Ok(ac <+> a1)
             case Err(e) => Err(e)
         };
-        X/IteratorExtras.foldLeftM(step, #{}, iter)
+        X/Cursor.foldResult!(step, #{ }, s)
 
 
     ///
@@ -39,7 +40,7 @@ namespace FactIO/Internal/ImportStrategies {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRowsWithCount(rowreader: (row, Int32) ~> Result[#{| reln}, err],
-                                iter: Iterator[Result[row, err]]): Result[#{| reln}, err] & Impure =
+                                s: Cursor[err, row]): Result[#{| reln}, err] & Impure =
         let step = (xy, row) -> {
             let (relns, n) = xy;
             match rowreader(row, n) {
@@ -47,7 +48,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };
-        X/IteratorExtras.foldLeftM(step, (#{ }, 0), iter)
+        X/Cursor.foldResult!(step, (#{ }, 0), s)
             |> Result.map(fst)
 
 
@@ -58,7 +59,7 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     pub def importRowsWithAccum(rowreader: (row, acc) ~> Result[(#{| reln}, acc), err],
                                 st: acc,
-                                iter: Iterator[Result[row, err]]): Result[(#{| reln}, acc), err] & Impure =
+                                s: Cursor[err, row]): Result[(#{| reln}, acc), err] & Impure =
         let step = (xy, row) -> {
             let (relns, s1) = xy;
             match rowreader(row, s1) {
@@ -66,7 +67,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };
-        X/IteratorExtras.foldLeftM(step, (#{}, st), iter)
+        X/Cursor.foldResult!(step, (#{ }, st), s)
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
@@ -75,7 +76,7 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     pub def importRowsWithCountAndAccum(rowreader: (row, Int32, acc) ~> Result[(#{| reln}, acc), err],
                                         st: acc,
-                                        iter: Iterator[Result[row, err]]): Result[(#{| reln}, acc), err] & Impure =
+                                        s: Cursor[err, row]): Result[(#{| reln}, acc), err] & Impure =
         let step = (xyz, row) -> {
             let (relns, n, s1) = xyz;
             match rowreader(row, n, s1) {
@@ -83,24 +84,15 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };
-        X/IteratorExtras.foldLeftM(step, (#{}, 0, st), iter)
+        X/Cursor.foldResult!(step, (#{ }, 0, st), s)
             |> Result.map(xyz -> let (x, _, z) = xyz; (x,z))
 
     ///
     /// Process all rows of the input.
     ///
-    /// TODO - change to CPS to avoid reverse
-    ///
     pub def getRows(rowreader: row ~> Result[a, err],
-                    iter: Iterator[Result[row, err]]): Result[List[a], err] & Impure =
-        let step = (ac, row) -> {
-            match rowreader(row) {
-                case Ok(a1) => Ok(a1 :: ac)
-                case Err(e) => Err(e)
-            }
-        };
-        X/IteratorExtras.foldLeftM(step, Nil, iter)
-            |> Result.map(List.reverse)
-
+                    ss: Cursor[err, row]): Result[List[a], err] & Impure =
+        ss  |> X/Cursor.mapResult(rowreader)
+            |> X/Cursor.toList!
 
 }

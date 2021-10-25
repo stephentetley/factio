@@ -17,6 +17,8 @@
 
 namespace FactIO/JdbcImport {
 
+    use X.Cursor;
+    use X.Cursor.{Cursor};
     use FactIO.JdbcRowEvaluator;
     use FactIO.JdbcRowEvaluator.{JdbcRowEvaluator};
 
@@ -25,63 +27,39 @@ namespace FactIO/JdbcImport {
     ///
     type alias JdbcRow = ##flix.runtime.spt.factio.jdbc.JdbcRow
 
-    pub opaque type JdbcReadHandle[a] = (##flix.runtime.spt.factio.jdbc.JdbcCursor, Iterator[Result[a, String]])
-
-    pub def close(handle: JdbcReadHandle[a]): Result[Unit, String] & Impure =
-        import flix.runtime.spt.factio.jdbc.JdbcCursor.close();
-        let JdbcReadHandle((x1, _)) = handle;
-        try {
-            close(x1);
-            Ok()
-        } catch {
-            case _: ##java.lang.Exception => Err("close")
-        }
-
-    pub def getIterator(handle: JdbcReadHandle[a]): Iterator[Result[a, String]] =
-        let JdbcReadHandle((_, i1)) = handle;
-        i1
-
-
     ///
-    /// Returns a new JdbcReadHandle.
+    /// Returns a new Jdbc Cursor.
     ///
-    /// Warning: Currently this does not return a proper iterator (Next is flawed).
-    /// Use with caution.
-    ///
-    pub def newJdbcReadHandle(url: String, query: String): Result[JdbcReadHandle[JdbcRow], String] & Impure =
+    pub def newDbCursor(url: String, query: String): Cursor[String, JdbcRow] & Impure =
         import new flix.runtime.spt.factio.jdbc.JdbcCursor(String, String) as newJdbcCursor;
-        import flix.runtime.spt.factio.jdbc.JdbcCursor.goNext();
-        import flix.runtime.spt.factio.jdbc.JdbcCursor.getRow();
+        import flix.runtime.spt.factio.jdbc.JdbcCursor.goNext() as ffiHasNext;
+        import flix.runtime.spt.factio.jdbc.JdbcCursor.getRow() as ffiNext;
+        import flix.runtime.spt.factio.jdbc.JdbcCursor.close() as ffiClose;
         try {
-            let primIter = newJdbcCursor(url, query);
-            let iterDone = () -> if (goNext(primIter)) false else true;
-            let iterNext = () -> {
-                try {
-                    Ok(getRow(primIter))
-                } catch {
-                    case _: ##java.lang.Exception => Err("jdbcReadIter[next]")
-                }
+            let iter = newJdbcCursor(url, query);
+            let cursorIter =  {
+                  hasNext = () -> ffiHasNext(iter)
+                , next = X/Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
+                , finalize = () -> ffiClose(iter)
             };
-            let iter1 = Iterator(iterDone, iterNext);
-            let hdl = JdbcReadHandle((primIter, iter1));
-            Ok(hdl)
+            X/Cursor.makeCursor(cursorIter)
         } catch {
-            case _: ##java.lang.Exception => Err("newJdbcReadHandle")
+            case _: ##java.lang.Exception => X/Cursor.failure("newDbStream")
         }
 
     ///
-    /// Returns a new SQLite JdbcReadHandle.
+    /// Returns a new SQLite Cursor.
     ///
-    pub def newSQLiteReadHandle(filepath: System.FilePath,
-                                query: String): Result[JdbcReadHandle[JdbcRow], String] & Impure =
-        newJdbcReadHandle("jdbc:sqlite:${filepath}", query)
+    pub def newSQLiteCursor(filepath: System.FilePath,
+                            query: String): Cursor[String, JdbcRow] & Impure =
+        newDbCursor("jdbc:sqlite:${filepath}", query)
 
     ///
-    /// Returns a new DuckDB JdbcReadHandle.
+    /// Returns a new DuckDB Cursor.
     ///
-    pub def newDuckDBReadHandle(filepath: System.FilePath,
-                                query: String): Result[JdbcReadHandle[JdbcRow], String] & Impure =
-        newJdbcReadHandle("jdbc:duckdb:${filepath}", query)
+    pub def newDuckDBCursor(filepath: System.FilePath,
+                            query: String): Cursor[String, JdbcRow] & Impure =
+        newDbCursor("jdbc:duckdb:${filepath}", query)
 
     ///
     /// Process all rows of the input.
@@ -89,7 +67,7 @@ namespace FactIO/JdbcImport {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRows(eval: JdbcRowEvaluator[#{| reln}],
-                       iter: Iterator[Result[JdbcRow, String]]): Result[#{| reln}, String] & Impure =
+                       iter: Cursor[String, JdbcRow]): Result[#{| reln}, String] & Impure =
         let JdbcRowEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.importRows(mf, iter)
 
@@ -99,7 +77,7 @@ namespace FactIO/JdbcImport {
     /// Note - a `relation` is naturally monoidal - a row can generate zero, one or many facts.
     ///
     pub def importRowsWithCount!(eval: Int32 -> JdbcRowEvaluator[#{| reln}],
-                                iter: Iterator[Result[JdbcRow, String]]): Result[#{| reln}, String] & Impure =
+                                iter: Cursor[String, JdbcRow]): Result[#{| reln}, String] & Impure =
         let mf = (row, ix) -> { let JdbcRowEvaluator(r1) = eval(ix); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithCount(mf, iter)
 
@@ -110,7 +88,7 @@ namespace FactIO/JdbcImport {
     ///
     pub def importRowsWithAccum!(eval: st -> JdbcRowEvaluator[(#{| reln}, st)],
                                 state: st,
-                                iter: Iterator[Result[JdbcRow, String]]): Result[(#{| reln}, st), String] & Impure =
+                                iter: Cursor[String, JdbcRow]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, st) -> { let JdbcRowEvaluator(r1) = eval(st); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithAccum(mf, state, iter)
 
@@ -121,7 +99,7 @@ namespace FactIO/JdbcImport {
     ///
     pub def importRowsWithCountAndAccum!(eval: (Int32, st) -> JdbcRowEvaluator[(#{| reln}, st)],
                                         state: st,
-                                        iter: Iterator[Result[JdbcRow, String]]): Result[(#{| reln}, st), String] & Impure =
+                                        iter: Cursor[String, JdbcRow]): Result[(#{| reln}, st), String] & Impure =
         let mf = (row, ix, st) -> { let JdbcRowEvaluator(r1) = eval(ix, st); r1(row) };
         FactIO/Internal/ImportStrategies.importRowsWithCountAndAccum(mf, state, iter)
 
@@ -129,7 +107,7 @@ namespace FactIO/JdbcImport {
     /// Returns a list of applying `eval` to all rows in the input stream `src`.
     ///
     pub def evaluateRows(eval: JdbcRowEvaluator[a],
-                          iter: Iterator[Result[JdbcRow, String]]): Result[List[a], String] & Impure =
+                          iter: Cursor[String, JdbcRow]): Result[List[a], String] & Impure =
         let JdbcRowEvaluator(mf) = eval;
         FactIO/Internal/ImportStrategies.getRows(mf, iter)
 

@@ -33,6 +33,8 @@ namespace FactIO {
 
 namespace FactIO/JdbcExport {
 
+    use X.Cursor;
+    use X.Cursor.{Cursor};
     use Text.Charset.{Charset};
 
     use FactIO.JdbcExport;
@@ -311,9 +313,9 @@ namespace FactIO/JdbcExport {
         }
     }
 
-    pub def streamRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], iter: Iterator[Result[a, String]]): JdbcExport[Unit] =
+    pub def streamRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], iter: Cursor[String, a]): JdbcExport[Unit] =
         JdbcExport(r ->
-            X/IteratorExtras.foldLeftM((_, x1) -> apply1(writeRow(stmt, f(x1)), r), 0, iter)
+            X/Cursor.foldResult!((_, x1) -> apply1(writeRow(stmt, f(x1)), r), 0, iter)
                 |> Result.map(constant(()))
         )
 
