@@ -95,80 +95,80 @@ namespace FactIO/CsvFormat {
     pub def getAllowMissingColumnNames(x: CsvFormat): Bool =
         import org.apache.commons.csv.CSVFormat.getAllowMissingColumnNames();
         let CsvFormat(x1) = x;
-        x1.getAllowMissingColumnNames() as & Pure
+        getAllowMissingColumnNames(x1) as & Pure
 
     pub def putAllowMissingColumnNames(x: CsvFormat, allow: Bool): CsvFormat =
         import org.apache.commons.csv.CSVFormat.withAllowMissingColumnNames(Bool);
         let CsvFormat(x1) = x;
-        CsvFormat(x1.withAllowMissingColumnNames(allow)) as & Pure
+        CsvFormat(withAllowMissingColumnNames(x1, allow)) as & Pure
 
     pub def getDelimiter(x: CsvFormat): Char =
         import org.apache.commons.csv.CSVFormat.getDelimiter();
         let CsvFormat(x1) = x;
-        x1.getDelimiter() as & Pure
+        getDelimiter(x1) as & Pure
 
     pub def putDelimiter(x: CsvFormat, delimiter: Char): CsvFormat =
         import org.apache.commons.csv.CSVFormat.withDelimiter(Char);
         let CsvFormat(x1) = x;
-        CsvFormat(x1.withDelimiter(delimiter)) as & Pure
+        CsvFormat(withDelimiter(x1, delimiter)) as & Pure
 
     pub def getEscapeChar(x: CsvFormat): Char =
         import org.apache.commons.csv.CSVFormat.getEscapeCharacter();
         import java.lang.Character.charValue();
         let CsvFormat(x1) = x;
-        x1.getEscapeCharacter().charValue() as & Pure
+        (getEscapeCharacter(x1) |> charValue) as & Pure
 
     pub def putEscapeChar(x: CsvFormat, escape: Char): CsvFormat =
         import org.apache.commons.csv.CSVFormat.withEscape(Char);
         let CsvFormat(x1) = x;
-        CsvFormat(x1.withEscape(escape)) as & Pure
+        CsvFormat(withEscape(x1, escape)) as & Pure
 
 
     pub def getIgnoreEmptyLines(x: CsvFormat): Bool =
         import org.apache.commons.csv.CSVFormat.getIgnoreEmptyLines();
         let CsvFormat(x1) = x;
-        x1.getIgnoreEmptyLines() as & Pure
+        getIgnoreEmptyLines(x1) as & Pure
 
     pub def putIgnoreEmptyLines(x: CsvFormat, ignore: Bool): CsvFormat =
         import org.apache.commons.csv.CSVFormat.withIgnoreEmptyLines(Bool);
         let CsvFormat(x1) = x;
-        CsvFormat(x1.withIgnoreEmptyLines(ignore)) as & Pure
+        CsvFormat(withIgnoreEmptyLines(x1, ignore)) as & Pure
 
 
     pub def getQuoteChar(x: CsvFormat): Char =
         import org.apache.commons.csv.CSVFormat.getQuoteCharacter();
         import java.lang.Character.charValue();
         let CsvFormat(x1) = x;
-        x1.getQuoteCharacter().charValue() as & Pure
+        (getQuoteCharacter(x1) |> charValue) as & Pure
 
     pub def putQuoteChar(x: CsvFormat, quote: Char): CsvFormat =
         import org.apache.commons.csv.CSVFormat.withQuote(Char);
         let CsvFormat(x1) = x;
-        CsvFormat(x1.withQuote(quote)) as & Pure
+        CsvFormat(withQuote(x1, quote)) as & Pure
 
     pub def getSkipHeaderRecord(x: CsvFormat): Bool =
         import org.apache.commons.csv.CSVFormat.getSkipHeaderRecord();
         let CsvFormat(x1) = x;
-        x1.getSkipHeaderRecord() as & Pure
+        getSkipHeaderRecord(x1) as & Pure
 
     pub def putSkipHeaderRecord(x: CsvFormat, skip: Bool): CsvFormat =
         import org.apache.commons.csv.CSVFormat.withSkipHeaderRecord(Bool);
         let CsvFormat(x1) = x;
-        CsvFormat(x1.withSkipHeaderRecord(skip)) as & Pure
+        CsvFormat(withSkipHeaderRecord(x1, skip)) as & Pure
 
     pub def getTrim(x: CsvFormat): Bool =
         import org.apache.commons.csv.CSVFormat.getTrim();
         let CsvFormat(x1) = x;
-        x1.getTrim() as & Pure
+        getTrim(x1) as & Pure
 
     pub def putTrim(x: CsvFormat, trim: Bool): CsvFormat =
         import org.apache.commons.csv.CSVFormat.withTrim(Bool);
         let CsvFormat(x1) = x;
-        CsvFormat(x1.withTrim(trim)) as & Pure
+        CsvFormat(withTrim(x1, trim)) as & Pure
 
     pub def withFirstRecordAsHeader(x: CsvFormat): CsvFormat =
         import org.apache.commons.csv.CSVFormat.withFirstRecordAsHeader();
         let CsvFormat(x1) = x;
-        CsvFormat(x1.withFirstRecordAsHeader()) as & Pure
+        CsvFormat(withFirstRecordAsHeader(x1)) as & Pure
 
 }

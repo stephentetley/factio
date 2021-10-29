@@ -115,7 +115,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getStringAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getStringAt(ix);
+                let a = getStringAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getStringAt('${ix}')")
@@ -129,7 +129,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getStringNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getStringNamed(label);
+                let a = getStringNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getStringNamed('${label}')")
@@ -140,7 +140,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getByteAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getByteAt(ix);
+                let a = getByteAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt8At(${ix})")
@@ -151,7 +151,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getByteNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getByteNamed(label);
+                let a = getByteNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt8Named('${label}')")
@@ -162,7 +162,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getShortAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getShortAt(ix);
+                let a = getShortAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt16At(${ix})")
@@ -173,7 +173,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getShortNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getShortNamed(label);
+                let a = getShortNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt16Named('${label}')")
@@ -184,7 +184,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getIntAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getIntAt(ix);
+                let a = getIntAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt32At(${ix})")
@@ -195,7 +195,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getIntNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getIntNamed(label);
+                let a = getIntNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt32Named('${label}')")
@@ -206,7 +206,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getLongAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getLongAt(ix);
+                let a = getLongAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt64At(${ix})")
@@ -217,7 +217,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getLongNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getLongNamed(label);
+                let a = getLongNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt64Named('${label}')")
@@ -228,7 +228,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getFloatAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getFloatAt(ix);
+                let a = getFloatAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getFloat32At(${ix})")
@@ -239,7 +239,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getFloatNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getFloatNamed(label);
+                let a = getFloatNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getFloat32Named('${label}')")
@@ -250,7 +250,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getDoubleAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getDoubleAt(ix);
+                let a = getDoubleAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getFloat64At(${ix})")
@@ -261,7 +261,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getDoubleNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getDoubleNamed(label);
+                let a = getDoubleNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getFloat64Named('${label}')")
@@ -272,7 +272,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getBigIntegerAt(Int32);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getBigIntegerAt(ix);
+                let a = getBigIntegerAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getBigIntAt(${ix})")
@@ -283,7 +283,7 @@ namespace FactIO/CsvRowEvaluator {
         import flix.runtime.spt.factio.csv.CsvRow.getBigIntegerNamed(String);
         liftPrimRowReader(row -> 
             try {
-                let a = row.getBigIntegerNamed(label);
+                let a = getBigIntegerNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getBigIntNamed('${label}')")

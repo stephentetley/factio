@@ -110,7 +110,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getStringAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getStringAt(ix);
+                let a = getStringAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getStringAt(${ix})")
@@ -121,7 +121,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getStringNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getStringNamed(label);
+                let a = getStringNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getStringNamed('${label}')")
@@ -132,7 +132,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getByteAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getByteAt(ix);
+                let a = getByteAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt8At(${ix})")
@@ -143,7 +143,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getByteNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getByteNamed(label);
+                let a = getByteNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt8Named('${label}')")
@@ -154,7 +154,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getShortAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getShortAt(ix);
+                let a = getShortAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt16At(${ix})")
@@ -165,7 +165,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getShortNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getShortNamed(label);
+                let a = getShortNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt16Named('${label}')")
@@ -176,7 +176,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getIntAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getIntAt(ix);
+                let a = getIntAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt32At(${ix})")
@@ -187,7 +187,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getIntNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getIntNamed(label);
+                let a = getIntNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt32Named('${label}')")
@@ -198,7 +198,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getLongAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getLongAt(ix);
+                let a = getLongAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt64At(${ix})")
@@ -209,7 +209,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getLongNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getLongNamed(label);
+                let a = getLongNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getInt64Named('${label}')")
@@ -220,7 +220,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getFloatAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getFloatAt(ix);
+                let a = getFloatAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getFloat32At(${ix})")
@@ -231,7 +231,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getFloatNamed(String);
         liftPrimRowReader(row ->
             try {
-                let a = row.getFloatNamed(label);
+                let a = getFloatNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getFloat32Named('${label}')")
@@ -242,7 +242,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getDoubleAt(Int32);
         liftPrimRowReader(row ->
             try {
-                let a = row.getDoubleAt(ix);
+                let a = getDoubleAt(row, ix);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getFloat64At(${ix})")
@@ -253,7 +253,7 @@ namespace FactIO/JdbcRowEvaluator {
         import flix.runtime.spt.factio.jdbc.JdbcRow.getDoubleNamed(String);
         liftPrimRowReader(row ->       
             try {
-                let a = row.getDoubleNamed(label);
+                let a = getDoubleNamed(row, label);
                 Ok(a)
             } catch {
                 case _: ##java.lang.Exception => Err("getFloat64Named('${label}')")

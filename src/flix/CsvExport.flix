@@ -55,7 +55,7 @@ namespace FactIO/CsvExport {
         let headers         = makeColumnIndices(headings);
         let* handle         = Option.toOk(newOutput(ToString.toString(path), fmt1, cellcount, cs), "runCsvExport failed");
         let* ans            = apply1(bind(writeLine(headings), _ -> mx), headers, handle);
-        let _               = handle.close();
+        let _               = close(handle);
         Ok(ans)
 
 
