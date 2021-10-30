@@ -90,7 +90,7 @@ namespace FactIO/CsvFormat {
     pub def toString(x: CsvFormat): String =
         import org.apache.commons.csv.CSVFormat.toString();
         let CsvFormat(x1) = x;
-        x1.toString() as & Pure
+        toString(x1) as & Pure
 
     pub def getAllowMissingColumnNames(x: CsvFormat): Bool =
         import org.apache.commons.csv.CSVFormat.getAllowMissingColumnNames();

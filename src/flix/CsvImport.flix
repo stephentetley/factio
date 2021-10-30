@@ -143,6 +143,6 @@ namespace FactIO/CsvImport {
 
     def isEmptyRow(row: CsvRow): Bool =
         import flix.runtime.spt.factio.csv.CsvRow.isEmptyRow() as primIsEmptyRow;
-        row.primIsEmptyRow() as & Pure
+        primIsEmptyRow(row) as & Pure
 
 }
