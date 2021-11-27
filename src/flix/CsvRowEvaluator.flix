@@ -17,7 +17,7 @@
 
 namespace FactIO {
 
-    pub opaque type CsvRowEvaluator[a] = ##flix.runtime.spt.factio.csv.CsvRow ~> Result[a, String]
+    pub opaque type CsvRowEvaluator[a] = ##flix.runtime.spt.factio.csv.CsvRow -> Result[a, String] & Impure
 }
 
 
@@ -37,7 +37,7 @@ namespace FactIO/CsvRowEvaluator {
         let CsvRowEvaluator(f) = x;
         f(r)
 
-    pub def map(f: a -> b & ef, x: CsvRowEvaluator[a]): CsvRowEvaluator[b] =
+    pub def map(f: a -> b & ef, x: CsvRowEvaluator[a]): CsvRowEvaluator[b] & ef =
         CsvRowEvaluator(r -> 
             match apply1(x, r) {
                 case Ok(a) => {
@@ -46,9 +46,9 @@ namespace FactIO/CsvRowEvaluator {
                 }
                 case Err(e) => Err(e)
             }
-        )        
+        ) as & ef
 
-    pub def ap(mf: CsvRowEvaluator[a -> b & ef], ma: CsvRowEvaluator[a]): CsvRowEvaluator[b] =
+    pub def ap(mf: CsvRowEvaluator[a -> b & ef], ma: CsvRowEvaluator[a]): CsvRowEvaluator[b] & ef =
         CsvRowEvaluator(r -> 
             match apply1(mf, r) {
                 case Ok(f) => { 
@@ -59,17 +59,17 @@ namespace FactIO/CsvRowEvaluator {
                 }
                 case Err(e1) => Err(e1)
             }
-        )
+        ) as & ef
 
-    pub def bind(x: CsvRowEvaluator[a], k: a -> CsvRowEvaluator[b]): CsvRowEvaluator[b] = 
+    pub def bind(x: CsvRowEvaluator[a], k: a -> CsvRowEvaluator[b] & ef): CsvRowEvaluator[b] & ef =
         CsvRowEvaluator(r -> 
             match apply1(x, r) { 
-                case Ok(a) => { let ans = k(a); apply1(ans, r) }
+                case Ok(a) => { let ans = k(a) as & Impure; apply1(ans, r) }
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def flatMap(k: a -> CsvRowEvaluator[b], x: CsvRowEvaluator[a]): CsvRowEvaluator[b] = bind(x, k)
+    pub def flatMap(k: a -> CsvRowEvaluator[b] & ef, x: CsvRowEvaluator[a]): CsvRowEvaluator[b] & ef = bind(x, k)
 
     pub def optional(x: CsvRowEvaluator[a]): CsvRowEvaluator[Option[a]] =
         CsvRowEvaluator(r ->
@@ -80,7 +80,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
 
-    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.csv.CsvRow ~> Result[a, String]): CsvRowEvaluator[a] =
+    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.csv.CsvRow -> Result[a, String] & Impure): CsvRowEvaluator[a] =
         CsvRowEvaluator(r -> eval(r))
 
     pub def liftOption(x: Option[a], errMsg: String): CsvRowEvaluator[a] = match x {
@@ -91,8 +91,8 @@ namespace FactIO/CsvRowEvaluator {
     pub def liftResult(x: Result[a, String]): CsvRowEvaluator[a] = 
         CsvRowEvaluator(_ -> x as & Impure)
 
-    pub def liftOperation(fn: Unit ~> Result[a, String]): CsvRowEvaluator[a] =
-        CsvRowEvaluator(_ -> fn())
+    pub def liftOperation(fn: Unit -> Result[a, String] & ef): CsvRowEvaluator[a] & ef =
+        CsvRowEvaluator(_ -> fn() as & Impure) as & ef
 
     pub def throwError(err: String): CsvRowEvaluator[a] =
         CsvRowEvaluator(_ -> Err(err) as & Impure)
@@ -290,22 +290,22 @@ namespace FactIO/CsvRowEvaluator {
             }
         )
 
-    pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+    pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] & Impure =
         let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/Regex.evalMatches(patt, eval, input));
         return(ans)
 
-    pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+    pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] & Impure =
         let* input = getStringNamed(label);
         let* ans = liftOperation(_ -> Text/Regex.evalMatches(patt, eval, input));
         return(ans)
 
-    pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+    pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] & Impure =
         let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/Regex.evalContains(patt, eval, input));
         return(ans)
 
-    pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] =
+    pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): CsvRowEvaluator[a] & Impure =
         let* input = getStringNamed(label);
         let* ans = liftOperation(_ -> Text/Regex.evalContains(patt, eval, input));
         return(ans)
@@ -345,7 +345,9 @@ namespace FactIO/CsvRowEvaluator {
     ///
     /// Returns an error if either `o1` or `o2` are errors.
     ///
-    pub def lift2(f: (t1, t2) -> u & ef, o1: CsvRowEvaluator[t1], o2: CsvRowEvaluator[t2]): CsvRowEvaluator[u] =
+    pub def lift2(f: (t1, t2) -> u & ef,
+                    o1: CsvRowEvaluator[t1],
+                    o2: CsvRowEvaluator[t2]): CsvRowEvaluator[u] & ef =
         ap(map(f, o1), o2)
 
     ///
@@ -353,7 +355,10 @@ namespace FactIO/CsvRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2` and `o3` are errors.
     ///
-    pub def lift3(f: (t1, t2, t3) -> u & ef, o1: CsvRowEvaluator[t1], o2: CsvRowEvaluator[t2], o3: CsvRowEvaluator[t3]): CsvRowEvaluator[u] =
+    pub def lift3(f: (t1, t2, t3) -> u & ef,
+                    o1: CsvRowEvaluator[t1],
+                    o2: CsvRowEvaluator[t2],
+                    o3: CsvRowEvaluator[t3]): CsvRowEvaluator[u] & ef =
         ap(lift2(f, o1, o2), o3)
 
     ///
@@ -361,7 +366,11 @@ namespace FactIO/CsvRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, `o3` and `o4` are errors.
     ///
-    pub def lift4(f: (t1, t2, t3, t4) -> u & ef, o1: CsvRowEvaluator[t1], o2: CsvRowEvaluator[t2], o3: CsvRowEvaluator[t3], o4: CsvRowEvaluator[t4]): CsvRowEvaluator[u] =
+    pub def lift4(f: (t1, t2, t3, t4) -> u & ef,
+                    o1: CsvRowEvaluator[t1],
+                    o2: CsvRowEvaluator[t2],
+                    o3: CsvRowEvaluator[t3],
+                    o4: CsvRowEvaluator[t4]): CsvRowEvaluator[u] & ef =
         ap(lift3(f, o1, o2, o3), o4)
 
     ///
@@ -369,7 +378,12 @@ namespace FactIO/CsvRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o5` are errors.
     ///
-    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef, o1: CsvRowEvaluator[t1], o2: CsvRowEvaluator[t2], o3: CsvRowEvaluator[t3], o4: CsvRowEvaluator[t4], o5: CsvRowEvaluator[t5]): CsvRowEvaluator[u] =
+    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef,
+                    o1: CsvRowEvaluator[t1],
+                    o2: CsvRowEvaluator[t2],
+                    o3: CsvRowEvaluator[t3],
+                    o4: CsvRowEvaluator[t4],
+                    o5: CsvRowEvaluator[t5]): CsvRowEvaluator[u] & ef =
         ap(lift4(f, o1, o2, o3, o4), o5)
 
     ///
@@ -377,7 +391,13 @@ namespace FactIO/CsvRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o6` are errors.
     ///
-    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef, o1: CsvRowEvaluator[t1], o2: CsvRowEvaluator[t2], o3: CsvRowEvaluator[t3], o4: CsvRowEvaluator[t4], o5: CsvRowEvaluator[t5], o6: CsvRowEvaluator[t6]): CsvRowEvaluator[u] =
+    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef,
+                    o1: CsvRowEvaluator[t1],
+                    o2: CsvRowEvaluator[t2],
+                    o3: CsvRowEvaluator[t3],
+                    o4: CsvRowEvaluator[t4],
+                    o5: CsvRowEvaluator[t5],
+                    o6: CsvRowEvaluator[t6]): CsvRowEvaluator[u] & ef =
         ap(lift5(f, o1, o2, o3, o4, o5), o6)
 
     ///
@@ -385,7 +405,14 @@ namespace FactIO/CsvRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o7` are errors.
     ///
-    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef, o1: CsvRowEvaluator[t1], o2: CsvRowEvaluator[t2], o3: CsvRowEvaluator[t3], o4: CsvRowEvaluator[t4], o5: CsvRowEvaluator[t5], o6: CsvRowEvaluator[t6], o7: CsvRowEvaluator[t7]): CsvRowEvaluator[u] =
+    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef,
+                    o1: CsvRowEvaluator[t1],
+                    o2: CsvRowEvaluator[t2],
+                    o3: CsvRowEvaluator[t3],
+                    o4: CsvRowEvaluator[t4],
+                    o5: CsvRowEvaluator[t5],
+                    o6: CsvRowEvaluator[t6],
+                    o7: CsvRowEvaluator[t7]): CsvRowEvaluator[u] & ef =
         ap(lift6(f, o1, o2, o3, o4, o5, o6), o7)
 
     ///
@@ -393,7 +420,15 @@ namespace FactIO/CsvRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o8` are errors.
     ///
-    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef, o1: CsvRowEvaluator[t1], o2: CsvRowEvaluator[t2], o3: CsvRowEvaluator[t3], o4: CsvRowEvaluator[t4], o5: CsvRowEvaluator[t5], o6: CsvRowEvaluator[t6], o7: CsvRowEvaluator[t7], o8: CsvRowEvaluator[t8]): CsvRowEvaluator[u] =
+    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef,
+                    o1: CsvRowEvaluator[t1],
+                    o2: CsvRowEvaluator[t2],
+                    o3: CsvRowEvaluator[t3],
+                    o4: CsvRowEvaluator[t4],
+                    o5: CsvRowEvaluator[t5],
+                    o6: CsvRowEvaluator[t6],
+                    o7: CsvRowEvaluator[t7],
+                    o8: CsvRowEvaluator[t8]): CsvRowEvaluator[u] & ef =
         ap(lift7(f, o1, o2, o3, o4, o5, o6, o7), o8)
 
     ///
@@ -401,7 +436,16 @@ namespace FactIO/CsvRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o9` are errors.
     ///
-    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef, o1: CsvRowEvaluator[t1], o2: CsvRowEvaluator[t2], o3: CsvRowEvaluator[t3], o4: CsvRowEvaluator[t4], o5: CsvRowEvaluator[t5], o6: CsvRowEvaluator[t6], o7: CsvRowEvaluator[t7], o8: CsvRowEvaluator[t8], o9: CsvRowEvaluator[t9]): CsvRowEvaluator[u] =
+    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef,
+                    o1: CsvRowEvaluator[t1],
+                    o2: CsvRowEvaluator[t2],
+                    o3: CsvRowEvaluator[t3],
+                    o4: CsvRowEvaluator[t4],
+                    o5: CsvRowEvaluator[t5],
+                    o6: CsvRowEvaluator[t6],
+                    o7: CsvRowEvaluator[t7],
+                    o8: CsvRowEvaluator[t8],
+                    o9: CsvRowEvaluator[t9]): CsvRowEvaluator[u] & ef =
         ap(lift8(f, o1, o2, o3, o4, o5, o6, o7, o8), o9)
 
     ///
@@ -409,7 +453,17 @@ namespace FactIO/CsvRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o10` are errors.
     ///
-    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef, o1: CsvRowEvaluator[t1], o2: CsvRowEvaluator[t2], o3: CsvRowEvaluator[t3], o4: CsvRowEvaluator[t4], o5: CsvRowEvaluator[t5], o6: CsvRowEvaluator[t6], o7: CsvRowEvaluator[t7], o8: CsvRowEvaluator[t8], o9: CsvRowEvaluator[t9], o10: CsvRowEvaluator[t10]): CsvRowEvaluator[u] =
+    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef,
+                    o1: CsvRowEvaluator[t1],
+                    o2: CsvRowEvaluator[t2],
+                    o3: CsvRowEvaluator[t3],
+                    o4: CsvRowEvaluator[t4],
+                    o5: CsvRowEvaluator[t5],
+                    o6: CsvRowEvaluator[t6],
+                    o7: CsvRowEvaluator[t7],
+                    o8: CsvRowEvaluator[t8],
+                    o9: CsvRowEvaluator[t9],
+                    o10: CsvRowEvaluator[t10]): CsvRowEvaluator[u] & ef =
         ap(lift9(f, o1, o2, o3, o4, o5, o6, o7, o8, o9), o10)
 
     ///

@@ -17,7 +17,7 @@
 
 namespace FactIO {
 
-    pub opaque type FlatFileLineEvaluator[a] = String ~> Result[a, String]
+    pub opaque type FlatFileLineEvaluator[a] = String -> Result[a, String] & Impure
 }
 
 namespace FactIO/FlatFileLineEvaluator {
@@ -33,29 +33,29 @@ namespace FactIO/FlatFileLineEvaluator {
         let FlatFileLineEvaluator(f) = x;
         f(s)
 
-    pub def map(f: a -> b & ef, x: FlatFileLineEvaluator[a]): FlatFileLineEvaluator[b] =
+    pub def map(f: a -> b & ef, x: FlatFileLineEvaluator[a]): FlatFileLineEvaluator[b] & ef =
         FlatFileLineEvaluator(s ->
             match apply1(x, s) {
                 case Ok(a) => {
-                    let ans = f(a) as & Impure;
+                    let ans = f(a) as & Pure;
                     Ok(ans)
                 }
                 case Err(e) => Err(e)
             }
-        )        
+        ) as & ef
 
-    pub def ap(mf: FlatFileLineEvaluator[a -> b & ef], ma: FlatFileLineEvaluator[a]): FlatFileLineEvaluator[b] =
+    pub def ap(mf: FlatFileLineEvaluator[a -> b & ef], ma: FlatFileLineEvaluator[a]): FlatFileLineEvaluator[b] & ef =
         FlatFileLineEvaluator(s ->
             match apply1(mf, s) {
                 case Ok(f) => { 
                     match apply1(ma, s) {
-                        case Ok(a) => Ok(f(a) as & Impure)
+                        case Ok(a) => Ok(f(a) as & Pure)
                         case Err(e2) => Err(e2)
                     }
                 }
                 case Err(e1) => Err(e1)
             }
-        )
+        ) as & ef
 
     pub def bind(x: FlatFileLineEvaluator[a], k: a -> FlatFileLineEvaluator[b]): FlatFileLineEvaluator[b] =
         FlatFileLineEvaluator(s ->
@@ -84,8 +84,8 @@ namespace FactIO/FlatFileLineEvaluator {
     pub def liftResult(x: Result[a, String]): FlatFileLineEvaluator[a] =
         FlatFileLineEvaluator(_ -> x as & Impure)
 
-    pub def liftOperation(f: Unit ~> Result[a, String]): FlatFileLineEvaluator[a] =
-        FlatFileLineEvaluator(_ -> f())
+    pub def liftOperation(f: Unit -> Result[a, String] & ef): FlatFileLineEvaluator[a] & ef =
+        FlatFileLineEvaluator(_ -> f() as & Impure) as & ef
 
     pub def throwError(err: String): FlatFileLineEvaluator[a] =
         FlatFileLineEvaluator(_ -> Err(err) as & Impure)
@@ -141,7 +141,9 @@ namespace FactIO/FlatFileLineEvaluator {
     ///
     /// Returns an error if either `o1` or `o2` are errors.
     ///
-    pub def lift2(f: (t1, t2) -> u & ef, o1: FlatFileLineEvaluator[t1], o2: FlatFileLineEvaluator[t2]): FlatFileLineEvaluator[u] =
+    pub def lift2(f: (t1, t2) -> u & ef,
+                    o1: FlatFileLineEvaluator[t1],
+                    o2: FlatFileLineEvaluator[t2]): FlatFileLineEvaluator[u] & ef =
         ap(map(f, o1), o2)
 
     ///
@@ -149,7 +151,10 @@ namespace FactIO/FlatFileLineEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2` and `o3` are errors.
     ///
-    pub def lift3(f: (t1, t2, t3) -> u & ef, o1: FlatFileLineEvaluator[t1], o2: FlatFileLineEvaluator[t2], o3: FlatFileLineEvaluator[t3]): FlatFileLineEvaluator[u] =
+    pub def lift3(f: (t1, t2, t3) -> u & ef,
+                    o1: FlatFileLineEvaluator[t1],
+                    o2: FlatFileLineEvaluator[t2],
+                    o3: FlatFileLineEvaluator[t3]): FlatFileLineEvaluator[u] & ef =
         ap(lift2(f, o1, o2), o3)
 
     ///
@@ -157,7 +162,11 @@ namespace FactIO/FlatFileLineEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, `o3` and `o4` are errors.
     ///
-    pub def lift4(f: (t1, t2, t3, t4) -> u & ef, o1: FlatFileLineEvaluator[t1], o2: FlatFileLineEvaluator[t2], o3: FlatFileLineEvaluator[t3], o4: FlatFileLineEvaluator[t4]): FlatFileLineEvaluator[u] =
+    pub def lift4(f: (t1, t2, t3, t4) -> u & ef,
+                    o1: FlatFileLineEvaluator[t1],
+                    o2: FlatFileLineEvaluator[t2],
+                    o3: FlatFileLineEvaluator[t3],
+                    o4: FlatFileLineEvaluator[t4]): FlatFileLineEvaluator[u] & ef =
         ap(lift3(f, o1, o2, o3), o4)
 
     ///
@@ -165,7 +174,12 @@ namespace FactIO/FlatFileLineEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o5` are errors.
     ///
-    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef, o1: FlatFileLineEvaluator[t1], o2: FlatFileLineEvaluator[t2], o3: FlatFileLineEvaluator[t3], o4: FlatFileLineEvaluator[t4], o5: FlatFileLineEvaluator[t5]): FlatFileLineEvaluator[u] =
+    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef,
+                    o1: FlatFileLineEvaluator[t1],
+                    o2: FlatFileLineEvaluator[t2],
+                    o3: FlatFileLineEvaluator[t3],
+                    o4: FlatFileLineEvaluator[t4],
+                    o5: FlatFileLineEvaluator[t5]): FlatFileLineEvaluator[u] & ef =
         ap(lift4(f, o1, o2, o3, o4), o5)
 
     ///
@@ -173,7 +187,13 @@ namespace FactIO/FlatFileLineEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o6` are errors.
     ///
-    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef, o1: FlatFileLineEvaluator[t1], o2: FlatFileLineEvaluator[t2], o3: FlatFileLineEvaluator[t3], o4: FlatFileLineEvaluator[t4], o5: FlatFileLineEvaluator[t5], o6: FlatFileLineEvaluator[t6]): FlatFileLineEvaluator[u] =
+    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef,
+                    o1: FlatFileLineEvaluator[t1],
+                    o2: FlatFileLineEvaluator[t2],
+                    o3: FlatFileLineEvaluator[t3],
+                    o4: FlatFileLineEvaluator[t4],
+                    o5: FlatFileLineEvaluator[t5],
+                    o6: FlatFileLineEvaluator[t6]): FlatFileLineEvaluator[u] & ef =
         ap(lift5(f, o1, o2, o3, o4, o5), o6)
 
     ///
@@ -181,7 +201,14 @@ namespace FactIO/FlatFileLineEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o7` are errors.
     ///
-    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef, o1: FlatFileLineEvaluator[t1], o2: FlatFileLineEvaluator[t2], o3: FlatFileLineEvaluator[t3], o4: FlatFileLineEvaluator[t4], o5: FlatFileLineEvaluator[t5], o6: FlatFileLineEvaluator[t6], o7: FlatFileLineEvaluator[t7]): FlatFileLineEvaluator[u] =
+    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef,
+                    o1: FlatFileLineEvaluator[t1],
+                    o2: FlatFileLineEvaluator[t2],
+                    o3: FlatFileLineEvaluator[t3],
+                    o4: FlatFileLineEvaluator[t4],
+                    o5: FlatFileLineEvaluator[t5],
+                    o6: FlatFileLineEvaluator[t6],
+                    o7: FlatFileLineEvaluator[t7]): FlatFileLineEvaluator[u] & ef =
         ap(lift6(f, o1, o2, o3, o4, o5, o6), o7)
 
     ///
@@ -189,7 +216,15 @@ namespace FactIO/FlatFileLineEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o8` are errors.
     ///
-    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef, o1: FlatFileLineEvaluator[t1], o2: FlatFileLineEvaluator[t2], o3: FlatFileLineEvaluator[t3], o4: FlatFileLineEvaluator[t4], o5: FlatFileLineEvaluator[t5], o6: FlatFileLineEvaluator[t6], o7: FlatFileLineEvaluator[t7], o8: FlatFileLineEvaluator[t8]): FlatFileLineEvaluator[u] =
+    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef,
+                    o1: FlatFileLineEvaluator[t1],
+                    o2: FlatFileLineEvaluator[t2],
+                    o3: FlatFileLineEvaluator[t3],
+                    o4: FlatFileLineEvaluator[t4],
+                    o5: FlatFileLineEvaluator[t5],
+                    o6: FlatFileLineEvaluator[t6],
+                    o7: FlatFileLineEvaluator[t7],
+                    o8: FlatFileLineEvaluator[t8]): FlatFileLineEvaluator[u] & ef =
         ap(lift7(f, o1, o2, o3, o4, o5, o6, o7), o8)
 
     ///
@@ -197,7 +232,16 @@ namespace FactIO/FlatFileLineEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o9` are errors.
     ///
-    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef, o1: FlatFileLineEvaluator[t1], o2: FlatFileLineEvaluator[t2], o3: FlatFileLineEvaluator[t3], o4: FlatFileLineEvaluator[t4], o5: FlatFileLineEvaluator[t5], o6: FlatFileLineEvaluator[t6], o7: FlatFileLineEvaluator[t7], o8: FlatFileLineEvaluator[t8], o9: FlatFileLineEvaluator[t9]): FlatFileLineEvaluator[u] =
+    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef,
+                    o1: FlatFileLineEvaluator[t1],
+                    o2: FlatFileLineEvaluator[t2],
+                    o3: FlatFileLineEvaluator[t3],
+                    o4: FlatFileLineEvaluator[t4],
+                    o5: FlatFileLineEvaluator[t5],
+                    o6: FlatFileLineEvaluator[t6],
+                    o7: FlatFileLineEvaluator[t7],
+                    o8: FlatFileLineEvaluator[t8],
+                    o9: FlatFileLineEvaluator[t9]): FlatFileLineEvaluator[u] & ef =
         ap(lift8(f, o1, o2, o3, o4, o5, o6, o7, o8), o9)
 
     ///
@@ -205,7 +249,17 @@ namespace FactIO/FlatFileLineEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o10` are errors.
     ///
-    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef, o1: FlatFileLineEvaluator[t1], o2: FlatFileLineEvaluator[t2], o3: FlatFileLineEvaluator[t3], o4: FlatFileLineEvaluator[t4], o5: FlatFileLineEvaluator[t5], o6: FlatFileLineEvaluator[t6], o7: FlatFileLineEvaluator[t7], o8: FlatFileLineEvaluator[t8], o9: FlatFileLineEvaluator[t9], o10: FlatFileLineEvaluator[t10]): FlatFileLineEvaluator[u] =
+    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef,
+                    o1: FlatFileLineEvaluator[t1],
+                    o2: FlatFileLineEvaluator[t2],
+                    o3: FlatFileLineEvaluator[t3],
+                    o4: FlatFileLineEvaluator[t4],
+                    o5: FlatFileLineEvaluator[t5],
+                    o6: FlatFileLineEvaluator[t6],
+                    o7: FlatFileLineEvaluator[t7],
+                    o8: FlatFileLineEvaluator[t8],
+                    o9: FlatFileLineEvaluator[t9],
+                    o10: FlatFileLineEvaluator[t10]): FlatFileLineEvaluator[u] & ef =
         ap(lift9(f, o1, o2, o3, o4, o5, o6, o7, o8, o9), o10)
 
     ///

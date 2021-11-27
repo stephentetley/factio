@@ -21,7 +21,7 @@ namespace FactIO {
     
     use FactIO/Internal/Jdbc.PreparedStatement;
 
-    pub opaque type JdbcRowSetter[a] = PreparedStatement ~> Result[a, String]
+    pub opaque type JdbcRowSetter[a] = PreparedStatement -> Result[a, String] & Impure
 
 }
 
@@ -40,41 +40,41 @@ namespace FactIO/JdbcRowSetter {
         let JdbcRowSetter(f) = x;
         f(r)
 
-    pub def map(f: a -> b & ef, x: JdbcRowSetter[a]): JdbcRowSetter[b] =
+    pub def map(f: a -> b & ef, x: JdbcRowSetter[a]): JdbcRowSetter[b] & ef =
         JdbcRowSetter(r ->
             match apply1(x, r) {
                 case Ok(a) => {
-                    let ans = f(a) as & Impure;
+                    let ans = f(a) as & Pure;
                     Ok(ans)
                 }
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def ap(mf: JdbcRowSetter[a -> b & ef], ma: JdbcRowSetter[a]): JdbcRowSetter[b] =
+    pub def ap(mf: JdbcRowSetter[a -> b & ef], ma: JdbcRowSetter[a]): JdbcRowSetter[b] & ef =
         JdbcRowSetter(r ->
             match apply1(mf, r) {
                 case Ok(f) => {
                     match apply1(ma, r) {
-                        case Ok(a) => Ok(f(a) as & Impure)
+                        case Ok(a) => Ok(f(a) as & Pure)
                         case Err(e2) => Err(e2)
                     }
                 }
                 case Err(e1) => Err(e1)
             }
-        )
+        ) as & ef
 
-    pub def bind(x: JdbcRowSetter[a], k: a -> JdbcRowSetter[b]): JdbcRowSetter[b] =
+    pub def bind(x: JdbcRowSetter[a], k: a -> JdbcRowSetter[b] & ef): JdbcRowSetter[b] & ef=
         JdbcRowSetter(r ->
             match apply1(x, r) {
-                case Ok(a) => { let ans = k(a); apply1(ans, r) }
+                case Ok(a) => { let ans = k(a) as & Impure; apply1(ans, r) }
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def flatMap(k: a -> JdbcRowSetter[b], x: JdbcRowSetter[a]): JdbcRowSetter[b] = bind(x, k)
+    pub def flatMap(k: a -> JdbcRowSetter[b] & ef, x: JdbcRowSetter[a]): JdbcRowSetter[b] & ef = bind(x, k)
 
-    def liftOptionPrim(update: PreparedStatement ~> Option[a], errMsg: String): JdbcRowSetter[a] =
+    def liftOptionPrim(update: PreparedStatement -> Option[a] & Impure, errMsg: String): JdbcRowSetter[a] =
         JdbcRowSetter(r -> Option.toOk(update(r), errMsg))
 
     // Note - the primitive setX! functions index from 1, we add 1 to calls
@@ -156,7 +156,9 @@ namespace FactIO/JdbcRowSetter {
     ///
     /// Returns an error if either `o1` or `o2` are errors.
     ///
-    pub def lift2(f: (t1, t2) -> u & ef, o1: JdbcRowSetter[t1], o2: JdbcRowSetter[t2]): JdbcRowSetter[u] =
+    pub def lift2(f: (t1, t2) -> u & ef,
+                    o1: JdbcRowSetter[t1],
+                    o2: JdbcRowSetter[t2]): JdbcRowSetter[u] & ef =
         ap(map(f, o1), o2)
 
     ///
@@ -167,7 +169,7 @@ namespace FactIO/JdbcRowSetter {
     pub def lift3(f: (t1, t2, t3) -> u & ef,
                   o1: JdbcRowSetter[t1],
                   o2: JdbcRowSetter[t2],
-                  o3: JdbcRowSetter[t3]): JdbcRowSetter[u] =
+                  o3: JdbcRowSetter[t3]): JdbcRowSetter[u] & ef =
         ap(lift2(f, o1, o2), o3)
 
     ///
@@ -179,7 +181,7 @@ namespace FactIO/JdbcRowSetter {
                   o1: JdbcRowSetter[t1],
                   o2: JdbcRowSetter[t2],
                   o3: JdbcRowSetter[t3],
-                  o4: JdbcRowSetter[t4]): JdbcRowSetter[u] =
+                  o4: JdbcRowSetter[t4]): JdbcRowSetter[u] & ef =
         ap(lift3(f, o1, o2, o3), o4)
 
     ///
@@ -192,7 +194,7 @@ namespace FactIO/JdbcRowSetter {
                   o2: JdbcRowSetter[t2],
                   o3: JdbcRowSetter[t3],
                   o4: JdbcRowSetter[t4],
-                  o5: JdbcRowSetter[t5]): JdbcRowSetter[u] =
+                  o5: JdbcRowSetter[t5]): JdbcRowSetter[u] & ef =
         ap(lift4(f, o1, o2, o3, o4), o5)
 
     ///
@@ -206,7 +208,7 @@ namespace FactIO/JdbcRowSetter {
                   o3: JdbcRowSetter[t3],
                   o4: JdbcRowSetter[t4],
                   o5: JdbcRowSetter[t5],
-                  o6: JdbcRowSetter[t6]): JdbcRowSetter[u] =
+                  o6: JdbcRowSetter[t6]): JdbcRowSetter[u] & ef =
         ap(lift5(f, o1, o2, o3, o4, o5), o6)
 
     ///
@@ -221,7 +223,7 @@ namespace FactIO/JdbcRowSetter {
                   o4: JdbcRowSetter[t4],
                   o5: JdbcRowSetter[t5],
                   o6: JdbcRowSetter[t6],
-                  o7: JdbcRowSetter[t7]): JdbcRowSetter[u] =
+                  o7: JdbcRowSetter[t7]): JdbcRowSetter[u] & ef =
         ap(lift6(f, o1, o2, o3, o4, o5, o6), o7)
 
     ///
@@ -237,7 +239,7 @@ namespace FactIO/JdbcRowSetter {
                       o5: JdbcRowSetter[t5],
                       o6: JdbcRowSetter[t6],
                       o7: JdbcRowSetter[t7],
-                      o8: JdbcRowSetter[t8]): JdbcRowSetter[u] =
+                      o8: JdbcRowSetter[t8]): JdbcRowSetter[u] & ef =
         ap(lift7(f, o1, o2, o3, o4, o5, o6, o7), o8)
 
     ///
@@ -254,7 +256,7 @@ namespace FactIO/JdbcRowSetter {
                   o6: JdbcRowSetter[t6],
                   o7: JdbcRowSetter[t7],
                   o8: JdbcRowSetter[t8],
-                  o9: JdbcRowSetter[t9]): JdbcRowSetter[u] =
+                  o9: JdbcRowSetter[t9]): JdbcRowSetter[u] & ef =
         ap(lift8(f, o1, o2, o3, o4, o5, o6, o7, o8), o9)
 
     ///
@@ -272,7 +274,7 @@ namespace FactIO/JdbcRowSetter {
                    o7: JdbcRowSetter[t7],
                    o8: JdbcRowSetter[t8],
                    o9: JdbcRowSetter[t9],
-                   o10: JdbcRowSetter[t10]): JdbcRowSetter[u] =
+                   o10: JdbcRowSetter[t10]): JdbcRowSetter[u] & ef =
         ap(lift9(f, o1, o2, o3, o4, o5, o6, o7, o8, o9), o10)
 
 

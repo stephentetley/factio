@@ -17,7 +17,7 @@
 namespace FactIO {
 
 
-    pub opaque type CsvExport[a] = (Map[String, Int32], FactIO/Internal/Csv.Output) ~> Result[a, String]
+    pub opaque type CsvExport[a] = (Map[String, Int32], FactIO/Internal/Csv.Output) -> Result[a, String] & Impure
 
     /// CsvWriteList is a workaround because fixpoint fold is our only way of
     /// extracting data from a relation and the step function of fixpoint fold
@@ -69,29 +69,29 @@ namespace FactIO/CsvExport {
         let CsvExport(f) = x;
         f(headers, r)
 
-    pub def map(f: a -> b & ef, x: CsvExport[a]): CsvExport[b] =
+    pub def map(f: a -> b & ef, x: CsvExport[a]): CsvExport[b] & ef =
         CsvExport((hdrs, r) ->
             match apply1(x, hdrs, r) {
                 case Ok(a) => {
-                    let ans = f(a) as & Impure;
+                    let ans = f(a) as & Pure;
                     Ok(ans)
                 }
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def ap(mf: CsvExport[a -> b & ef], ma: CsvExport[a]): CsvExport[b] =
+    pub def ap(mf: CsvExport[a -> b & ef], ma: CsvExport[a]): CsvExport[b] & ef =
         CsvExport((hdrs, r) ->
             match apply1(mf, hdrs, r) {
                 case Ok(f) => {
                     match apply1(ma, hdrs, r) {
-                        case Ok(a) => Ok(f(a) as & Impure)
+                        case Ok(a) => Ok(f(a) as & Pure)
                         case Err(e2) => Err(e2)
                     }
                 }
                 case Err(e1) => Err(e1)
             }
-        )
+        ) as & ef
 
 
     pub def bind(x: CsvExport[a], k: a -> CsvExport[b]): CsvExport[b] =
@@ -155,11 +155,11 @@ namespace FactIO/CsvExport {
             }
         }
 
-    pub def liftAction(fn: Unit ~> a): CsvExport[a] =
-        CsvExport((_,_) -> { let a = fn(); Ok(a) })
+    pub def liftAction(fn: Unit -> a & ef): CsvExport[a] & ef =
+        CsvExport((_,_) -> { let a = fn() as & Impure ; Ok(a) }) as & ef
 
-    pub def liftActionResult(fn: Unit ~> Result[a, String]): CsvExport[a] =
-        CsvExport((_,_) -> fn())
+    pub def liftActionResult(fn: Unit -> Result[a, String] & ef): CsvExport[a] & ef=
+        CsvExport((_,_) -> fn() as & Impure) as & ef
 
     pub def emptyCsvWriteList(): CsvWriteList = CsvWriteList(Chain.empty())
 
@@ -182,7 +182,7 @@ namespace FactIO/CsvExport {
         }
     }
 
-    pub def writeLine(arr: Array[String]): CsvExport[Unit] =
+    pub def writeLine(arr: Array[String]): CsvExport[Unit] & Impure =
         let* xs = liftAction(_ -> Array.toList(arr));
         let mx = makeSimpleWriter(0, xs);
         writeRow(mx)

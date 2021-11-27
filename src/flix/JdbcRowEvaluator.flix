@@ -17,7 +17,7 @@
 
 namespace FactIO {
 
-    pub opaque type JdbcRowEvaluator[a] = ##flix.runtime.spt.factio.jdbc.JdbcRow ~> Result[a, String]
+    pub opaque type JdbcRowEvaluator[a] = ##flix.runtime.spt.factio.jdbc.JdbcRow -> Result[a, String] & Impure
 }
 
 
@@ -33,7 +33,7 @@ namespace FactIO/JdbcRowEvaluator {
         let JdbcRowEvaluator(f) = x;
         f(r)
 
-    pub def map(f: a -> b & ef, x: JdbcRowEvaluator[a]): JdbcRowEvaluator[b] =
+    pub def map(f: a -> b & ef, x: JdbcRowEvaluator[a]): JdbcRowEvaluator[b] & ef =
         JdbcRowEvaluator(r ->
             match apply1(x, r) {
                 case Ok(a) => {
@@ -42,9 +42,9 @@ namespace FactIO/JdbcRowEvaluator {
                 }
                 case Err(e) => Err(e)
             }
-        )        
+        ) as & ef
 
-    pub def ap(mf: JdbcRowEvaluator[a -> b & ef], ma: JdbcRowEvaluator[a]): JdbcRowEvaluator[b] =
+    pub def ap(mf: JdbcRowEvaluator[a -> b & ef], ma: JdbcRowEvaluator[a]): JdbcRowEvaluator[b] & ef =
         JdbcRowEvaluator(r ->
             match apply1(mf, r) {
                 case Ok(f) => { 
@@ -55,17 +55,17 @@ namespace FactIO/JdbcRowEvaluator {
                 }
                 case Err(e1) => Err(e1)
             }
-        )
+        ) as & ef
 
-    pub def bind(x: JdbcRowEvaluator[a], k: a -> JdbcRowEvaluator[b]): JdbcRowEvaluator[b] =
+    pub def bind(x: JdbcRowEvaluator[a], k: a -> JdbcRowEvaluator[b] & ef): JdbcRowEvaluator[b] & ef=
         JdbcRowEvaluator(r ->
             match apply1(x, r) { 
-                case Ok(a) => { let ans = k(a); apply1(ans, r) }
+                case Ok(a) => { let ans = k(a) as & Impure; apply1(ans, r) }
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def flatMap(k: a -> JdbcRowEvaluator[b], x: JdbcRowEvaluator[a]): JdbcRowEvaluator[b] = bind(x, k)
+    pub def flatMap(k: a -> JdbcRowEvaluator[b] & ef, x: JdbcRowEvaluator[a]): JdbcRowEvaluator[b] & ef = bind(x, k)
 
     pub def optional(x: JdbcRowEvaluator[a]): JdbcRowEvaluator[Option[a]] =
         JdbcRowEvaluator(r ->
@@ -75,7 +75,7 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.jdbc.JdbcRow ~> Result[a, String]): JdbcRowEvaluator[a] =
+    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.jdbc.JdbcRow -> Result[a, String] & Impure): JdbcRowEvaluator[a]=
         JdbcRowEvaluator(r -> eval(r))
 
     pub def liftOption(x: Option[a], errMsg: String): JdbcRowEvaluator[a] = match x {
@@ -86,8 +86,8 @@ namespace FactIO/JdbcRowEvaluator {
     pub def liftResult(x: Result[a, String]): JdbcRowEvaluator[a] =
         JdbcRowEvaluator(_ -> x as & Impure)
 
-    pub def liftOperation(fn: Unit ~> Result[a, String]): JdbcRowEvaluator[a] =
-        JdbcRowEvaluator(_ -> fn())
+    pub def liftOperation(fn: Unit -> Result[a, String] & ef): JdbcRowEvaluator[a] & ef =
+        JdbcRowEvaluator(_ -> fn() as & Impure) as & ef
 
     pub def throwError(err: String): JdbcRowEvaluator[a] =
         JdbcRowEvaluator(_ -> Err(err) as & Impure)
@@ -260,22 +260,22 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
+    pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
         let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/Regex.evalMatches(patt, eval, input));
         return(ans)
 
-    pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
+    pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
         let* input = getStringNamed(label);
         let* ans = liftOperation(_ -> Text/Regex.evalMatches(patt, eval, input));
         return(ans)
 
-    pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
+    pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
         let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/Regex.evalContains(patt, eval, input));
         return(ans)
 
-    pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] =
+    pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/Regex.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
         let* input = getStringNamed(label);
         let* ans = liftOperation(_ -> Text/Regex.evalContains(patt, eval, input));
         return(ans)
@@ -315,7 +315,9 @@ namespace FactIO/JdbcRowEvaluator {
     ///
     /// Returns an error if either `o1` or `o2` are errors.
     ///
-    pub def lift2(f: (t1, t2) -> u & ef, o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2]): JdbcRowEvaluator[u] =
+    pub def lift2(f: (t1, t2) -> u & ef,
+                    o1: JdbcRowEvaluator[t1],
+                    o2: JdbcRowEvaluator[t2]): JdbcRowEvaluator[u] & ef =
         ap(map(f, o1), o2)
 
     ///
@@ -323,7 +325,10 @@ namespace FactIO/JdbcRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2` and `o3` are errors.
     ///
-    pub def lift3(f: (t1, t2, t3) -> u & ef, o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3]): JdbcRowEvaluator[u] =
+    pub def lift3(f: (t1, t2, t3) -> u & ef,
+                    o1: JdbcRowEvaluator[t1],
+                    o2: JdbcRowEvaluator[t2],
+                    o3: JdbcRowEvaluator[t3]): JdbcRowEvaluator[u] & ef =
         ap(lift2(f, o1, o2), o3)
 
     ///
@@ -331,7 +336,11 @@ namespace FactIO/JdbcRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, `o3` and `o4` are errors.
     ///
-    pub def lift4(f: (t1, t2, t3, t4) -> u & ef, o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4]): JdbcRowEvaluator[u] =
+    pub def lift4(f: (t1, t2, t3, t4) -> u & ef,
+                    o1: JdbcRowEvaluator[t1],
+                    o2: JdbcRowEvaluator[t2],
+                    o3: JdbcRowEvaluator[t3],
+                    o4: JdbcRowEvaluator[t4]): JdbcRowEvaluator[u] & ef =
         ap(lift3(f, o1, o2, o3), o4)
 
     ///
@@ -339,7 +348,12 @@ namespace FactIO/JdbcRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o5` are errors.
     ///
-    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef, o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5]): JdbcRowEvaluator[u] =
+    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef,
+                    o1: JdbcRowEvaluator[t1],
+                    o2: JdbcRowEvaluator[t2],
+                    o3: JdbcRowEvaluator[t3],
+                    o4: JdbcRowEvaluator[t4],
+                    o5: JdbcRowEvaluator[t5]): JdbcRowEvaluator[u] & ef =
         ap(lift4(f, o1, o2, o3, o4), o5)
 
     ///
@@ -347,7 +361,13 @@ namespace FactIO/JdbcRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o6` are errors.
     ///
-    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef, o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5], o6: JdbcRowEvaluator[t6]): JdbcRowEvaluator[u] =
+    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef,
+                    o1: JdbcRowEvaluator[t1],
+                    o2: JdbcRowEvaluator[t2],
+                    o3: JdbcRowEvaluator[t3],
+                    o4: JdbcRowEvaluator[t4],
+                    o5: JdbcRowEvaluator[t5],
+                    o6: JdbcRowEvaluator[t6]): JdbcRowEvaluator[u] & ef =
         ap(lift5(f, o1, o2, o3, o4, o5), o6)
 
     ///
@@ -355,7 +375,14 @@ namespace FactIO/JdbcRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o7` are errors.
     ///
-    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef, o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5], o6: JdbcRowEvaluator[t6], o7: JdbcRowEvaluator[t7]): JdbcRowEvaluator[u] =
+    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef,
+                    o1: JdbcRowEvaluator[t1],
+                    o2: JdbcRowEvaluator[t2],
+                    o3: JdbcRowEvaluator[t3],
+                    o4: JdbcRowEvaluator[t4],
+                    o5: JdbcRowEvaluator[t5],
+                    o6: JdbcRowEvaluator[t6],
+                    o7: JdbcRowEvaluator[t7]): JdbcRowEvaluator[u] & ef =
         ap(lift6(f, o1, o2, o3, o4, o5, o6), o7)
 
     ///
@@ -363,7 +390,15 @@ namespace FactIO/JdbcRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o8` are errors.
     ///
-    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef, o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5], o6: JdbcRowEvaluator[t6], o7: JdbcRowEvaluator[t7], o8: JdbcRowEvaluator[t8]): JdbcRowEvaluator[u] =
+    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef,
+                    o1: JdbcRowEvaluator[t1],
+                    o2: JdbcRowEvaluator[t2],
+                    o3: JdbcRowEvaluator[t3],
+                    o4: JdbcRowEvaluator[t4],
+                    o5: JdbcRowEvaluator[t5],
+                    o6: JdbcRowEvaluator[t6],
+                    o7: JdbcRowEvaluator[t7],
+                    o8: JdbcRowEvaluator[t8]): JdbcRowEvaluator[u] & ef =
         ap(lift7(f, o1, o2, o3, o4, o5, o6, o7), o8)
 
     ///
@@ -371,7 +406,16 @@ namespace FactIO/JdbcRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o9` are errors.
     ///
-    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef, o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5], o6: JdbcRowEvaluator[t6], o7: JdbcRowEvaluator[t7], o8: JdbcRowEvaluator[t8], o9: JdbcRowEvaluator[t9]): JdbcRowEvaluator[u] =
+    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef,
+                    o1: JdbcRowEvaluator[t1],
+                    o2: JdbcRowEvaluator[t2],
+                    o3: JdbcRowEvaluator[t3],
+                    o4: JdbcRowEvaluator[t4],
+                    o5: JdbcRowEvaluator[t5],
+                    o6: JdbcRowEvaluator[t6],
+                    o7: JdbcRowEvaluator[t7],
+                    o8: JdbcRowEvaluator[t8],
+                    o9: JdbcRowEvaluator[t9]): JdbcRowEvaluator[u] & ef =
         ap(lift8(f, o1, o2, o3, o4, o5, o6, o7, o8), o9)
 
     ///
@@ -379,7 +423,17 @@ namespace FactIO/JdbcRowEvaluator {
     ///
     /// Returns an error if any of `o1`, `o2`, ... `o10` are errors.
     ///
-    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef, o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5], o6: JdbcRowEvaluator[t6], o7: JdbcRowEvaluator[t7], o8: JdbcRowEvaluator[t8], o9: JdbcRowEvaluator[t9], o10: JdbcRowEvaluator[t10]): JdbcRowEvaluator[u] =
+    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef,
+                    o1: JdbcRowEvaluator[t1],
+                    o2: JdbcRowEvaluator[t2],
+                    o3: JdbcRowEvaluator[t3],
+                    o4: JdbcRowEvaluator[t4],
+                    o5: JdbcRowEvaluator[t5],
+                    o6: JdbcRowEvaluator[t6],
+                    o7: JdbcRowEvaluator[t7],
+                    o8: JdbcRowEvaluator[t8],
+                    o9: JdbcRowEvaluator[t9],
+                    o10: JdbcRowEvaluator[t10]): JdbcRowEvaluator[u] & ef =
         ap(lift9(f, o1, o2, o3, o4, o5, o6, o7, o8, o9), o10)
 
     ///

@@ -20,7 +20,7 @@ namespace FactIO {
 
     use FactIO/Internal/Csv.Output;
 
-    pub opaque type CsvRowSetter[a] = (Map[String, Int32], Output) ~> Result[a, String]
+    pub opaque type CsvRowSetter[a] = (Map[String, Int32], Output) -> Result[a, String] & Impure
 
 }
 
@@ -39,7 +39,7 @@ namespace FactIO/CsvRowSetter {
         let CsvRowSetter(f) = x;
         f(headers, r)
 
-    pub def map(f: a -> b & ef, x: CsvRowSetter[a]): CsvRowSetter[b] =
+    pub def map(f: a -> b & ef, x: CsvRowSetter[a]): CsvRowSetter[b] & ef =
         CsvRowSetter((hdrs,r) ->
             match apply1(x, hdrs, r) {
                 case Ok(a) => {
@@ -48,9 +48,9 @@ namespace FactIO/CsvRowSetter {
                 }
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def ap(mf: CsvRowSetter[a -> b & ef], ma: CsvRowSetter[a]): CsvRowSetter[b] =
+    pub def ap(mf: CsvRowSetter[a -> b & ef], ma: CsvRowSetter[a]): CsvRowSetter[b] & ef =
         CsvRowSetter((hdrs,r) ->
             match apply1(mf, hdrs, r) {
                 case Ok(f) => {
@@ -61,17 +61,17 @@ namespace FactIO/CsvRowSetter {
                 }
                 case Err(e1) => Err(e1)
             }
-        )
+        ) as & ef
 
-    pub def bind(x: CsvRowSetter[a], k: a -> CsvRowSetter[b]): CsvRowSetter[b] =
+    pub def bind(x: CsvRowSetter[a], k: a -> CsvRowSetter[b] & ef): CsvRowSetter[b] & ef =
         CsvRowSetter((hdrs,r) ->
             match apply1(x, hdrs, r) {
-                case Ok(a) => { let ans = k(a); apply1(ans, hdrs, r) }
+                case Ok(a) => { let ans = k(a) as & Impure; apply1(ans, hdrs, r) }
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def flatMap(k: a -> CsvRowSetter[b], x: CsvRowSetter[a]): CsvRowSetter[b] = bind(x, k)
+    pub def flatMap(k: a -> CsvRowSetter[b] & ef, x: CsvRowSetter[a]): CsvRowSetter[b] & ef = bind(x, k)
 
     def primWriteCell(ix: Int32, value: String): CsvRowSetter[Unit] =
         use FactIO/Internal/Csv/Output.{setCell!};
@@ -242,7 +242,9 @@ namespace FactIO/CsvRowSetter {
     ///
     /// Returns an error if either `o1` or `o2` are errors.
     ///
-    pub def lift2(f: (t1, t2) -> u & ef, o1: CsvRowSetter[t1], o2: CsvRowSetter[t2]): CsvRowSetter[u] =
+    pub def lift2(f: (t1, t2) -> u & ef,
+                    o1: CsvRowSetter[t1],
+                    o2: CsvRowSetter[t2]): CsvRowSetter[u] & ef =
         ap(map(f, o1), o2)
 
     ///
@@ -253,7 +255,7 @@ namespace FactIO/CsvRowSetter {
     pub def lift3(f: (t1, t2, t3) -> u & ef,
                   o1: CsvRowSetter[t1],
                   o2: CsvRowSetter[t2],
-                  o3: CsvRowSetter[t3]): CsvRowSetter[u] =
+                  o3: CsvRowSetter[t3]): CsvRowSetter[u] & ef =
         ap(lift2(f, o1, o2), o3)
 
     ///
@@ -265,7 +267,7 @@ namespace FactIO/CsvRowSetter {
                   o1: CsvRowSetter[t1],
                   o2: CsvRowSetter[t2],
                   o3: CsvRowSetter[t3],
-                  o4: CsvRowSetter[t4]): CsvRowSetter[u] =
+                  o4: CsvRowSetter[t4]): CsvRowSetter[u] & ef =
         ap(lift3(f, o1, o2, o3), o4)
 
     ///
@@ -278,7 +280,7 @@ namespace FactIO/CsvRowSetter {
                   o2: CsvRowSetter[t2],
                   o3: CsvRowSetter[t3],
                   o4: CsvRowSetter[t4],
-                  o5: CsvRowSetter[t5]): CsvRowSetter[u] =
+                  o5: CsvRowSetter[t5]): CsvRowSetter[u] & ef =
         ap(lift4(f, o1, o2, o3, o4), o5)
 
     ///
@@ -292,7 +294,7 @@ namespace FactIO/CsvRowSetter {
                   o3: CsvRowSetter[t3],
                   o4: CsvRowSetter[t4],
                   o5: CsvRowSetter[t5],
-                  o6: CsvRowSetter[t6]): CsvRowSetter[u] =
+                  o6: CsvRowSetter[t6]): CsvRowSetter[u] & ef =
         ap(lift5(f, o1, o2, o3, o4, o5), o6)
 
     ///
@@ -307,7 +309,7 @@ namespace FactIO/CsvRowSetter {
                   o4: CsvRowSetter[t4],
                   o5: CsvRowSetter[t5],
                   o6: CsvRowSetter[t6],
-                  o7: CsvRowSetter[t7]): CsvRowSetter[u] =
+                  o7: CsvRowSetter[t7]): CsvRowSetter[u] & ef =
         ap(lift6(f, o1, o2, o3, o4, o5, o6), o7)
 
     ///
@@ -323,7 +325,7 @@ namespace FactIO/CsvRowSetter {
                   o5: CsvRowSetter[t5],
                   o6: CsvRowSetter[t6],
                   o7: CsvRowSetter[t7],
-                  o8: CsvRowSetter[t8]): CsvRowSetter[u] =
+                  o8: CsvRowSetter[t8]): CsvRowSetter[u] & ef =
         ap(lift7(f, o1, o2, o3, o4, o5, o6, o7), o8)
 
     ///
@@ -340,7 +342,7 @@ namespace FactIO/CsvRowSetter {
                   o6: CsvRowSetter[t6],
                   o7: CsvRowSetter[t7],
                   o8: CsvRowSetter[t8],
-                  o9: CsvRowSetter[t9]): CsvRowSetter[u] =
+                  o9: CsvRowSetter[t9]): CsvRowSetter[u] & ef =
         ap(lift8(f, o1, o2, o3, o4, o5, o6, o7, o8), o9)
 
     ///
@@ -358,7 +360,7 @@ namespace FactIO/CsvRowSetter {
                    o7: CsvRowSetter[t7],
                    o8: CsvRowSetter[t8],
                    o9: CsvRowSetter[t9],
-                   o10: CsvRowSetter[t10]): CsvRowSetter[u] =
+                   o10: CsvRowSetter[t10]): CsvRowSetter[u] & ef =
         ap(lift9(f, o1, o2, o3, o4, o5, o6, o7, o8, o9), o10)
 
 
