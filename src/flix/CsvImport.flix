@@ -35,9 +35,9 @@ namespace FactIO/CsvImport {
     ///
     /// Returns a new Csv Cursor.
     ///
-    pub def newCsvCursor(path: System.FilePath,
-                        format: CsvFormat,
-                        cs: Text.Charset): Cursor[String, CsvRow] & Impure =
+    pub def newCsvCursor(format: CsvFormat,
+                        cs: Text.Charset,
+                        path: System.FilePath): Cursor[String, CsvRow] & Impure =
         import flix.runtime.spt.factio.csv.CsvCursor:createCursorForFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset);
         import flix.runtime.spt.factio.csv.CsvCursor.hasNext() as ffiHasNext;
         import flix.runtime.spt.factio.csv.CsvCursor.next() as ffiNext;
@@ -61,8 +61,8 @@ namespace FactIO/CsvImport {
     ///
     /// Returns a new Csv Stream from a file with a BOM.
     ///
-    pub def newCsvCursorWithBOM(path: System.FilePath,
-                                format: CsvFormat): Cursor[String, CsvRow] & Impure =
+    pub def newCsvCursorWithBOM(format: CsvFormat,
+                                path: System.FilePath): Cursor[String, CsvRow] & Impure =
         import flix.runtime.spt.factio.csv.CsvCursor:createCursorForBOMFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat);
         import flix.runtime.spt.factio.csv.CsvCursor.hasNext() as ffiHasNext;
         import flix.runtime.spt.factio.csv.CsvCursor.next() as ffiNext;

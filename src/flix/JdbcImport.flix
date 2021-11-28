@@ -30,13 +30,13 @@ namespace FactIO/JdbcImport {
     ///
     /// Returns a new Jdbc Cursor.
     ///
-    pub def newDbCursor(url: String, query: String): Cursor[String, JdbcRow] & Impure =
+    pub def newDbCursor(sql: {sql :: String}, url: String): Cursor[String, JdbcRow] & Impure =
         import new flix.runtime.spt.factio.jdbc.JdbcCursor(String, String) as newJdbcCursor;
         import flix.runtime.spt.factio.jdbc.JdbcCursor.goNext() as ffiHasNext;
         import flix.runtime.spt.factio.jdbc.JdbcCursor.getRow() as ffiNext;
         import flix.runtime.spt.factio.jdbc.JdbcCursor.close() as ffiClose;
         try {
-            let iter = newJdbcCursor(url, query);
+            let iter = newJdbcCursor(url, sql.sql);
             let cursorIter =  {
                   hasNext = () -> ffiHasNext(iter)
                 , next = X/Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
@@ -50,16 +50,14 @@ namespace FactIO/JdbcImport {
     ///
     /// Returns a new SQLite Cursor.
     ///
-    pub def newSQLiteCursor(filepath: System.FilePath,
-                            query: String): Cursor[String, JdbcRow] & Impure =
-        newDbCursor("jdbc:sqlite:${filepath}", query)
+    pub def newSQLiteCursor(sql: {sql :: String}, path: System.FilePath): Cursor[String, JdbcRow] & Impure =
+        newDbCursor(sql, "jdbc:sqlite:${path}")
 
     ///
     /// Returns a new DuckDB Cursor.
     ///
-    pub def newDuckDBCursor(filepath: System.FilePath,
-                            query: String): Cursor[String, JdbcRow] & Impure =
-        newDbCursor("jdbc:duckdb:${filepath}", query)
+    pub def newDuckDBCursor(sql: {sql :: String}, path: System.FilePath): Cursor[String, JdbcRow] & Impure =
+        newDbCursor(sql, "jdbc:duckdb:${path}")
 
     ///
     /// Process all rows of the input.

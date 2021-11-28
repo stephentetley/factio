@@ -19,19 +19,14 @@ def printResult(rarr: Result[Array[a], String]): Unit & Impure with ToString[a] 
 
 rel Direction(name: String)
 
-def makeDirection(name: String): #{Direction | r} =
-    Direction(name).
-
 
 def csv01(): Unit & Impure =
     use Result.flatMap;
     use FactIO/CsvFormat.{withFirstRecordAsHeader};
     let step = () -> {
         let path    = System/FilePath.new("e:/coding/flix/factio/data/compass.csv");
-        let* hdl    = FactIO/CsvImport.newCsvReadHandle(FactIO/CsvFormat.default().withFirstRecordAsHeader(), Text/Charset.utf_8(), path);
-        let iter    = FactIO/CsvImport.getIterator(hdl);
+        let iter    = FactIO/CsvImport.newCsvCursor(withFirstRecordAsHeader(FactIO/CsvFormat.default()), Text/Charset.utf_8(), path);
         let* relns  = FactIO/CsvImport.importRows(csvDirection1(), iter);
-        let* _      = FactIO/CsvImport.close(hdl);
         let arr = query relns select (x) from Direction(x);
         Ok(arr)
     };
@@ -39,18 +34,16 @@ def csv01(): Unit & Impure =
     
 def csvDirection1(): CsvRowEvaluator[#{Direction | r}] = 
     use FactIO/CsvRowEvaluator.{map, getStringAt};
-    map(makeDirection, getStringAt(0))
+    map(s1 -> #{ Direction(s1). }, getStringAt(0))
 
     
 pub def sqlite01(): Unit & Impure =
     use Result.flatMap;
     let step = () -> {
         let path    = System/FilePath.new("e:/coding/flix/factio/data/compass.sqlite");
-        let query   = "SELECT cardinal_name FROM cardinals";
-        let* hdl    = FactIO/JdbcImport.newSQLiteReadHandle(path, query);
-        let iter    = FactIO/JdbcImport.getIterator(hdl);
+        let sql     = "SELECT cardinal_name FROM cardinals";
+        let iter    = FactIO/JdbcImport.newSQLiteCursor(sql = sql, path);
         let* relns  = FactIO/JdbcImport.importRows(sqliteDirection1(), iter);
-        let* _      = FactIO/JdbcImport.close(hdl);
         let arr     = query relns select (x) from Direction(x);        
         Ok(arr)
     };
@@ -59,7 +52,7 @@ pub def sqlite01(): Unit & Impure =
         
 def sqliteDirection1(): JdbcRowEvaluator[#{Direction | r}] = 
     use FactIO/JdbcRowEvaluator.{map, getStringNamed};
-    map(makeDirection, getStringNamed("cardinal_name"))
+    map(s1 -> #{ Direction(s1). }, getStringNamed("cardinal_name"))
 
 
 
@@ -68,10 +61,8 @@ pub def flatFile01(): Unit & Impure =
     use Result.flatMap;    
     let step = () -> {
         let path    = System/FilePath.new("e:/coding/flix/factio/data/compass.txt");
-        let* hdl    = FactIO/FlatFileImport.newFlatFileReadHandle(path, Text/Charset.utf_8());
-        let iter    = FactIO/FlatFileImport.getIterator(hdl);
+        let iter    = FactIO/FlatFileImport.newFlatFileCursor(Text/Charset.utf_8(), path);
         let* relns  = FactIO/FlatFileImport.importRows(flatfileDirection1(), iter);
-        let* _      = FactIO/FlatFileImport.close(hdl);
         let arr = query relns select (x) from Direction(x);
         Ok(arr)
     };
@@ -80,4 +71,4 @@ pub def flatFile01(): Unit & Impure =
 
 def flatfileDirection1(): FlatFileLineEvaluator[#{ Direction | r}] = 
     use FactIO/FlatFileLineEvaluator.{flatMap, content, map};
-    map(makeDirection, content())
+    map(s1 -> #{ Direction(s1). }, content())
