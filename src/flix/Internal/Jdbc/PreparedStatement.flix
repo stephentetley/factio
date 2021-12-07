@@ -27,7 +27,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
     use FactIO/Internal/Jdbc.PreparedStatement.{PreparedStatement};
 
     pub def sql_type_null(): Int32 =
-        import get java.sql.Types:NULL as get_NULL;
+        import static get java.sql.Types.NULL as get_NULL;
         get_NULL() as & Pure
 
     pub def clearParameters!(x: PreparedStatement): Option[Unit] & Impure =

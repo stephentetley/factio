@@ -39,51 +39,51 @@ namespace FactIO/CsvFormat {
     }
 
     pub def default(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:DEFAULT as get_DEFAULT;
+        import static get org.apache.commons.csv.CSVFormat.DEFAULT as get_DEFAULT;
         CsvFormat(get_DEFAULT()) as & Pure
 
     pub def excel(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:EXCEL as get_EXCEL;
+        import static get org.apache.commons.csv.CSVFormat.EXCEL as get_EXCEL;
         CsvFormat(get_EXCEL()) as & Pure
 
     pub def informix_unload(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:INFORMIX_UNLOAD as get_INFORMIX_UNLOAD;
+        import static get org.apache.commons.csv.CSVFormat.INFORMIX_UNLOAD as get_INFORMIX_UNLOAD;
         CsvFormat(get_INFORMIX_UNLOAD()) as & Pure
 
     pub def informix_unload_csv(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:INFORMIX_UNLOAD_CSV as get_INFORMIX_UNLOAD_CSV;
+        import static get org.apache.commons.csv.CSVFormat.INFORMIX_UNLOAD_CSV as get_INFORMIX_UNLOAD_CSV;
         CsvFormat(get_INFORMIX_UNLOAD_CSV()) as & Pure
 
     pub def mongodb_csv(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:MONGODB_CSV as get_MONGODB_CSV;
+        import static get org.apache.commons.csv.CSVFormat.MONGODB_CSV as get_MONGODB_CSV;
         CsvFormat(get_MONGODB_CSV()) as & Pure
 
     pub def mongodb_tsv(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:MONGODB_TSV as get_MONGODB_TSV;
+        import static get org.apache.commons.csv.CSVFormat.MONGODB_TSV as get_MONGODB_TSV;
         CsvFormat(get_MONGODB_TSV()) as & Pure
 
     pub def mysql(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:MYSQL as get_MYSQL;
+        import static get org.apache.commons.csv.CSVFormat.MYSQL as get_MYSQL;
         CsvFormat(get_MYSQL()) as & Pure
 
     pub def oracle(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:ORACLE as get_ORACLE;
+        import static get org.apache.commons.csv.CSVFormat.ORACLE as get_ORACLE;
         CsvFormat(get_ORACLE()) as & Pure
 
     pub def postgresql_csv(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:POSTGRESQL_CSV as get_POSTGRESQL_CSV;
+        import static get org.apache.commons.csv.CSVFormat.POSTGRESQL_CSV as get_POSTGRESQL_CSV;
         CsvFormat(get_POSTGRESQL_CSV()) as & Pure
 
     pub def postgresql_text(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:POSTGRESQL_TEXT as get_POSTGRESQL_TEXT;
+        import static get org.apache.commons.csv.CSVFormat.POSTGRESQL_TEXT as get_POSTGRESQL_TEXT;
         CsvFormat(get_POSTGRESQL_TEXT()) as & Pure
 
     pub def rfc4180(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:RFC4180 as get_RFC4180;
+        import static get org.apache.commons.csv.CSVFormat.RFC4180 as get_RFC4180;
         CsvFormat(get_RFC4180()) as & Pure
 
     pub def tdf(): CsvFormat =
-        import get org.apache.commons.csv.CSVFormat:TDF as get_TDF;
+        import static get org.apache.commons.csv.CSVFormat.TDF as get_TDF;
         CsvFormat(get_TDF()) as & Pure
 
 
