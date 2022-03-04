@@ -12,8 +12,8 @@ def main(_args: Array[String]): Int32 & Impure =
 
 
 def printResult(rarr: Result[Array[a], String]): Unit & Impure with ToString[a] = match rarr {
-    case Ok(arr) => {Console.printLine("Success:"); Array.foreach(x -> Console.printLine("${x}"), arr) }
-    case Err(msg) => Console.printLine("Error: ${msg}")
+    case Ok(arr) => {println("Success:"); Array.foreach(x -> println("${x}"), arr) }
+    case Err(msg) => println("Error: ${msg}")
 }
 
 

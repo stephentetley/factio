@@ -29,18 +29,18 @@ namespace FactIO/FlatFileImport {
     /// Returns a new Flat File Stream.
     ///
     pub def newFlatFileCursor(cs: Text.Charset, path: System.FilePath): Cursor[String, String] & Impure =
-        import new flix.runtime.spt.factio.flatfile.LinesCursor(##java.nio.file.Path, ##java.nio.charset.Charset) as newLinesCursor;
-        import flix.runtime.spt.factio.flatfile.LinesCursor.hasNext() as ffiHasNext;
-        import flix.runtime.spt.factio.flatfile.LinesCursor.next() as ffiNext;
-        import flix.runtime.spt.factio.flatfile.LinesCursor.close() as ffiClose;
+        import new flix.runtime.spt.factio.flatfile.LinesCursor(##java.nio.file.Path, ##java.nio.charset.Charset): ##flix.runtime.spt.factio.flatfile.LinesCursor & Impure as newLinesCursor;
+        import flix.runtime.spt.factio.flatfile.LinesCursor.hasNext(): Bool & Impure;
+        import flix.runtime.spt.factio.flatfile.LinesCursor.next(): String & Impure;
+        import flix.runtime.spt.factio.flatfile.LinesCursor.close(): Unit & Impure;
         try {
             let FilePath(path1) = path;
             let Charset(cs1) = cs;
             let iter = newLinesCursor(path1, cs1);
             let cursorIter =  {
-                  hasNext = () -> ffiHasNext(iter)
-                , next = X/Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
-                , finalize = () -> ffiClose(iter)
+                  hasNext = () -> hasNext(iter)
+                , next = X/Cursor.guardThunk(_ -> next(iter), "next failed")
+                , finalize = () -> close(iter)
             };
             X/Cursor.makeCursor(cursorIter)
         } catch {

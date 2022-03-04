@@ -65,7 +65,7 @@ namespace FactIO/CsvExport {
     pub def fail(e: String): CsvExport[a] =
        CsvExport((_,_) -> Err(e) as & Impure)
 
-    def apply1(x: CsvExport[a], headers: Map[String, Int], r: FactIO/Internal/Csv.Output): Result[a, String] & Impure =
+    def apply1(x: CsvExport[a], headers: Map[String, Int32], r: FactIO/Internal/Csv.Output): Result[a, String] & Impure =
         let CsvExport(f) = x;
         f(headers, r)
 

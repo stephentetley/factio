@@ -27,11 +27,11 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
     use FactIO/Internal/Jdbc.PreparedStatement.{PreparedStatement};
 
     pub def sql_type_null(): Int32 =
-        import static get java.sql.Types.NULL as get_NULL;
-        get_NULL() as & Pure
+        import static get java.sql.Types.NULL: Int32 & Pure as get_NULL;
+        get_NULL()
 
     pub def clearParameters!(x: PreparedStatement): Option[Unit] & Impure =
-        import java.sql.PreparedStatement.clearParameters();
+        import java.sql.PreparedStatement.clearParameters(): Unit & Impure;
         try {
             let PreparedStatement(x1) = x;
             clearParameters(x1);
@@ -41,7 +41,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
         }
 
     pub def setNull!(x: PreparedStatement, ix: Int32, sqlType: Int32): Option[Unit] & Impure =
-        import java.sql.PreparedStatement.setNull(Int32, Int32);
+        import java.sql.PreparedStatement.setNull(Int32, Int32): Unit & Impure;
         try {
             let PreparedStatement(x1) = x;
             setNull(x1, ix, sqlType);
@@ -51,7 +51,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
         }
 
     pub def setString!(x: PreparedStatement, ix: Int32, str: String): Option[Unit] & Impure =
-        import java.sql.PreparedStatement.setString(Int32, String);
+        import java.sql.PreparedStatement.setString(Int32, String): Unit & Impure;
         try {
             let PreparedStatement(x1) = x;
             setString(x1, ix, str);
@@ -61,7 +61,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
         }
 
     pub def setBool!(x: PreparedStatement, ix: Int32, b: Bool): Option[Unit] & Impure =
-        import java.sql.PreparedStatement.setBoolean(Int32, Bool);
+        import java.sql.PreparedStatement.setBoolean(Int32, Bool): Unit & Impure;
         try {
             let PreparedStatement(x1) = x;
             setBoolean(x1, ix, b);
@@ -71,7 +71,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
         }
 
     pub def setInt8!(x: PreparedStatement, ix: Int32, n: Int8): Option[Unit] & Impure =
-        import java.sql.PreparedStatement.setByte(Int32, Int8);
+        import java.sql.PreparedStatement.setByte(Int32, Int8): Unit & Impure;
         try {
             let PreparedStatement(x1) = x;
             setByte(x1, ix, n);
@@ -81,7 +81,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
         }
 
     pub def setInt16!(x: PreparedStatement, ix: Int32, n: Int16): Option[Unit] & Impure =
-        import java.sql.PreparedStatement.setShort(Int32, Int16);
+        import java.sql.PreparedStatement.setShort(Int32, Int16): Unit & Impure;
         try {
             let PreparedStatement(x1) = x;
             setShort(x1, ix, n);
@@ -91,7 +91,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
         }
 
     pub def setInt32!(x: PreparedStatement, ix: Int32, n: Int32): Option[Unit] & Impure =
-        import java.sql.PreparedStatement.setInt(Int32, Int32);
+        import java.sql.PreparedStatement.setInt(Int32, Int32): Unit & Impure;
         try {
             let PreparedStatement(x1) = x;
             setInt(x1, ix, n);
@@ -101,7 +101,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
         }
 
     pub def setInt64!(x: PreparedStatement, ix: Int32, n: Int64): Option[Unit] & Impure =
-        import java.sql.PreparedStatement.setLong(Int32, Int64);
+        import java.sql.PreparedStatement.setLong(Int32, Int64): Unit & Impure;
         try {
             let PreparedStatement(x1) = x;
             setLong(x1, ix, n);
@@ -111,7 +111,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
         }
 
     pub def setFloat32!(x: PreparedStatement, ix: Int32, d: Float32): Option[Unit] & Impure =
-        import java.sql.PreparedStatement.setFloat(Int32, Float32);
+        import java.sql.PreparedStatement.setFloat(Int32, Float32): Unit & Impure;
         try {
             let PreparedStatement(x1) = x;
             setFloat(x1, ix, d);
@@ -121,7 +121,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
         }
 
     pub def setFloat64!(x: PreparedStatement, ix: Int32, d: Float64): Option[Unit] & Impure =
-        import java.sql.PreparedStatement.setDouble(Int32, Float64);
+        import java.sql.PreparedStatement.setDouble(Int32, Float64): Unit & Impure;
         try {
             let PreparedStatement(x1) = x;
             setDouble(x1, ix, d);
@@ -132,7 +132,7 @@ namespace FactIO/Internal/Jdbc/PreparedStatement {
 
 
     pub def executeUpdate(x: PreparedStatement): Option[Int32] & Impure =
-        import java.sql.PreparedStatement.executeUpdate();
+        import java.sql.PreparedStatement.executeUpdate(): Int32 & Impure;
         try {
             let PreparedStatement(x1) = x;
             let ans = executeUpdate(x1);

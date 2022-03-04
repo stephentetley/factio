@@ -31,16 +31,16 @@ namespace FactIO/JdbcImport {
     /// Returns a new Jdbc Cursor.
     ///
     pub def newDbCursor(sql: {sql :: String}, url: String): Cursor[String, JdbcRow] & Impure =
-        import new flix.runtime.spt.factio.jdbc.JdbcCursor(String, String) as newJdbcCursor;
-        import flix.runtime.spt.factio.jdbc.JdbcCursor.goNext() as ffiHasNext;
-        import flix.runtime.spt.factio.jdbc.JdbcCursor.getRow() as ffiNext;
-        import flix.runtime.spt.factio.jdbc.JdbcCursor.close() as ffiClose;
+        import new flix.runtime.spt.factio.jdbc.JdbcCursor(String, String): ##flix.runtime.spt.factio.jdbc.JdbcCursor & Impure as newJdbcCursor;
+        import flix.runtime.spt.factio.jdbc.JdbcCursor.goNext(): Bool & Impure;
+        import flix.runtime.spt.factio.jdbc.JdbcCursor.getRow(): ##flix.runtime.spt.factio.jdbc.JdbcRow& Impure;
+        import flix.runtime.spt.factio.jdbc.JdbcCursor.close(): Unit & Impure;
         try {
             let iter = newJdbcCursor(url, sql.sql);
             let cursorIter =  {
-                  hasNext = () -> ffiHasNext(iter)
-                , next = X/Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
-                , finalize = () -> ffiClose(iter)
+                  hasNext = () -> goNext(iter)
+                , next = X/Cursor.guardThunk(_ -> getRow(iter), "next failed")
+                , finalize = () -> close(iter)
             };
             X/Cursor.makeCursor(cursorIter)
         } catch {

@@ -18,6 +18,7 @@
 namespace FactIO {
 
     pub opaque type JdbcRowEvaluator[a] = ##flix.runtime.spt.factio.jdbc.JdbcRow -> Result[a, String] & Impure
+
 }
 
 
@@ -107,7 +108,7 @@ namespace FactIO/JdbcRowEvaluator {
     // Cell readers
 
     pub def getStringAt(ix: Int32): JdbcRowEvaluator[String] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getStringAt(Int32);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getStringAt(Int32): String & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getStringAt(row, ix);
@@ -118,7 +119,7 @@ namespace FactIO/JdbcRowEvaluator {
         ) 
 
     pub def getStringNamed(label: String): JdbcRowEvaluator[String] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getStringNamed(String);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getStringNamed(String): String & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getStringNamed(row, label);
@@ -129,7 +130,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getInt8At(ix: Int32): JdbcRowEvaluator[Int8] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getByteAt(Int32);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getByteAt(Int32): Int8 & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getByteAt(row, ix);
@@ -140,7 +141,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getInt8Named(label: String): JdbcRowEvaluator[Int8] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getByteNamed(String);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getByteNamed(String): Int8 & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getByteNamed(row, label);
@@ -151,7 +152,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getInt16At(ix: Int32): JdbcRowEvaluator[Int16] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getShortAt(Int32);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getShortAt(Int32): Int16 & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getShortAt(row, ix);
@@ -162,7 +163,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getInt16Named(label: String): JdbcRowEvaluator[Int16] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getShortNamed(String);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getShortNamed(String): Int16 & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getShortNamed(row, label);
@@ -173,7 +174,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getInt32At(ix: Int32): JdbcRowEvaluator[Int32] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getIntAt(Int32);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getIntAt(Int32): Int32 & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getIntAt(row, ix);
@@ -184,7 +185,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getInt32Named(label: String): JdbcRowEvaluator[Int32] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getIntNamed(String);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getIntNamed(String): Int32 & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getIntNamed(row, label);
@@ -195,7 +196,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getInt64At(ix: Int32): JdbcRowEvaluator[Int64] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getLongAt(Int32);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getLongAt(Int32): Int64 & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getLongAt(row, ix);
@@ -206,7 +207,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getInt64Named(label: String): JdbcRowEvaluator[Int64] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getLongNamed(String);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getLongNamed(String): Int64 & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getLongNamed(row, label);
@@ -217,7 +218,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getFloat32At(ix: Int32): JdbcRowEvaluator[Float32] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getFloatAt(Int32);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getFloatAt(Int32): Float32 & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getFloatAt(row, ix);
@@ -228,7 +229,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getFloat32Named(label: String): JdbcRowEvaluator[Float32] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getFloatNamed(String);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getFloatNamed(String): Float32 & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getFloatNamed(row, label);
@@ -239,7 +240,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getFloat64At(ix: Int32): JdbcRowEvaluator[Float64] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getDoubleAt(Int32);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getDoubleAt(Int32): Float64 & Impure;
         liftPrimRowReader(row ->
             try {
                 let a = getDoubleAt(row, ix);
@@ -250,7 +251,7 @@ namespace FactIO/JdbcRowEvaluator {
         )
 
     pub def getFloat64Named(label: String): JdbcRowEvaluator[Float64] =
-        import flix.runtime.spt.factio.jdbc.JdbcRow.getDoubleNamed(String);
+        import flix.runtime.spt.factio.jdbc.JdbcRow.getDoubleNamed(String): Float64 & Impure;
         liftPrimRowReader(row ->       
             try {
                 let a = getDoubleNamed(row, label);

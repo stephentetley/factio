@@ -31,7 +31,7 @@ namespace FactIO/Internal/Csv/Output {
     /// Returns a new Output handle.
     ///
     pub def new(path: String, format: ##org.apache.commons.csv.CSVFormat, cellcount: Int32, cs: Text.Charset): Option[Output] & Impure =
-        import new flix.runtime.spt.factio.csv.CsvOutput(String, ##org.apache.commons.csv.CSVFormat, Int32, ##java.nio.charset.Charset) as newCsvOutput;
+        import new flix.runtime.spt.factio.csv.CsvOutput(String, ##org.apache.commons.csv.CSVFormat, Int32, ##java.nio.charset.Charset): ##flix.runtime.spt.factio.csv.CsvOutput & Impure as newCsvOutput;
         use Result.flatMap;
         try {
             let Charset(cs1) = cs;
@@ -45,7 +45,7 @@ namespace FactIO/Internal/Csv/Output {
     /// Close the CSV output stream.
     ///
     pub def close(x: Output): Option[Unit] & Impure =
-        import flix.runtime.spt.factio.csv.CsvOutput.close();
+        import flix.runtime.spt.factio.csv.CsvOutput.close(): Unit & Impure;
         try {
             let Output(x1) = x;
             close(x1);
@@ -55,7 +55,7 @@ namespace FactIO/Internal/Csv/Output {
         }
 
     pub def setCell!(x: Output, ix: Int32, value: String): Option[Unit] & Impure =
-        import flix.runtime.spt.factio.csv.CsvOutput.setCell(Int32, String);
+        import flix.runtime.spt.factio.csv.CsvOutput.setCell(Int32, String): Unit & Impure;
         try {
             let Output(x1) = x;
             let _ = setCell(x1, ix, value);
@@ -65,7 +65,7 @@ namespace FactIO/Internal/Csv/Output {
         }
 
     pub def writeRow(x: Output): Option[Unit] & Impure =
-        import flix.runtime.spt.factio.csv.CsvOutput.writeRow();
+        import flix.runtime.spt.factio.csv.CsvOutput.writeRow(): Unit & Impure;
         try {
             let Output(x1) = x;
             let _ = writeRow(x1);
@@ -75,7 +75,7 @@ namespace FactIO/Internal/Csv/Output {
         }
 
     pub def clearCells!(x: Output): Option[Unit] & Impure =
-        import flix.runtime.spt.factio.csv.CsvOutput.clearCells();
+        import flix.runtime.spt.factio.csv.CsvOutput.clearCells(): Unit & Impure;
         try {
             let Output(x1) = x;
             let _ = clearCells(x1);

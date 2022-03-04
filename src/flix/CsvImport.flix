@@ -38,19 +38,19 @@ namespace FactIO/CsvImport {
     pub def newCsvCursor(format: CsvFormat,
                         cs: Text.Charset,
                         path: System.FilePath): Cursor[String, CsvRow] & Impure =
-        import static flix.runtime.spt.factio.csv.CsvCursor.createCursorForFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset);
-        import flix.runtime.spt.factio.csv.CsvCursor.hasNext() as ffiHasNext;
-        import flix.runtime.spt.factio.csv.CsvCursor.next() as ffiNext;
-        import flix.runtime.spt.factio.csv.CsvCursor.close() as ffiClose;
+        import static flix.runtime.spt.factio.csv.CsvCursor.createCursorForFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset): ##flix.runtime.spt.factio.csv.CsvCursor & Impure;
+        import flix.runtime.spt.factio.csv.CsvCursor.hasNext(): Bool & Impure;
+        import flix.runtime.spt.factio.csv.CsvCursor.next(): ##flix.runtime.spt.factio.csv.CsvRow & Impure;
+        import flix.runtime.spt.factio.csv.CsvCursor.close(): Unit & Impure;
         try {
             let FilePath(path1) = path;
             let CsvFormat(fmt1) = format;
             let Charset(cs1) = cs;
             let iter = createCursorForFile(path1, fmt1, cs1);
             let cursorIter =  {
-                  hasNext = () -> ffiHasNext(iter)
-                , next = X/Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
-                , finalize = () -> ffiClose(iter)
+                  hasNext = () -> hasNext(iter)
+                , next = X/Cursor.guardThunk(_ -> next(iter), "next failed")
+                , finalize = () -> close(iter)
             };
             X/Cursor.makeCursor(cursorIter)
         } catch {
@@ -63,18 +63,18 @@ namespace FactIO/CsvImport {
     ///
     pub def newCsvCursorWithBOM(format: CsvFormat,
                                 path: System.FilePath): Cursor[String, CsvRow] & Impure =
-        import static flix.runtime.spt.factio.csv.CsvCursor.createCursorForBOMFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat);
-        import flix.runtime.spt.factio.csv.CsvCursor.hasNext() as ffiHasNext;
-        import flix.runtime.spt.factio.csv.CsvCursor.next() as ffiNext;
-        import flix.runtime.spt.factio.csv.CsvCursor.close() as ffiClose;
+        import static flix.runtime.spt.factio.csv.CsvCursor.createCursorForBOMFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat): ##flix.runtime.spt.factio.csv.CsvCursor & Impure;
+        import flix.runtime.spt.factio.csv.CsvCursor.hasNext(): Bool & Impure;
+        import flix.runtime.spt.factio.csv.CsvCursor.next(): ##flix.runtime.spt.factio.csv.CsvRow & Impure;
+        import flix.runtime.spt.factio.csv.CsvCursor.close(): Unit & Impure;
         try {
             let FilePath(path1) = path;
             let CsvFormat(fmt1) = format;
             let iter = createCursorForBOMFile(path1, fmt1);
             let cursorIter =  {
-                  hasNext = () -> ffiHasNext(iter)
-                , next = X/Cursor.guardThunk(_ -> ffiNext(iter), "next failed")
-                , finalize = () -> ffiClose(iter)
+                  hasNext = () -> hasNext(iter)
+                , next = X/Cursor.guardThunk(_ -> next(iter), "next failed")
+                , finalize = () -> close(iter)
             };
             X/Cursor.makeCursor(cursorIter)
         } catch {
@@ -141,8 +141,8 @@ namespace FactIO/CsvImport {
             |> X/Cursor.mapResult(mf)
             |> X/Cursor.toList!
 
-    def isEmptyRow(row: CsvRow): Bool =
-        import flix.runtime.spt.factio.csv.CsvRow.isEmptyRow() as primIsEmptyRow;
-        primIsEmptyRow(row) as & Pure
+    def isEmptyRow(row: CsvRow): Bool & Impure =
+        import flix.runtime.spt.factio.csv.CsvRow.isEmptyRow(): Bool & Impure;
+        isEmptyRow(row)
 
 }

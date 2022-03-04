@@ -31,7 +31,7 @@ namespace FactIO/Internal/Jdbc/Output {
     /// Returns a new Output handle.
     ///
     pub def new(url: String): Option[Output] & Impure =
-        import new flix.runtime.spt.factio.jdbc.JdbcOutput(String) as newOutput;
+        import new flix.runtime.spt.factio.jdbc.JdbcOutput(String): ##flix.runtime.spt.factio.jdbc.JdbcOutput & Impure as newOutput;
         try {
             let ans = Output(newOutput(url));
             Some(ans)
@@ -43,7 +43,7 @@ namespace FactIO/Internal/Jdbc/Output {
     /// Close the internal connection to the DB.
     ///
     pub def close(x: Output): Option[Unit] & Impure =
-        import flix.runtime.spt.factio.jdbc.JdbcOutput.close();
+        import flix.runtime.spt.factio.jdbc.JdbcOutput.close(): Unit & Impure;
         try {
             let Output(x1) = x;
             close(x1);
@@ -53,7 +53,7 @@ namespace FactIO/Internal/Jdbc/Output {
         }
 
     pub def setAutoCommit(x: Output, autoCommit: Bool): Option[Unit] & Impure =
-        import flix.runtime.spt.factio.jdbc.JdbcOutput.setAutoCommit(Bool);
+        import flix.runtime.spt.factio.jdbc.JdbcOutput.setAutoCommit(Bool): Unit & Impure;
         try {
             let Output(x1) = x;
             setAutoCommit(x1, autoCommit);
@@ -63,7 +63,7 @@ namespace FactIO/Internal/Jdbc/Output {
         }
 
     pub def getAutoCommit(x: Output): Option[Bool] & Impure =
-        import flix.runtime.spt.factio.jdbc.JdbcOutput.getAutoCommit();
+        import flix.runtime.spt.factio.jdbc.JdbcOutput.getAutoCommit(): Bool & Impure;
         try {
             let Output(x1) = x;
             let ans = getAutoCommit(x1);
@@ -73,7 +73,7 @@ namespace FactIO/Internal/Jdbc/Output {
         }
 
     pub def commit(x: Output): Option[Unit] & Impure =
-        import flix.runtime.spt.factio.jdbc.JdbcOutput.commit();
+        import flix.runtime.spt.factio.jdbc.JdbcOutput.commit(): Unit & Impure;
         try {
             let Output(x1) = x;
             commit(x1);
@@ -83,7 +83,7 @@ namespace FactIO/Internal/Jdbc/Output {
         }
 
     pub def rollback(x: Output): Option[Unit] & Impure =
-        import flix.runtime.spt.factio.jdbc.JdbcOutput.rollback();
+        import flix.runtime.spt.factio.jdbc.JdbcOutput.rollback(): Unit & Impure;
         try {
             let Output(x1) = x;
             rollback(x1);
@@ -93,7 +93,7 @@ namespace FactIO/Internal/Jdbc/Output {
         }
 
     pub def prepareStatement(x: Output, sql: String): Option[PreparedStatement] & Impure =
-        import flix.runtime.spt.factio.jdbc.JdbcOutput.prepareStatement(String);
+        import flix.runtime.spt.factio.jdbc.JdbcOutput.prepareStatement(String): ##java.sql.PreparedStatement & Impure;
         try {
             let Output(x1) = x;
             let ans = prepareStatement(x1, sql);
@@ -103,7 +103,7 @@ namespace FactIO/Internal/Jdbc/Output {
         }
 
     pub def execute(x: Output, sql: String): Option[Bool] & Impure =
-        import flix.runtime.spt.factio.jdbc.JdbcOutput.execute(String);
+        import flix.runtime.spt.factio.jdbc.JdbcOutput.execute(String): Bool & Impure;
         try {
             let Output(x1) = x;
             let ans = execute(x1, sql);
