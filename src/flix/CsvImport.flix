@@ -30,7 +30,7 @@ namespace FactIO/CsvImport {
     ///
     /// Represents a CSV row.
     ///
-    type alias CsvRow = ##flix.runtime.spt.factio.csv.CsvRow
+    type alias CsvRow = ##flixspt.factio.csv.CsvRow
 
     ///
     /// Returns a new Csv Cursor.
@@ -38,10 +38,10 @@ namespace FactIO/CsvImport {
     pub def newCsvCursor(format: CsvFormat,
                         cs: Text.Charset,
                         path: System.FilePath): Cursor[String, CsvRow] & Impure =
-        import static flix.runtime.spt.factio.csv.CsvCursor.createCursorForFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset): ##flix.runtime.spt.factio.csv.CsvCursor & Impure;
-        import flix.runtime.spt.factio.csv.CsvCursor.hasNext(): Bool & Impure;
-        import flix.runtime.spt.factio.csv.CsvCursor.next(): ##flix.runtime.spt.factio.csv.CsvRow & Impure;
-        import flix.runtime.spt.factio.csv.CsvCursor.close(): Unit & Impure;
+        import static flixspt.factio.csv.CsvCursor.createCursorForFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset): ##flixspt.factio.csv.CsvCursor & Impure;
+        import flixspt.factio.csv.CsvCursor.hasNext(): Bool & Impure;
+        import flixspt.factio.csv.CsvCursor.next(): ##flixspt.factio.csv.CsvRow & Impure;
+        import flixspt.factio.csv.CsvCursor.close(): Unit & Impure;
         try {
             let FilePath(path1) = path;
             let CsvFormat(fmt1) = format;
@@ -63,10 +63,10 @@ namespace FactIO/CsvImport {
     ///
     pub def newCsvCursorWithBOM(format: CsvFormat,
                                 path: System.FilePath): Cursor[String, CsvRow] & Impure =
-        import static flix.runtime.spt.factio.csv.CsvCursor.createCursorForBOMFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat): ##flix.runtime.spt.factio.csv.CsvCursor & Impure;
-        import flix.runtime.spt.factio.csv.CsvCursor.hasNext(): Bool & Impure;
-        import flix.runtime.spt.factio.csv.CsvCursor.next(): ##flix.runtime.spt.factio.csv.CsvRow & Impure;
-        import flix.runtime.spt.factio.csv.CsvCursor.close(): Unit & Impure;
+        import static flixspt.factio.csv.CsvCursor.createCursorForBOMFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat): ##flixspt.factio.csv.CsvCursor & Impure;
+        import flixspt.factio.csv.CsvCursor.hasNext(): Bool & Impure;
+        import flixspt.factio.csv.CsvCursor.next(): ##flixspt.factio.csv.CsvRow & Impure;
+        import flixspt.factio.csv.CsvCursor.close(): Unit & Impure;
         try {
             let FilePath(path1) = path;
             let CsvFormat(fmt1) = format;
@@ -142,7 +142,7 @@ namespace FactIO/CsvImport {
             |> X/Cursor.toList!
 
     def isEmptyRow(row: CsvRow): Bool & Impure =
-        import flix.runtime.spt.factio.csv.CsvRow.isEmptyRow(): Bool & Impure;
+        import flixspt.factio.csv.CsvRow.isEmptyRow(): Bool & Impure;
         isEmptyRow(row)
 
 }

@@ -29,10 +29,10 @@ namespace FactIO/FlatFileImport {
     /// Returns a new Flat File Stream.
     ///
     pub def newFlatFileCursor(cs: Text.Charset, path: System.FilePath): Cursor[String, String] & Impure =
-        import new flix.runtime.spt.factio.flatfile.LinesCursor(##java.nio.file.Path, ##java.nio.charset.Charset): ##flix.runtime.spt.factio.flatfile.LinesCursor & Impure as newLinesCursor;
-        import flix.runtime.spt.factio.flatfile.LinesCursor.hasNext(): Bool & Impure;
-        import flix.runtime.spt.factio.flatfile.LinesCursor.next(): String & Impure;
-        import flix.runtime.spt.factio.flatfile.LinesCursor.close(): Unit & Impure;
+        import new flixspt.factio.flatfile.LinesCursor(##java.nio.file.Path, ##java.nio.charset.Charset): ##flixspt.factio.flatfile.LinesCursor & Impure as newLinesCursor;
+        import flixspt.factio.flatfile.LinesCursor.hasNext(): Bool & Impure;
+        import flixspt.factio.flatfile.LinesCursor.next(): String & Impure;
+        import flixspt.factio.flatfile.LinesCursor.close(): Unit & Impure;
         try {
             let FilePath(path1) = path;
             let Charset(cs1) = cs;

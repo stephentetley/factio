@@ -25,16 +25,16 @@ namespace FactIO/JdbcImport {
     ///
     /// Represents a database row.
     ///
-    type alias JdbcRow = ##flix.runtime.spt.factio.jdbc.JdbcRow
+    type alias JdbcRow = ##flixspt.factio.jdbc.JdbcRow
 
     ///
     /// Returns a new Jdbc Cursor.
     ///
     pub def newDbCursor(sql: {sql :: String}, url: String): Cursor[String, JdbcRow] & Impure =
-        import new flix.runtime.spt.factio.jdbc.JdbcCursor(String, String): ##flix.runtime.spt.factio.jdbc.JdbcCursor & Impure as newJdbcCursor;
-        import flix.runtime.spt.factio.jdbc.JdbcCursor.goNext(): Bool & Impure;
-        import flix.runtime.spt.factio.jdbc.JdbcCursor.getRow(): ##flix.runtime.spt.factio.jdbc.JdbcRow& Impure;
-        import flix.runtime.spt.factio.jdbc.JdbcCursor.close(): Unit & Impure;
+        import new flixspt.factio.jdbc.JdbcCursor(String, String): ##flixspt.factio.jdbc.JdbcCursor & Impure as newJdbcCursor;
+        import flixspt.factio.jdbc.JdbcCursor.goNext(): Bool & Impure;
+        import flixspt.factio.jdbc.JdbcCursor.getRow(): ##flixspt.factio.jdbc.JdbcRow& Impure;
+        import flixspt.factio.jdbc.JdbcCursor.close(): Unit & Impure;
         try {
             let iter = newJdbcCursor(url, sql.sql);
             let cursorIter =  {

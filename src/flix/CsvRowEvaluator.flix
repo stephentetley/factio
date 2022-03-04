@@ -17,7 +17,7 @@
 
 namespace FactIO {
 
-    pub opaque type CsvRowEvaluator[a] = ##flix.runtime.spt.factio.csv.CsvRow -> Result[a, String] & Impure
+    pub opaque type CsvRowEvaluator[a] = ##flixspt.factio.csv.CsvRow -> Result[a, String] & Impure
 }
 
 
@@ -33,7 +33,7 @@ namespace FactIO/CsvRowEvaluator {
     pub def return(x: a): CsvRowEvaluator[a] = 
         CsvRowEvaluator(_ -> Ok(x) as & Impure)
 
-    def apply1(x: CsvRowEvaluator[a], r: ##flix.runtime.spt.factio.csv.CsvRow): Result[a, String] & Impure =
+    def apply1(x: CsvRowEvaluator[a], r: ##flixspt.factio.csv.CsvRow): Result[a, String] & Impure =
         let CsvRowEvaluator(f) = x;
         f(r)
 
@@ -80,7 +80,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
 
-    def liftPrimRowReader(eval: ##flix.runtime.spt.factio.csv.CsvRow -> Result[a, String] & Impure): CsvRowEvaluator[a] =
+    def liftPrimRowReader(eval: ##flixspt.factio.csv.CsvRow -> Result[a, String] & Impure): CsvRowEvaluator[a] =
         CsvRowEvaluator(r -> eval(r))
 
     pub def liftOption(x: Option[a], errMsg: String): CsvRowEvaluator[a] = match x {
@@ -100,7 +100,7 @@ namespace FactIO/CsvRowEvaluator {
     pub def choice(xs: List[CsvRowEvaluator[a]]): CsvRowEvaluator[a] =
         CsvRowEvaluator(r -> choiceHelper(r, xs))
 
-    def choiceHelper(r: ##flix.runtime.spt.factio.csv.CsvRow, xs: List[CsvRowEvaluator[a]]): Result[a, String] & Impure =
+    def choiceHelper(r: ##flixspt.factio.csv.CsvRow, xs: List[CsvRowEvaluator[a]]): Result[a, String] & Impure =
         match xs {
             case Nil => Err("choice") as & Impure
             case x1 :: rs => match apply1(x1, r) {
@@ -112,7 +112,7 @@ namespace FactIO/CsvRowEvaluator {
     // Cell readers
 
     pub def getStringAt(ix: Int32): CsvRowEvaluator[String] =
-        import flix.runtime.spt.factio.csv.CsvRow.getStringAt(Int32): String & Impure;
+        import flixspt.factio.csv.CsvRow.getStringAt(Int32): String & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getStringAt(row, ix);
@@ -126,7 +126,7 @@ namespace FactIO/CsvRowEvaluator {
     /// Get a string by its column name / label.
     ///
     pub def getStringNamed(label: String): CsvRowEvaluator[String] =
-        import flix.runtime.spt.factio.csv.CsvRow.getStringNamed(String): String & Impure;
+        import flixspt.factio.csv.CsvRow.getStringNamed(String): String & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getStringNamed(row, label);
@@ -137,7 +137,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getInt8At(ix: Int32): CsvRowEvaluator[Int8] =
-        import flix.runtime.spt.factio.csv.CsvRow.getByteAt(Int32): Int8 & Impure;
+        import flixspt.factio.csv.CsvRow.getByteAt(Int32): Int8 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getByteAt(row, ix);
@@ -148,7 +148,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getInt8Named(label: String): CsvRowEvaluator[Int8] =
-        import flix.runtime.spt.factio.csv.CsvRow.getByteNamed(String): Int8 & Impure;
+        import flixspt.factio.csv.CsvRow.getByteNamed(String): Int8 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getByteNamed(row, label);
@@ -159,7 +159,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getInt16At(ix: Int32): CsvRowEvaluator[Int16] =
-        import flix.runtime.spt.factio.csv.CsvRow.getShortAt(Int32): Int16 & Impure;
+        import flixspt.factio.csv.CsvRow.getShortAt(Int32): Int16 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getShortAt(row, ix);
@@ -170,7 +170,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getInt16Named(label: String): CsvRowEvaluator[Int16] =
-        import flix.runtime.spt.factio.csv.CsvRow.getShortNamed(String): Int16 & Impure;
+        import flixspt.factio.csv.CsvRow.getShortNamed(String): Int16 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getShortNamed(row, label);
@@ -181,7 +181,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getInt32At(ix: Int32): CsvRowEvaluator[Int32] =
-        import flix.runtime.spt.factio.csv.CsvRow.getIntAt(Int32): Int32 & Impure;
+        import flixspt.factio.csv.CsvRow.getIntAt(Int32): Int32 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getIntAt(row, ix);
@@ -192,7 +192,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getInt32Named(label: String): CsvRowEvaluator[Int32] =
-        import flix.runtime.spt.factio.csv.CsvRow.getIntNamed(String): Int32 & Impure;
+        import flixspt.factio.csv.CsvRow.getIntNamed(String): Int32 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getIntNamed(row, label);
@@ -203,7 +203,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getInt64At(ix: Int32): CsvRowEvaluator[Int64] =
-        import flix.runtime.spt.factio.csv.CsvRow.getLongAt(Int32): Int64 & Impure;
+        import flixspt.factio.csv.CsvRow.getLongAt(Int32): Int64 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getLongAt(row, ix);
@@ -214,7 +214,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getInt64Named(label: String): CsvRowEvaluator[Int64] =
-        import flix.runtime.spt.factio.csv.CsvRow.getLongNamed(String): Int64 & Impure;
+        import flixspt.factio.csv.CsvRow.getLongNamed(String): Int64 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getLongNamed(row, label);
@@ -225,7 +225,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getFloat32At(ix: Int32): CsvRowEvaluator[Float32] =
-        import flix.runtime.spt.factio.csv.CsvRow.getFloatAt(Int32): Float32 & Impure;
+        import flixspt.factio.csv.CsvRow.getFloatAt(Int32): Float32 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getFloatAt(row, ix);
@@ -236,7 +236,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getFloat32Named(label: String): CsvRowEvaluator[Float32] =
-        import flix.runtime.spt.factio.csv.CsvRow.getFloatNamed(String): Float32 & Impure;
+        import flixspt.factio.csv.CsvRow.getFloatNamed(String): Float32 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getFloatNamed(row, label);
@@ -247,7 +247,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getFloat64At(ix: Int32): CsvRowEvaluator[Float64] =
-        import flix.runtime.spt.factio.csv.CsvRow.getDoubleAt(Int32): Float64 & Impure;
+        import flixspt.factio.csv.CsvRow.getDoubleAt(Int32): Float64 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getDoubleAt(row, ix);
@@ -258,7 +258,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getFloat64Named(label: String): CsvRowEvaluator[Float64] =
-        import flix.runtime.spt.factio.csv.CsvRow.getDoubleNamed(String): Float64 & Impure;
+        import flixspt.factio.csv.CsvRow.getDoubleNamed(String): Float64 & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getDoubleNamed(row, label);
@@ -269,7 +269,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getBigIntAt(ix: Int32): CsvRowEvaluator[BigInt] =
-        import flix.runtime.spt.factio.csv.CsvRow.getBigIntegerAt(Int32): BigInt & Impure;
+        import flixspt.factio.csv.CsvRow.getBigIntegerAt(Int32): BigInt & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getBigIntegerAt(row, ix);
@@ -280,7 +280,7 @@ namespace FactIO/CsvRowEvaluator {
         )
 
     pub def getBigIntNamed(label: String): CsvRowEvaluator[BigInt] =
-        import flix.runtime.spt.factio.csv.CsvRow.getBigIntegerNamed(String): BigInt & Impure;
+        import flixspt.factio.csv.CsvRow.getBigIntegerNamed(String): BigInt & Impure;
         liftPrimRowReader(row -> 
             try {
                 let a = getBigIntegerNamed(row, label);
