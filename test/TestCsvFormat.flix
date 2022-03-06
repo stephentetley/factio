@@ -16,23 +16,23 @@
 
 namespace TestCsvFormat {
 
-/////////////////////////////////////////////////////////////////////////////
-// toString                                                                 //
-/////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
+    // toString                                                                 //
+    /////////////////////////////////////////////////////////////////////////////
 
-@test
-def toString01(): String =
-    use FactIO/CsvFormat.{toString};
-    FactIO/CsvFormat.default() |> toString
+    @test
+    def toString01(): String =
+        use FactIO/CsvFormat.{toString};
+        FactIO/CsvFormat.default() |> toString
 
-/////////////////////////////////////////////////////////////////////////////
-// compare                                                                 //
-/////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
+    // compare                                                                 //
+    /////////////////////////////////////////////////////////////////////////////
 
-//@test
-//def compare01(): Bool =
-//    use FactIO/Csv/CsvFormat.{compare};
-//    compare(FactIO/Csv/CsvFormat.Default, FactIO/Csv/CsvFormat.Default) == 0
+    //@test
+    //def compare01(): Bool =
+    //    use FactIO/Csv/CsvFormat.{compare};
+    //    compare(FactIO/Csv/CsvFormat.Default, FactIO/Csv/CsvFormat.Default) == 0
 
 
 }
