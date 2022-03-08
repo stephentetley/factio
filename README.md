@@ -14,12 +14,10 @@ https://github.com/stephentetley/sheetio (Excel files)
 
 ## Build instructions
 
-Feb 2020 - the Java primitives used by `factio` are now supplied as a library 
-jar in the `lib` directory. This means `factio` no longer needs building inside 
-the the Flix compiler. To run programs using `factio` the jar libraries in `libs`
-must be passed to `flix.jar` via the classpath (i.e. the using the Java `-cp` option).
+March 2022 - `factio` now builds as a Flix package. 
 
-Warning - `factio` depends on `flix-sandbox`. Building `flix-sandbox` has not yet 
-been disengaged from building within a fork of the Flix compiler.
+It depends on `flix-sandbox` - a jar of the Java primitives and a Flix .pkg
+are included in the folder `libs`. In case these files go out of date you
+might have to build a version of `flix-sandbox` yourself.
 
 https://github.com/stephentetley/flix-sandbox
