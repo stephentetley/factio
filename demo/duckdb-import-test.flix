@@ -26,10 +26,10 @@ def test01(): Unit & Impure =
 rel Lang(name: String, year: Int32)
 
 def getLang (): JdbcRowEvaluator[#{Lang| r}] = 
-    use FactIO/JdbcRowEvaluator.{flatMap, getStringNamed, getInt32Named, return};
+    use FactIO/JdbcRowEvaluator.{flatMap, getStringNamed, getInt32Named, point};
     let* x = getStringNamed("name");
     let* y = getInt32Named("year");
-    return({ Lang(x, y). })
+    point({ Lang(x, y). })
 
 
 

@@ -22,6 +22,24 @@ namespace FactIO {
 
     pub opaque type CsvRowSetter[a] = (Map[String, Int32], Output) -> Result[a, String] & Impure
 
+    instance Functor[CsvRowSetter] {
+        pub def map(f: a -> b & ef, x: CsvRowSetter[a]): CsvRowSetter[b] & ef =
+            FactIO/CsvRowSetter.map(f, x)
+    }
+
+    instance Applicative[CsvRowSetter] {
+        pub def point(x: a): CsvRowSetter[a] =
+            FactIO/CsvRowSetter.point(x)
+
+        pub def ap(mf: CsvRowSetter[a -> b & ef], ma: CsvRowSetter[a]): CsvRowSetter[b] & ef =
+            FactIO/CsvRowSetter.ap(mf, ma)
+    }
+
+    instance Monad[CsvRowSetter] {
+        pub def flatMap(k: a -> CsvRowSetter[b] & ef, x: CsvRowSetter[a]): CsvRowSetter[b] & ef = 
+            FactIO/CsvRowSetter.flatMap(k, x)
+    }
+
 }
 
 namespace FactIO/CsvRowSetter {
@@ -32,7 +50,7 @@ namespace FactIO/CsvRowSetter {
     use FactIO/Internal/Csv.Output;
     use FactIO/Internal/Csv.Output.{Output};
 
-    pub def return(x: a): CsvRowSetter[a] =
+    pub def point(x: a): CsvRowSetter[a] =
         CsvRowSetter((_,_) -> Ok(x) as & Impure)
 
     def apply1(x: CsvRowSetter[a], headers: Map[String, Int32], r: Output): Result[a, String] & Impure =

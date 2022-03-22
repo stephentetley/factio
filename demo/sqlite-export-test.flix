@@ -36,10 +36,10 @@ def databaseSystems(): #{Dbms | r} = #{
 
 /// A "cell printer" for the body of Dbms.
 def writeCells(src: (String, Int32)): JdbcRowSetter[Unit] = 
-    use FactIO/JdbcRowSetter.{flatMap, return, putString!, putInt32!};
+    use FactIO/JdbcRowSetter.{flatMap, point, putString!, putInt32!};
     let (name,year) = src;
     let* _ = putString!(0, name);
     let* _ = putInt32!(1, year);
-    return()
+    point()
 
 

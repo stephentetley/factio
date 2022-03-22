@@ -19,6 +19,25 @@ namespace FactIO {
 
     pub opaque type JdbcRowEvaluator[a] = ##flixspt.factio.jdbc.JdbcRow -> Result[a, String] & Impure
 
+
+    instance Functor[JdbcRowEvaluator] {
+        pub def map(f: a -> b & ef, x: JdbcRowEvaluator[a]): JdbcRowEvaluator[b] & ef =
+            FactIO/JdbcRowEvaluator.map(f, x)
+    }
+
+    instance Applicative[JdbcRowEvaluator] {
+        pub def point(x: a): JdbcRowEvaluator[a] =
+            FactIO/JdbcRowEvaluator.point(x)
+
+        pub def ap(mf: JdbcRowEvaluator[a -> b & ef], ma: JdbcRowEvaluator[a]): JdbcRowEvaluator[b] & ef =
+            FactIO/JdbcRowEvaluator.ap(mf, ma)
+    }
+
+    instance Monad[JdbcRowEvaluator] {
+        pub def flatMap(k: a -> JdbcRowEvaluator[b] & ef, x: JdbcRowEvaluator[a]): JdbcRowEvaluator[b] & ef = 
+            FactIO/JdbcRowEvaluator.flatMap(k, x)
+    }
+
 }
 
 
@@ -27,7 +46,7 @@ namespace FactIO/JdbcRowEvaluator {
     use FactIO.JdbcRowEvaluator;
     use FactIO.JdbcRowEvaluator.{JdbcRowEvaluator};
 
-    pub def return(x: a): JdbcRowEvaluator[a] =
+    pub def point(x: a): JdbcRowEvaluator[a] =
         JdbcRowEvaluator(_ -> Ok(x) as & Impure)
 
     def apply1(x: JdbcRowEvaluator[a], r: ##flixspt.factio.jdbc.JdbcRow): Result[a, String] & Impure =
@@ -80,7 +99,7 @@ namespace FactIO/JdbcRowEvaluator {
         JdbcRowEvaluator(r -> eval(r))
 
     pub def liftOption(x: Option[a], errMsg: String): JdbcRowEvaluator[a] = match x {
-        case Some(a) => return(a)
+        case Some(a) => point(a)
         case None => throwError(errMsg)
     }
 
@@ -264,249 +283,52 @@ namespace FactIO/JdbcRowEvaluator {
     pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
         let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/RegexEval/Regex.matches(patt, eval, input));
-        return(ans)
+        point(ans)
 
     pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
         let* input = getStringNamed(label);
         let* ans = liftOperation(_ -> Text/RegexEval/Regex.matches(patt, eval, input));
-        return(ans)
+        point(ans)
 
     pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
         let* input = getStringAt(ix);
         let* ans = liftOperation(_ -> Text/RegexEval/Regex.contains(patt, eval, input));
-        return(ans)
+        point(ans)
 
     pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
         let* input = getStringNamed(label);
         let* ans = liftOperation(_ -> Text/RegexEval/Regex.contains(patt, eval, input));
-        return(ans)
+        point(ans)
 
     pub def getLocalDateAt(ix: Int32, formatter: Time/Format.DateFormatter): JdbcRowEvaluator[Time.LocalDate] =
         let* input = getStringAt(ix);
         let* ans = liftOption(Time/LocalDate.parse(formatter, input), "getLocalDateAt");
-        return(ans)
+        point(ans)
 
     pub def getLocalDateNamed(label: String, formatter: Time/Format.DateFormatter): JdbcRowEvaluator[Time.LocalDate] =
         let* input = getStringNamed(label);
         let* ans = liftOption(Time/LocalDate.parse(formatter, input), "getLocalDateNamed");
-        return(ans)
+        point(ans)
 
     pub def getLocalDateTimeAt(ix: Int32, formatter: Time/Format.DateTimeFormatter): JdbcRowEvaluator[Time.LocalDateTime] =
         let* input = getStringAt(ix);
         let* ans = liftOption(Time/LocalDateTime.parse(formatter, input) , "getLocalDateTimeAt");
-        return(ans)
+        point(ans)
 
     pub def getLocalDateTimeNamed(label: String, formatter: Time/Format.DateTimeFormatter): JdbcRowEvaluator[Time.LocalDateTime] =
         let* input = getStringNamed(label);
         let* ans = liftOption(Time/LocalDateTime.parse(formatter, input), "getLocalDateTimeNamed");
-        return(ans)
+        point(ans)
 
     pub def getLocalTimeAt(ix: Int32, formatter: Time/Format.TimeFormatter): JdbcRowEvaluator[Time.LocalTime] =
         let* input = getStringAt(ix);
         let* ans = liftOption(Time/LocalTime.parse(formatter, input), "getLocalTimeAt");
-        return(ans)
+        point(ans)
 
     pub def getLocalTimeNamed(label: String, formatter: Time/Format.TimeFormatter): JdbcRowEvaluator[Time.LocalTime] =
         let* input = getStringNamed(label);
         let* ans = liftOption(Time/LocalTime.parse(formatter, input), "getLocalTimeNamed");
-        return(ans)
+        point(ans)
 
-    ///
-    /// Applies the binary function `f` to the values in `o1` and `o2`.
-    ///
-    /// Returns an error if either `o1` or `o2` are errors.
-    ///
-    pub def lift2(f: (t1, t2) -> u & ef,
-                    o1: JdbcRowEvaluator[t1],
-                    o2: JdbcRowEvaluator[t2]): JdbcRowEvaluator[u] & ef =
-        ap(map(f, o1), o2)
-
-    ///
-    /// Applies the ternary function `f` to the values in `o1`, `o2` and `o3`.
-    ///
-    /// Returns an error if any of `o1`, `o2` and `o3` are errors.
-    ///
-    pub def lift3(f: (t1, t2, t3) -> u & ef,
-                    o1: JdbcRowEvaluator[t1],
-                    o2: JdbcRowEvaluator[t2],
-                    o3: JdbcRowEvaluator[t3]): JdbcRowEvaluator[u] & ef =
-        ap(lift2(f, o1, o2), o3)
-
-    ///
-    /// Applies the 4-ary function `f` to the values in `o1`, `o2`, `o3` and `o4`.
-    ///
-    /// Returns an error if any of `o1`, `o2`, `o3` and `o4` are errors.
-    ///
-    pub def lift4(f: (t1, t2, t3, t4) -> u & ef,
-                    o1: JdbcRowEvaluator[t1],
-                    o2: JdbcRowEvaluator[t2],
-                    o3: JdbcRowEvaluator[t3],
-                    o4: JdbcRowEvaluator[t4]): JdbcRowEvaluator[u] & ef =
-        ap(lift3(f, o1, o2, o3), o4)
-
-    ///
-    /// Applies the 5-ary function `f` to the values in `o1`, `o2`, ... `o5`.
-    ///
-    /// Returns an error if any of `o1`, `o2`, ... `o5` are errors.
-    ///
-    pub def lift5(f: (t1, t2, t3, t4, t5) -> u & ef,
-                    o1: JdbcRowEvaluator[t1],
-                    o2: JdbcRowEvaluator[t2],
-                    o3: JdbcRowEvaluator[t3],
-                    o4: JdbcRowEvaluator[t4],
-                    o5: JdbcRowEvaluator[t5]): JdbcRowEvaluator[u] & ef =
-        ap(lift4(f, o1, o2, o3, o4), o5)
-
-    ///
-    /// Applies the 6-ary function `f` to the values in `o1`, `o2`, ... `o6`.
-    ///
-    /// Returns an error if any of `o1`, `o2`, ... `o6` are errors.
-    ///
-    pub def lift6(f: (t1, t2, t3, t4, t5, t6) -> u & ef,
-                    o1: JdbcRowEvaluator[t1],
-                    o2: JdbcRowEvaluator[t2],
-                    o3: JdbcRowEvaluator[t3],
-                    o4: JdbcRowEvaluator[t4],
-                    o5: JdbcRowEvaluator[t5],
-                    o6: JdbcRowEvaluator[t6]): JdbcRowEvaluator[u] & ef =
-        ap(lift5(f, o1, o2, o3, o4, o5), o6)
-
-    ///
-    /// Applies the 7-ary function `f` to the values in `o1`, `o2`, ... `o7`.
-    ///
-    /// Returns an error if any of `o1`, `o2`, ... `o7` are errors.
-    ///
-    pub def lift7(f: (t1, t2, t3, t4, t5, t6, t7) -> u & ef,
-                    o1: JdbcRowEvaluator[t1],
-                    o2: JdbcRowEvaluator[t2],
-                    o3: JdbcRowEvaluator[t3],
-                    o4: JdbcRowEvaluator[t4],
-                    o5: JdbcRowEvaluator[t5],
-                    o6: JdbcRowEvaluator[t6],
-                    o7: JdbcRowEvaluator[t7]): JdbcRowEvaluator[u] & ef =
-        ap(lift6(f, o1, o2, o3, o4, o5, o6), o7)
-
-    ///
-    /// Applies the 8-ary function `f` to the values in `o1`, `o2`, ... `o8`.
-    ///
-    /// Returns an error if any of `o1`, `o2`, ... `o8` are errors.
-    ///
-    pub def lift8(f: (t1, t2, t3, t4, t5, t6, t7, t8) -> u & ef,
-                    o1: JdbcRowEvaluator[t1],
-                    o2: JdbcRowEvaluator[t2],
-                    o3: JdbcRowEvaluator[t3],
-                    o4: JdbcRowEvaluator[t4],
-                    o5: JdbcRowEvaluator[t5],
-                    o6: JdbcRowEvaluator[t6],
-                    o7: JdbcRowEvaluator[t7],
-                    o8: JdbcRowEvaluator[t8]): JdbcRowEvaluator[u] & ef =
-        ap(lift7(f, o1, o2, o3, o4, o5, o6, o7), o8)
-
-    ///
-    /// Applies the 9-ary function `f` to the values in `o1`, `o2`, ... `o9`.
-    ///
-    /// Returns an error if any of `o1`, `o2`, ... `o9` are errors.
-    ///
-    pub def lift9(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9) -> u & ef,
-                    o1: JdbcRowEvaluator[t1],
-                    o2: JdbcRowEvaluator[t2],
-                    o3: JdbcRowEvaluator[t3],
-                    o4: JdbcRowEvaluator[t4],
-                    o5: JdbcRowEvaluator[t5],
-                    o6: JdbcRowEvaluator[t6],
-                    o7: JdbcRowEvaluator[t7],
-                    o8: JdbcRowEvaluator[t8],
-                    o9: JdbcRowEvaluator[t9]): JdbcRowEvaluator[u] & ef =
-        ap(lift8(f, o1, o2, o3, o4, o5, o6, o7, o8), o9)
-
-    ///
-    /// Applies the 10-ary function `f` to the values in `o1`, `o2`, ... `o10`.
-    ///
-    /// Returns an error if any of `o1`, `o2`, ... `o10` are errors.
-    ///
-    pub def lift10(f: (t1, t2, t3, t4, t5, t6, t7, t8, t9, t10) -> u & ef,
-                    o1: JdbcRowEvaluator[t1],
-                    o2: JdbcRowEvaluator[t2],
-                    o3: JdbcRowEvaluator[t3],
-                    o4: JdbcRowEvaluator[t4],
-                    o5: JdbcRowEvaluator[t5],
-                    o6: JdbcRowEvaluator[t6],
-                    o7: JdbcRowEvaluator[t7],
-                    o8: JdbcRowEvaluator[t8],
-                    o9: JdbcRowEvaluator[t9],
-                    o10: JdbcRowEvaluator[t10]): JdbcRowEvaluator[u] & ef =
-        ap(lift9(f, o1, o2, o3, o4, o5, o6, o7, o8, o9), o10)
-
-    ///
-    /// Returns a 2 element tuple with the results of applying the evaluators `o1` and `o2`.
-    ///
-    /// Returns an error if evaluating either `o1` or `o2` is an error.
-    ///
-    pub def tuple2(o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2]): JdbcRowEvaluator[(t1, t2)] =
-        lift2((x,y) -> (x,y), o1, o2)
-
-    ///
-    /// Returns a 3 element tuple with the results of applying the evaluators `o1`, `o2` and `o3`.
-    ///
-    /// Returns an error if evaluating any of `o1`, `o2` and `o3` is an error.
-    ///
-    pub def tuple3(o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3]): JdbcRowEvaluator[(t1, t2, t3)] =
-        lift3((x1, x2, x3) -> (x1, x2, x3), o1, o2, o3)
-
-    ///
-    /// Returns a 4 element tuple with the results of applying the evaluators `o1`, `o2`, `o3` and `o4`.
-    ///
-    /// Returns an error if evaluating any of `o1`, `o2`, `o3` and `o4` is an error.
-    ///
-    pub def tuple4(o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4]): JdbcRowEvaluator[(t1, t2, t3, t4)]  =
-        lift4((x1, x2, x3, x4) -> (x1, x2, x3, x4), o1, o2, o3, o4)
-
-    ///
-    /// Returns a 5 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o5`.
-    ///
-    /// Returns an error if evaluating any of `o1`, `o2`, ... `o5` is an error.
-    ///
-    pub def tuple5(o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5]): JdbcRowEvaluator[(t1, t2, t3, t4, t5)]  =
-        lift5((x1, x2, x3, x4, x5) -> (x1, x2, x3, x4, x5), o1, o2, o3, o4, o5)
-
-    ///
-    /// Returns a 6 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o6`.
-    ///
-    /// Returns an error if evaluating any of `o1`, `o2`, ... `o6` is an error.
-    ///
-    pub def tuple6(o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5], o6: JdbcRowEvaluator[t6]): JdbcRowEvaluator[(t1, t2, t3, t4, t5, t6)]  =
-        lift6((x1, x2, x3, x4, x5, x6) -> (x1, x2, x3, x4, x5, x6), o1, o2, o3, o4, o5, o6)
-
-    ///
-    /// Returns a 7 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o7`.
-    ///
-    /// Returns an error if evaluating any of `o1`, `o2`, ... `o7` is an error.
-    ///
-    pub def tuple7(o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5], o6: JdbcRowEvaluator[t6], o7: JdbcRowEvaluator[t7]): JdbcRowEvaluator[(t1, t2, t3, t4, t5, t6, t7)]  =
-        lift7((x1, x2, x3, x4, x5, x6, x7) -> (x1, x2, x3, x4, x5, x6, x7), o1, o2, o3, o4, o5, o6, o7)
-
-    ///
-    /// Returns a 8 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o8`.
-    ///
-    /// Returns an error if evaluating any of `o1`, `o2`, ... `o8` is an error.
-    ///
-    pub def tuple8(o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5], o6: JdbcRowEvaluator[t6], o7: JdbcRowEvaluator[t7], o8: JdbcRowEvaluator[t8]): JdbcRowEvaluator[(t1, t2, t3, t4, t5, t6, t7, t8)]  =
-        lift8((x1, x2, x3, x4, x5, x6, x7, x8) -> (x1, x2, x3, x4, x5, x6, x7, x8), o1, o2, o3, o4, o5, o6, o7, o8)
-
-    ///
-    /// Returns a 9 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o9`.
-    ///
-    /// Returns an error if evaluating any of `o1`, `o2`, ... `o9` is an error.
-    ///
-    pub def tuple9(o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5], o6: JdbcRowEvaluator[t6], o7: JdbcRowEvaluator[t7], o8: JdbcRowEvaluator[t8], o9: JdbcRowEvaluator[t9]): JdbcRowEvaluator[(t1, t2, t3, t4, t5, t6, t7, t8, t9)]  =
-        lift9((x1, x2, x3, x4, x5, x6, x7, x8, x9) -> (x1, x2, x3, x4, x5, x6, x7, x8, x9), o1, o2, o3, o4, o5, o6, o7, o8, o9)
-
-    ///
-    /// Returns a 10 element tuple with the results of applying the evaluators `o1`, `o2`, ... `o10`.
-    ///
-    /// Returns an error if evaluating any of `o1`, `o2`, ... `o10` is an error.
-    ///
-    pub def tuple10(o1: JdbcRowEvaluator[t1], o2: JdbcRowEvaluator[t2], o3: JdbcRowEvaluator[t3], o4: JdbcRowEvaluator[t4], o5: JdbcRowEvaluator[t5], o6: JdbcRowEvaluator[t6], o7: JdbcRowEvaluator[t7], o8: JdbcRowEvaluator[t8], o9: JdbcRowEvaluator[t9], o10: JdbcRowEvaluator[t10]): JdbcRowEvaluator[(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10)]  =
-        lift10((x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) -> (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10), o1, o2, o3, o4, o5, o6, o7, o8, o9, o10)
 
 }

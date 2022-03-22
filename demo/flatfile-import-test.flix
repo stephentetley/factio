@@ -27,8 +27,8 @@ rel Colour(name: String)
 def makeColour(name: String): #{Colour | r} = Colour(name).
 
 def getColour(): FlatFileLineEvaluator[#{Colour | r}] = 
-    use FactIO/FlatFileLineEvaluator.{flatMap, content, return};
+    use FactIO/FlatFileLineEvaluator.{flatMap, content, point};
     let* str = content();
     let ans = makeColour(str);
-    return(ans)
+    point(ans)
     

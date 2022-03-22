@@ -21,12 +21,30 @@ namespace FactIO {
 
     pub opaque type JdbcExport[a] = FactIO/Internal/Jdbc.Output -> Result[a, String] & Impure
 
+    instance Functor[JdbcExport] {
+        pub def map(f: a -> b & ef, x: JdbcExport[a]): JdbcExport[b] & ef =
+            FactIO/JdbcExport.map(f, x)
+    }
+
+    instance Applicative[JdbcExport] {
+        pub def point(x: a): JdbcExport[a] =
+            FactIO/JdbcExport.point(x)
+
+        pub def ap(mf: JdbcExport[a -> b & ef], ma: JdbcExport[a]): JdbcExport[b] & ef =
+            FactIO/JdbcExport.ap(mf, ma)
+    }
+
+    instance Monad[JdbcExport] {
+        pub def flatMap(k: a -> JdbcExport[b] & ef, x: JdbcExport[a]): JdbcExport[b] & ef = 
+            FactIO/JdbcExport.flatMap(k, x)
+    }
+
     ///
-    /// CsvWriteList is a workaround because fixpoint fold is our only way of
+    /// "CsvWriteList is a workaround because fixpoint fold is our only way of
     /// extracting data from a relation and the step function of fixpoint fold
     /// must be pure - solution we build a list of impure "write" functions
-    /// to be invoked after the fold.
-    ///
+    /// to be invoked after the fold."
+    /// This is no longer correct!
     pub opaque type JdbcWriteList = Chain[JdbcRowSetter[Unit]]
 
 }
@@ -63,7 +81,7 @@ namespace FactIO/JdbcExport {
         let url = "jdbc:duckdb:${normalize(dbpath)}";
         runJdbcExport(ma, url)
 
-    pub def return(x: a): JdbcExport[a] =
+    pub def point(x: a): JdbcExport[a] =
         JdbcExport(_ -> Ok(x) as & Impure)
 
     def apply1(x: JdbcExport[a], r: FactIO/Internal/Jdbc.Output): Result[a, String] & Impure =
@@ -259,7 +277,7 @@ namespace FactIO/JdbcExport {
     /// Performs a check first...
     pub def setAutoCommitOff(): JdbcExport[Unit] =
         let* ans = getAutoCommit();
-        if (ans) setAutoCommit(false) else return()
+        if (ans) setAutoCommit(false) else point()
 
     pub def commit(): JdbcExport[Unit] =
         use FactIO/Internal/Jdbc/Output.{commit};
@@ -289,7 +307,7 @@ namespace FactIO/JdbcExport {
         execWriteListHelper(stmt, 0, writes)
 
     def execWriteListHelper(stmt: PreparedStatement, ac: Int32, xs: List[JdbcRowSetter[Unit]]): JdbcExport[Int32] & Impure = match xs {
-        case Nil => return(ac)
+        case Nil => point(ac)
         case mx :: rs => {
             let* n = writeRow(stmt, mx);
             execWriteListHelper(stmt, ac + n, rs)
@@ -301,11 +319,11 @@ namespace FactIO/JdbcExport {
         let* _ = liftOptionPrim(_ -> FactIO/Internal/Jdbc/PreparedStatement.clearParameters!(stmt), "writeRow");
         let* _ = liftActionResult(_ -> mf(stmt));
         let* n = liftOptionPrim(_ -> FactIO/Internal/Jdbc/PreparedStatement.executeUpdate(stmt), "writeRow");
-        return(n)
+        point(n)
 
     ///
     pub def mapRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], xs: List[a]): JdbcExport[Unit] & Impure = match xs {
-        case Nil            => return()
+        case Nil            => point()
         case x :: rs        => {
             let mx = f(x);
             let* _ = writeRow(stmt, mx);

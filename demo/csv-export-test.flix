@@ -41,11 +41,11 @@ def temp01(): Result[Unit, String] & Impure =
 
 /// A RowWriter for the body of Dummy.
 def writeRow(src: (String, Int)): CsvRowSetter[Unit] = 
-    use FactIO/CsvRowSetter.{flatMap, return, putString!, putInt32!};
+    use FactIO/CsvRowSetter.{flatMap, point, putString!, putInt32!};
     let (name,i) = src;
     let* _ = putString!(0, name);
     let* _ = putInt32!(1, i);
-    return()
+    point()
 
 
 

@@ -51,8 +51,8 @@ rel Station(name: String, gridref: String)
 
 
 def getStation(): CsvRowEvaluator[#{Station | r}] = 
-    use FactIO/CsvRowEvaluator.{flatMap, getStringNamed, return};
+    use FactIO/CsvRowEvaluator.{flatMap, getStringNamed, point};
     let* x = getStringNamed("Name");
     let* y = getStringNamed("Grid_Ref");
-    return({ Station(x, y). })
+    point({ Station(x, y). })
 

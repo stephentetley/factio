@@ -19,11 +19,30 @@ namespace FactIO {
 
     pub opaque type CsvExport[a] = (Map[String, Int32], FactIO/Internal/Csv.Output) -> Result[a, String] & Impure
 
-    /// CsvWriteList is a workaround because fixpoint fold is our only way of
+    /// "CsvWriteList is a workaround because fixpoint fold is our only way of
     /// extracting data from a relation and the step function of fixpoint fold
     /// must be pure - solution we build a list of impure "write" functions
-    /// to be invoked after the fold.
+    /// to be invoked after the fold."
+    /// This is no longer correct!
     pub opaque type CsvWriteList = Chain[CsvRowSetter[Unit]]
+
+    instance Functor[CsvExport] {
+        pub def map(f: a -> b & ef, x: CsvExport[a]): CsvExport[b] & ef =
+            FactIO/CsvExport.map(f, x)
+    }
+
+    instance Applicative[CsvExport] {
+        pub def point(x: a): CsvExport[a] =
+            FactIO/CsvExport.point(x)
+
+        pub def ap(mf: CsvExport[a -> b & ef], ma: CsvExport[a]): CsvExport[b] & ef =
+            FactIO/CsvExport.ap(mf, ma)
+    }
+
+    instance Monad[CsvExport] {
+        pub def flatMap(k: a -> CsvExport[b] & ef, x: CsvExport[a]): CsvExport[b] & ef = 
+            FactIO/CsvExport.flatMap(k, x)
+    }
 
 }
 
@@ -59,7 +78,7 @@ namespace FactIO/CsvExport {
         Ok(ans)
 
 
-    pub def return(x: a): CsvExport[a] =
+    pub def point(x: a): CsvExport[a] =
         CsvExport((_,_) -> Ok(x) as & Impure)
 
     pub def fail(e: String): CsvExport[a] =
@@ -73,7 +92,7 @@ namespace FactIO/CsvExport {
         CsvExport((hdrs, r) ->
             match apply1(x, hdrs, r) {
                 case Ok(a) => {
-                    let ans = f(a) as & Pure;
+                    let ans = f(a) as & Impure;
                     Ok(ans)
                 }
                 case Err(e) => Err(e)
@@ -85,7 +104,7 @@ namespace FactIO/CsvExport {
             match apply1(mf, hdrs, r) {
                 case Ok(f) => {
                     match apply1(ma, hdrs, r) {
-                        case Ok(a) => Ok(f(a) as & Pure)
+                        case Ok(a) => Ok(f(a) as & Impure)
                         case Err(e2) => Err(e2)
                     }
                 }
@@ -94,15 +113,15 @@ namespace FactIO/CsvExport {
         ) as & ef
 
 
-    pub def bind(x: CsvExport[a], k: a -> CsvExport[b]): CsvExport[b] =
+    pub def bind(x: CsvExport[a], k: a -> CsvExport[b] & ef): CsvExport[b] & ef =
         CsvExport((hdrs, r) ->
             match apply1(x, hdrs, r) {
-                case Ok(a) => { let ans = k(a); apply1(ans, hdrs, r) }
+                case Ok(a) => { let ans = k(a) as & Impure; apply1(ans, hdrs, r) }
                 case Err(e) => Err(e)
             }
-        )
+        ) as & ef
 
-    pub def flatMap(k: a -> CsvExport[b], x: CsvExport[a]): CsvExport[b] = bind(x, k)
+    pub def flatMap(k: a -> CsvExport[b] & ef, x: CsvExport[a]): CsvExport[b] & ef = bind(x, k)
 
     pub def mapM(mf: a -> CsvExport[b], xs: List[a]): CsvExport[List[b]] =
         CsvExport((headers, r) ->
@@ -175,7 +194,7 @@ namespace FactIO/CsvExport {
         execWriteListHelper(writes)
 
     def execWriteListHelper(xs: List[CsvRowSetter[Unit]]): CsvExport[Unit] = match xs {
-        case Nil => return()
+        case Nil => point()
         case mx :: rs => {
             let* _ = writeRow(mx);
             execWriteListHelper(rs)
@@ -190,7 +209,7 @@ namespace FactIO/CsvExport {
     def makeSimpleWriter(ix: Int32, xs: List[String]): CsvRowSetter[Unit] =
         use FactIO/CsvRowSetter.{flatMap, putString!};
         match xs {
-            case Nil => FactIO/CsvRowSetter.return()
+            case Nil => FactIO/CsvRowSetter.point()
             case x :: rs => {
                 let* _ = putString!(ix, x);
                 makeSimpleWriter(ix + 1, rs)
@@ -203,7 +222,7 @@ namespace FactIO/CsvExport {
         let* _ = clearCells!();
         let* _ = execCsvRowSetter(mx);
         let* _ = primWriteRow();
-        return()
+        point()
 
     def clearCells!(): CsvExport[Unit] =
         CsvExport((_, r) -> Option.toOk(FactIO/Internal/Csv/Output.clearCells!(r), "clearCells!"))
@@ -222,7 +241,7 @@ namespace FactIO/CsvExport {
 
     ///
     pub def mapRowSetterX(f: a -> CsvRowSetter[b], xs: List[a]): CsvExport[Unit] = match xs {
-        case Nil            => return()
+        case Nil            => point()
         case x :: rs        => {
             let mx = f(x);
             let* _ = writeRow(mx);
