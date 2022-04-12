@@ -17,8 +17,8 @@
 
 namespace FactIO/JdbcImport {
 
-    use X.Cursor;
-    use X.Cursor.{Cursor};
+    use FlixSandbox/Deprecated.Cursor;
+    use FlixSandbox/Deprecated.Cursor.{Cursor};
     use FactIO.JdbcRowEvaluator;
     use FactIO.JdbcRowEvaluator.{JdbcRowEvaluator};
 
@@ -39,24 +39,24 @@ namespace FactIO/JdbcImport {
             let iter = newJdbcCursor(url, sql.sql);
             let cursorIter =  {
                   hasNext = () -> goNext(iter)
-                , next = X/Cursor.guardThunk(_ -> getRow(iter), "next failed")
+                , next = FlixSandbox/Deprecated/Cursor.guardThunk(_ -> getRow(iter), "next failed")
                 , finalize = () -> close(iter)
             };
-            X/Cursor.makeCursor(cursorIter)
+            FlixSandbox/Deprecated/Cursor.makeCursor(cursorIter)
         } catch {
-            case _: ##java.lang.Exception => X/Cursor.failure("newDbStream")
+            case _: ##java.lang.Exception => FlixSandbox/Deprecated/Cursor.failure("newDbStream")
         }
 
     ///
     /// Returns a new SQLite Cursor.
     ///
-    pub def newSQLiteCursor(sql: {sql :: String}, path: System.FilePath): Cursor[String, JdbcRow] & Impure =
+    pub def newSQLiteCursor(sql: {sql :: String}, path: FlixSandbox/System.FilePath): Cursor[String, JdbcRow] & Impure =
         newDbCursor(sql, "jdbc:sqlite:${path}")
 
     ///
     /// Returns a new DuckDB Cursor.
     ///
-    pub def newDuckDBCursor(sql: {sql :: String}, path: System.FilePath): Cursor[String, JdbcRow] & Impure =
+    pub def newDuckDBCursor(sql: {sql :: String}, path: FlixSandbox/System.FilePath): Cursor[String, JdbcRow] & Impure =
         newDbCursor(sql, "jdbc:duckdb:${path}")
 
     ///

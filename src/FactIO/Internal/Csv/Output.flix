@@ -22,7 +22,7 @@ namespace FactIO/Internal/Csv {
 
 namespace FactIO/Internal/Csv/Output {
 
-    use Text.Charset.{Charset};
+    use FlixSandbox/Text.Charset.{Charset};
 
     use FactIO/Internal/Csv.Output;
     use FactIO/Internal/Csv.Output.{Output};
@@ -30,7 +30,7 @@ namespace FactIO/Internal/Csv/Output {
     ///
     /// Returns a new Output handle.
     ///
-    pub def new(path: String, format: ##org.apache.commons.csv.CSVFormat, cellcount: Int32, cs: Text.Charset): Option[Output] & Impure =
+    pub def new(path: String, format: ##org.apache.commons.csv.CSVFormat, cellcount: Int32, cs: FlixSandbox/Text.Charset): Option[Output] & Impure =
         import new flixspt.factio.csv.CsvOutput(String, ##org.apache.commons.csv.CSVFormat, Int32, ##java.nio.charset.Charset): ##flixspt.factio.csv.CsvOutput & Impure as newCsvOutput;
         use Result.flatMap;
         try {

@@ -28,8 +28,8 @@ namespace CompassTest {
         use Result.flatMap;
         use FactIO/CsvFormat.{withFirstRecordAsHeader};
         let step = () -> {
-            let path    = System/FilePath.new("e:/coding/flix/factio/data/compass.csv");
-            let iter    = FactIO/CsvImport.newCsvCursor(withFirstRecordAsHeader(FactIO/CsvFormat.default()), Text/Charset.utf_8(), path);
+            let path    = FlixSandbox/System/FilePath.new("e:/coding/flix/factio/data/compass.csv");
+            let iter    = FactIO/CsvImport.newCsvCursor(withFirstRecordAsHeader(FactIO/CsvFormat.default()), FlixSandbox/Text/Charset.utf_8(), path);
             let* relns  = FactIO/CsvImport.importRows(csvDirection1(), iter);
             let arr = query relns select (x) from Direction(x);
             Ok(arr)
@@ -44,7 +44,7 @@ namespace CompassTest {
     pub def sqlite01(): Unit & Impure =
         use Result.flatMap;
         let step = () -> {
-            let path    = System/FilePath.new("e:/coding/flix/factio/data/compass.sqlite");
+            let path    = FlixSandbox/System/FilePath.new("e:/coding/flix/factio/data/compass.sqlite");
             let sql     = "SELECT cardinal_name FROM cardinals";
             let iter    = FactIO/JdbcImport.newSQLiteCursor(sql = sql, path);
             let* relns  = FactIO/JdbcImport.importRows(sqliteDirection1(), iter);
@@ -64,8 +64,8 @@ namespace CompassTest {
     pub def flatFile01(): Unit & Impure =
         use Result.flatMap;    
         let step = () -> {
-            let path    = System/FilePath.new("e:/coding/flix/factio/data/compass.txt");
-            let iter    = FactIO/FlatFileImport.newFlatFileCursor(Text/Charset.utf_8(), path);
+            let path    = FlixSandbox/System/FilePath.new("e:/coding/flix/factio/data/compass.txt");
+            let iter    = FactIO/FlatFileImport.newFlatFileCursor(FlixSandbox/Text/Charset.utf_8(), path);
             let* relns  = FactIO/FlatFileImport.importRows(flatfileDirection1(), iter);
             let arr = query relns select (x) from Direction(x);
             Ok(arr)

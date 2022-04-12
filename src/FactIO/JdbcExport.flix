@@ -51,8 +51,8 @@ namespace FactIO {
 
 namespace FactIO/JdbcExport {
 
-    use X.Cursor;
-    use X.Cursor.{Cursor};
+    use FlixSandbox/Deprecated.Cursor;
+    use FlixSandbox/Deprecated.Cursor.{Cursor};
     use Text.Charset.{Charset};
 
     use FactIO.JdbcExport;
@@ -71,13 +71,13 @@ namespace FactIO/JdbcExport {
         let* store = Option.toOk(newOutput(url), "Could not connect to '${url}'");
         apply1(ma, store)
 
-    pub def runSQLiteExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, String] & Impure =
-        use System/FilePath.{normalize};
+    pub def runSQLiteExport(ma: JdbcExport[a], dbpath: FlixSandbox/System.FilePath): Result[a, String] & Impure =
+        use FlixSandbox/System/FilePath.{normalize};
         let url = "jdbc:sqlite:${normalize(dbpath)}";
         runJdbcExport(ma, url)
 
-    pub def runDuckDBExport(ma: JdbcExport[a], dbpath: System.FilePath): Result[a, String] & Impure =
-        use System/FilePath.{normalize};
+    pub def runDuckDBExport(ma: JdbcExport[a], dbpath: FlixSandbox/System.FilePath): Result[a, String] & Impure =
+        use FlixSandbox/System/FilePath.{normalize};
         let url = "jdbc:duckdb:${normalize(dbpath)}";
         runJdbcExport(ma, url)
 
@@ -333,7 +333,7 @@ namespace FactIO/JdbcExport {
 
     pub def streamRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], iter: Cursor[String, a]): JdbcExport[Unit] =
         JdbcExport(r ->
-            X/Cursor.foldResult!((_, x1) -> apply1(writeRow(stmt, f(x1)), r), 0, iter)
+            FlixSandbox/Deprecated/Cursor.foldResult!((_, x1) -> apply1(writeRow(stmt, f(x1)), r), 0, iter)
                 |> Result.map(constant(()))
         )
 

@@ -17,10 +17,10 @@
 
 namespace FactIO/CsvImport {
 
-    use X.Cursor;
-    use X.Cursor.{Cursor};
-    use System.FilePath.{FilePath};
-    use Text.Charset.{Charset};
+    use FlixSandbox/Deprecated.Cursor;
+    use FlixSandbox/Deprecated.Cursor.{Cursor};
+    use FlixSandbox/System.FilePath.{FilePath};
+    use FlixSandbox/Text.Charset.{Charset};
 
     use FactIO.CsvFormat;
     use FactIO.CsvFormat.{CsvFormat};
@@ -36,8 +36,8 @@ namespace FactIO/CsvImport {
     /// Returns a new Csv Cursor.
     ///
     pub def newCsvCursor(format: CsvFormat,
-                        cs: Text.Charset,
-                        path: System.FilePath): Cursor[String, CsvRow] & Impure =
+                        cs: FlixSandbox/Text.Charset,
+                        path: FlixSandbox/System.FilePath): Cursor[String, CsvRow] & Impure =
         import static flixspt.factio.csv.CsvCursor.createCursorForFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset): ##flixspt.factio.csv.CsvCursor & Impure;
         import flixspt.factio.csv.CsvCursor.hasNext(): Bool & Impure;
         import flixspt.factio.csv.CsvCursor.next(): ##flixspt.factio.csv.CsvRow & Impure;
@@ -49,20 +49,20 @@ namespace FactIO/CsvImport {
             let iter = createCursorForFile(path1, fmt1, cs1);
             let cursorIter =  {
                   hasNext = () -> hasNext(iter)
-                , next = X/Cursor.guardThunk(_ -> next(iter), "next failed")
+                , next = FlixSandbox/Deprecated/Cursor.guardThunk(_ -> next(iter), "next failed")
                 , finalize = () -> close(iter)
             };
-            X/Cursor.makeCursor(cursorIter)
+            FlixSandbox/Deprecated/Cursor.makeCursor(cursorIter)
         } catch {
-            case _: ##java.io.FileNotFoundException => X/Cursor.failure("newCsvStream - file not found")
-            case _: ##java.io.IOException => X/Cursor.failure("IOException")
+            case _: ##java.io.FileNotFoundException => FlixSandbox/Deprecated/Cursor.failure("newCsvStream - file not found")
+            case _: ##java.io.IOException => FlixSandbox/Deprecated/Cursor.failure("IOException")
         }
 
     ///
     /// Returns a new Csv Stream from a file with a BOM.
     ///
     pub def newCsvCursorWithBOM(format: CsvFormat,
-                                path: System.FilePath): Cursor[String, CsvRow] & Impure =
+                                path: FlixSandbox/System.FilePath): Cursor[String, CsvRow] & Impure =
         import static flixspt.factio.csv.CsvCursor.createCursorForBOMFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat): ##flixspt.factio.csv.CsvCursor & Impure;
         import flixspt.factio.csv.CsvCursor.hasNext(): Bool & Impure;
         import flixspt.factio.csv.CsvCursor.next(): ##flixspt.factio.csv.CsvRow & Impure;
@@ -73,13 +73,13 @@ namespace FactIO/CsvImport {
             let iter = createCursorForBOMFile(path1, fmt1);
             let cursorIter =  {
                   hasNext = () -> hasNext(iter)
-                , next = X/Cursor.guardThunk(_ -> next(iter), "next failed")
+                , next = FlixSandbox/Deprecated/Cursor.guardThunk(_ -> next(iter), "next failed")
                 , finalize = () -> close(iter)
             };
-            X/Cursor.makeCursor(cursorIter)
+            FlixSandbox/Deprecated/Cursor.makeCursor(cursorIter)
         } catch {
-            case _: ##java.io.FileNotFoundException => X/Cursor.failure("newCsvStream - file not found")
-            case _: ##java.io.IOException => X/Cursor.failure("newCsvStream - io exception")
+            case _: ##java.io.FileNotFoundException => FlixSandbox/Deprecated/Cursor.failure("newCsvStream - file not found")
+            case _: ##java.io.IOException => FlixSandbox/Deprecated/Cursor.failure("newCsvStream - io exception")
         }
 
     ///
@@ -137,9 +137,9 @@ namespace FactIO/CsvImport {
                                         iter: Cursor[String, CsvRow]): Result[List[a], String] & Impure =
         let CsvRowEvaluator(mf) = eval;
         iter
-            |> X/Cursor.filter(x -> not isEmptyRow(x))
-            |> X/Cursor.mapResult(mf)
-            |> X/Cursor.toList!
+            |> FlixSandbox/Deprecated/Cursor.filter(x -> not isEmptyRow(x))
+            |> FlixSandbox/Deprecated/Cursor.mapResult(mf)
+            |> FlixSandbox/Deprecated/Cursor.toList!
 
     def isEmptyRow(row: CsvRow): Bool & Impure =
         import flixspt.factio.csv.CsvRow.isEmptyRow(): Bool & Impure;

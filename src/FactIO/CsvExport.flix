@@ -49,8 +49,8 @@ namespace FactIO {
 namespace FactIO/CsvExport {
 
     use Text.Charset.{Charset};
-    use X.Cursor;
-    use X.Cursor.{Cursor};
+    use FlixSandbox/Deprecated.Cursor;
+    use FlixSandbox/Deprecated.Cursor.{Cursor};
 
     use FactIO.CsvExport;
     use FactIO.CsvExport.{CsvExport};
@@ -66,7 +66,7 @@ namespace FactIO/CsvExport {
     def makeColumnIndices(headers: Array[String]): Map[String, Int32] & Impure =
         Array.foldLeft((ac, s) -> {let (m,i) = ac; (Map.insert(s, i, m), i+1)}, (Map.empty(), 0), headers) |> fst
 
-    pub def runCsvExport(mx: CsvExport[a], path: System.FilePath, format: CsvFormat, headings: Array[String], cs: Text.Charset): Result[a, String] & Impure =
+    pub def runCsvExport(mx: CsvExport[a], path: FlixSandbox/System.FilePath, format: CsvFormat, headings: Array[String], cs: FlixSandbox/Text.Charset): Result[a, String] & Impure =
         use Result.flatMap;
         use FactIO/Internal/Csv/Output.{new => newOutput, close};
         let CsvFormat(fmt1) = format;
@@ -251,7 +251,7 @@ namespace FactIO/CsvExport {
 
     pub def streamRowSetterX(f: a -> CsvRowSetter[b], ss: Cursor[String, a]): CsvExport[Unit] =
         CsvExport((hdrs, r) ->
-            X/Cursor.foreachResult!(x -> apply1(writeRow(f(x)), hdrs, r), ss)
+            FlixSandbox/Deprecated/Cursor.foreachResult!(x -> apply1(writeRow(f(x)), hdrs, r), ss)
         )
 
     ///

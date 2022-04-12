@@ -17,8 +17,8 @@
 
 namespace FactIO/Internal/ImportStrategies {
 
-    use X.Cursor;
-    use X.Cursor.{Cursor};
+    use FlixSandbox/Deprecated.Cursor;
+    use FlixSandbox/Deprecated.Cursor.{Cursor};
 
     ///
     /// Process all rows of the input.
@@ -31,7 +31,7 @@ namespace FactIO/Internal/ImportStrategies {
             case Ok(a1) => Ok(ac <+> a1)
             case Err(e) => Err(e)
         };
-        X/Cursor.foldResult!(step, #{ }, s) as & ef
+        FlixSandbox/Deprecated/Cursor.foldResult!(step, #{ }, s) as & ef
 
 
     ///
@@ -48,7 +48,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };
-        (X/Cursor.foldResult!(step, (#{ }, 0), s)
+        (FlixSandbox/Deprecated/Cursor.foldResult!(step, (#{ }, 0), s)
             |> Result.map(fst)) as & ef
 
 
@@ -67,7 +67,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };
-        X/Cursor.foldResult!(step, (#{ }, st), s) as & ef
+        FlixSandbox/Deprecated/Cursor.foldResult!(step, (#{ }, st), s) as & ef
 
     ///
     /// Process all rows of the input with threaded state and a zero indexed row count.
@@ -84,7 +84,7 @@ namespace FactIO/Internal/ImportStrategies {
                 case Err(e) => Err(e)
             }
         };
-        (X/Cursor.foldResult!(step, (#{ }, 0, st), s)
+        (FlixSandbox/Deprecated/Cursor.foldResult!(step, (#{ }, 0, st), s)
             |> Result.map(xyz -> let (x, _, z) = xyz; (x,z))) as & ef
 
     ///
@@ -92,7 +92,7 @@ namespace FactIO/Internal/ImportStrategies {
     ///
     pub def getRows(rowreader: row -> Result[a, err] & ef,
                     ss: Cursor[err, row]): Result[List[a], err] & ef =
-        (ss |> X/Cursor.mapResult(rowreader)
-            |> X/Cursor.toList!) as & ef
+        (ss |> FlixSandbox/Deprecated/Cursor.mapResult(rowreader)
+            |> FlixSandbox/Deprecated/Cursor.toList!) as & ef
 
 }

@@ -17,10 +17,10 @@
 
 namespace FactIO/FlatFileImport {
 
-    use X.Cursor;
-    use X.Cursor.{Cursor};
-    use System.FilePath.{FilePath};
-    use Text.Charset.{Charset};
+    use FlixSandbox/Deprecated.Cursor;
+    use FlixSandbox/Deprecated.Cursor.{Cursor};
+    use FlixSandbox/System.FilePath.{FilePath};
+    use FlixSandbox/Text.Charset.{Charset};
 
     use FactIO.FlatFileLineEvaluator;
     use FactIO.FlatFileLineEvaluator.{FlatFileLineEvaluator};
@@ -28,7 +28,7 @@ namespace FactIO/FlatFileImport {
     ///
     /// Returns a new Flat File Stream.
     ///
-    pub def newFlatFileCursor(cs: Text.Charset, path: System.FilePath): Cursor[String, String] & Impure =
+    pub def newFlatFileCursor(cs: FlixSandbox/Text.Charset, path: FlixSandbox/System.FilePath): Cursor[String, String] & Impure =
         import new flixspt.factio.flatfile.LinesCursor(##java.nio.file.Path, ##java.nio.charset.Charset): ##flixspt.factio.flatfile.LinesCursor & Impure as newLinesCursor;
         import flixspt.factio.flatfile.LinesCursor.hasNext(): Bool & Impure;
         import flixspt.factio.flatfile.LinesCursor.next(): String & Impure;
@@ -39,12 +39,12 @@ namespace FactIO/FlatFileImport {
             let iter = newLinesCursor(path1, cs1);
             let cursorIter =  {
                   hasNext = () -> hasNext(iter)
-                , next = X/Cursor.guardThunk(_ -> next(iter), "next failed")
+                , next = FlixSandbox/Deprecated/Cursor.guardThunk(_ -> next(iter), "next failed")
                 , finalize = () -> close(iter)
             };
-            X/Cursor.makeCursor(cursorIter)
+            FlixSandbox/Deprecated/Cursor.makeCursor(cursorIter)
         } catch {
-            case _: ##java.lang.Exception => X/Cursor.failure("newFlatFileCursor")
+            case _: ##java.lang.Exception => FlixSandbox/Deprecated/Cursor.failure("newFlatFileCursor")
         }
 
     ///
