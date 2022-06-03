@@ -72,7 +72,7 @@ namespace FactIO/CsvExport {
         let CsvFormat(fmt1) = format;
         let cellcount       = Array.length(headings);
         let headers         = makeColumnIndices(headings);
-        let* handle         = Option.toOk(newOutput(ToString.toString(path), fmt1, cellcount, cs), "runCsvExport failed");
+        let* handle         = Option.toOk("runCsvExport failed", newOutput(ToString.toString(path), fmt1, cellcount, cs));
         let* ans            = apply1(bind(writeLine(headings), _ -> mx), headers, handle);
         let _               = close(handle);
         Ok(ans)
@@ -225,10 +225,10 @@ namespace FactIO/CsvExport {
         point()
 
     def clearCells!(): CsvExport[Unit] =
-        CsvExport((_, r) -> Option.toOk(FactIO/Internal/Csv/Output.clearCells!(r), "clearCells!"))
+        CsvExport((_, r) -> Option.toOk("clearCells!", FactIO/Internal/Csv/Output.clearCells!(r)))
 
     def primWriteRow(): CsvExport[Unit] =
-        CsvExport((_, r) -> Option.toOk(FactIO/Internal/Csv/Output.writeRow(r), "primWriteRow"))
+        CsvExport((_, r) -> Option.toOk("primWriteRow", FactIO/Internal/Csv/Output.writeRow(r)))
 
     def execCsvRowSetter(mx: CsvRowSetter[a]): CsvExport[Unit] =
         CsvExport((hdrs, r) ->

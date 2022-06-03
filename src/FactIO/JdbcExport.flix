@@ -68,7 +68,7 @@ namespace FactIO/JdbcExport {
     pub def runJdbcExport(ma: JdbcExport[a], url: String): Result[a, String] & Impure =
         use Result.flatMap;
         use FactIO/Internal/Jdbc/Output.{new => newOutput};
-        let* store = Option.toOk(newOutput(url), "Could not connect to '${url}'");
+        let* store = Option.toOk("Could not connect to '${url}'", newOutput(url));
         apply1(ma, store)
 
     pub def runSQLiteExport(ma: JdbcExport[a], dbpath: FlixSandbox/System.FilePath): Result[a, String] & Impure =
@@ -260,7 +260,7 @@ namespace FactIO/JdbcExport {
 
     /// Not exported.
     def liftOptionPrim(prim: FactIO/Internal/Jdbc.Output -> Option[a] & Impure, errMsg: String): JdbcExport[a] =
-        JdbcExport(r -> Option.toOk(prim(r) as & Impure, errMsg))
+        JdbcExport(r -> Option.toOk(errMsg, prim(r) as & Impure))
 
     pub def close(): JdbcExport[Unit] =
         use FactIO/Internal/Jdbc/Output.{close};

@@ -282,25 +282,25 @@ namespace FactIO/JdbcRowEvaluator {
             }
         )
 
-    pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
-        let* input = getStringAt(ix);
-        let* ans = liftOperation(_ -> Text/RegexEval/Regex.matches(patt, eval, input));
-        point(ans)
+    /// pub def evalMatchesAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
+    ///     let* input = getStringAt(ix);
+    ///     let* ans = liftOperation(_ -> Text/RegexEval/Regex.matches(patt, eval, input));
+    ///     point(ans)
 
-    pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
-        let* input = getStringNamed(label);
-        let* ans = liftOperation(_ -> Text/RegexEval/Regex.matches(patt, eval, input));
-        point(ans)
+    /// pub def evalMatchesNamed(label: String, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
+    ///     let* input = getStringNamed(label);
+    ///     let* ans = liftOperation(_ -> Text/RegexEval/Regex.matches(patt, eval, input));
+    ///     point(ans)
 
-    pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
-        let* input = getStringAt(ix);
-        let* ans = liftOperation(_ -> Text/RegexEval/Regex.contains(patt, eval, input));
-        point(ans)
+    /// pub def evalContainsAt(ix: Int32, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
+    ///     let* input = getStringAt(ix);
+    ///     let* ans = liftOperation(_ -> Text/RegexEval/Regex.contains(patt, eval, input));
+    ///     point(ans)
 
-    pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
-        let* input = getStringNamed(label);
-        let* ans = liftOperation(_ -> Text/RegexEval/Regex.contains(patt, eval, input));
-        point(ans)
+    /// pub def evalContainsNamed(label: String, patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): JdbcRowEvaluator[a] & Impure =
+    ///     let* input = getStringNamed(label);
+    ///     let* ans = liftOperation(_ -> Text/RegexEval/Regex.contains(patt, eval, input));
+    ///     point(ans)
 
     pub def getLocalDateAt(ix: Int32, formatter: DateTimeFormatter[Time/Format.DateFormat]): JdbcRowEvaluator[Time.LocalDate] =
         let* input = getStringAt(ix);

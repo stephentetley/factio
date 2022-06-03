@@ -93,7 +93,7 @@ namespace FactIO/JdbcRowSetter {
     pub def flatMap(k: a -> JdbcRowSetter[b] & ef, x: JdbcRowSetter[a]): JdbcRowSetter[b] & ef = bind(x, k)
 
     def liftOptionPrim(update: PreparedStatement -> Option[a] & Impure, errMsg: String): JdbcRowSetter[a] =
-        JdbcRowSetter(r -> Option.toOk(update(r), errMsg))
+        JdbcRowSetter(r -> Option.toOk(errMsg, update(r)))
 
     // Note - the primitive setX! functions index from 1, we add 1 to calls
     // so FactIO's API indexes from 0.

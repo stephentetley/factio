@@ -126,27 +126,35 @@ namespace FactIO/FlatFileLineEvaluator {
     pub def content(): FlatFileLineEvaluator[String] =
         FlatFileLineEvaluator(s -> Ok(s) as & Impure)
 
-    pub def matches(patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
+    pub def matches(patt: Text/Regex.Pattern): FlatFileLineEvaluator[String] =
         use Result.flatMap;
         FlatFileLineEvaluator(s ->
-            let* ans = Text/RegexEval/Regex.matches(patt, eval, s);
-            Ok(ans)
+            let* ans = Text/Regex.matchAllContent(patt, s) |> Option.toOk("no match");
+            Ok(ans) as & Impure
         )
 
-    pub def matchesRegex(regex: String, eval: Text/RegexEval.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
-        let* patt = liftResult(Text/Regex/Pattern.compile(regex) |> Result.mapErr(constant("matchesRegex('${regex}')")));
-        matches(patt, eval)
 
-    pub def find(patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
-        use Result.flatMap;
-        FlatFileLineEvaluator(s ->
-            let* ans = Text/RegexEval/Regex.contains(patt, eval, s);
-            Ok(ans)
-        )
+    /// pub def matches(patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
+    ///     use Result.flatMap;
+    ///     FlatFileLineEvaluator(s ->
+    ///         let* ans = Text/RegexEval/Regex.matches(patt, eval, s);
+    ///         Ok(ans)
+    ///     )
 
-    pub def findRegex(regex: String, eval: Text/RegexEval.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
-        let* patt = liftResult(Text/Regex/Pattern.compile(regex) |> Result.mapErr(constant("findRegex('${regex}')")));
-        find(patt, eval)
+    /// pub def matchesRegex(regex: String, eval: Text/RegexEval.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
+    ///     let* patt = liftResult(Text/Regex/Pattern.compile(regex) |> Result.mapErr(constant("matchesRegex('${regex}')")));
+    ///     matches(patt, eval)
+
+    /// pub def find(patt: Text/Regex.Pattern, eval: Text/RegexEval.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
+    ///     use Result.flatMap;
+    ///     FlatFileLineEvaluator(s ->
+    ///         let* ans = Text/RegexEval/Regex.contains(patt, eval, s);
+    ///         Ok(ans)
+    ///     )
+
+    /// pub def findRegex(regex: String, eval: Text/RegexEval.MatchEvaluator[a]): FlatFileLineEvaluator[a] =
+    ///     let* patt = liftResult(Text/Regex/Pattern.compile(regex) |> Result.mapErr(constant("findRegex('${regex}')")));
+    ///     find(patt, eval)
 
     pub def ifThen(cond: FlatFileLineEvaluator[Bool], eval: FlatFileLineEvaluator[a]): FlatFileLineEvaluator[Option[a]] =
         bind(cond, b -> if (b) map(Some, eval) else point(None))
