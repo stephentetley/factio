@@ -18,7 +18,7 @@
 
 namespace FactIO/Internal/Jdbc {
 
-     pub opaque type PreparedStatement = ##java.sql.PreparedStatement
+     pub enum PreparedStatement(##java.sql.PreparedStatement)
 }
 
 namespace FactIO/Internal/Jdbc/PreparedStatement {

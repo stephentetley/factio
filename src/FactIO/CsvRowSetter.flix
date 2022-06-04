@@ -20,7 +20,7 @@ namespace FactIO {
 
     use FactIO/Internal/Csv.Output;
 
-    pub opaque type CsvRowSetter[a] = (Map[String, Int32], Output) -> Result[a, String] & Impure
+    pub enum CsvRowSetter[a]((Map[String, Int32], Output) -> Result[a, String] & Impure)
 
     instance Functor[CsvRowSetter] {
         pub def map(f: a -> b & ef, x: CsvRowSetter[a]): CsvRowSetter[b] & ef =

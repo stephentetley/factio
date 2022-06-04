@@ -21,7 +21,7 @@ namespace FactIO {
     
     use FactIO/Internal/Jdbc.PreparedStatement;
 
-    pub opaque type JdbcRowSetter[a] = PreparedStatement -> Result[a, String] & Impure
+    pub enum JdbcRowSetter[a](PreparedStatement -> Result[a, String] & Impure)
 
     instance Functor[JdbcRowSetter] {
         pub def map(f: a -> b & ef, x: JdbcRowSetter[a]): JdbcRowSetter[b] & ef =

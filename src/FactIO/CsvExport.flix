@@ -17,14 +17,14 @@
 namespace FactIO {
 
 
-    pub opaque type CsvExport[a] = (Map[String, Int32], FactIO/Internal/Csv.Output) -> Result[a, String] & Impure
+    pub enum CsvExport[a]((Map[String, Int32], FactIO/Internal/Csv.Output) -> Result[a, String] & Impure)
 
     /// "CsvWriteList is a workaround because fixpoint fold is our only way of
     /// extracting data from a relation and the step function of fixpoint fold
     /// must be pure - solution we build a list of impure "write" functions
     /// to be invoked after the fold."
     /// This is no longer correct!
-    pub opaque type CsvWriteList = Chain[CsvRowSetter[Unit]]
+    pub enum CsvWriteList(Chain[CsvRowSetter[Unit]])
 
     instance Functor[CsvExport] {
         pub def map(f: a -> b & ef, x: CsvExport[a]): CsvExport[b] & ef =

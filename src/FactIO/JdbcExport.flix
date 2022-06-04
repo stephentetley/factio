@@ -19,7 +19,7 @@
 
 namespace FactIO {
 
-    pub opaque type JdbcExport[a] = FactIO/Internal/Jdbc.Output -> Result[a, String] & Impure
+    pub enum JdbcExport[a](FactIO/Internal/Jdbc.Output -> Result[a, String] & Impure)
 
     instance Functor[JdbcExport] {
         pub def map(f: a -> b & ef, x: JdbcExport[a]): JdbcExport[b] & ef =
@@ -45,7 +45,7 @@ namespace FactIO {
     /// must be pure - solution we build a list of impure "write" functions
     /// to be invoked after the fold."
     /// This is no longer correct!
-    pub opaque type JdbcWriteList = Chain[JdbcRowSetter[Unit]]
+    pub enum JdbcWriteList(Chain[JdbcRowSetter[Unit]])
 
 }
 

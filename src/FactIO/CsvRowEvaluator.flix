@@ -17,7 +17,7 @@
 
 namespace FactIO {
 
-    pub opaque type CsvRowEvaluator[a] = ##flixspt.factio.csv.CsvRow -> Result[a, String] & Impure
+    pub enum CsvRowEvaluator[a](##flixspt.factio.csv.CsvRow -> Result[a, String] & Impure)
 
     instance Functor[CsvRowEvaluator] {
         pub def map(f: a -> b & ef, x: CsvRowEvaluator[a]): CsvRowEvaluator[b] & ef =

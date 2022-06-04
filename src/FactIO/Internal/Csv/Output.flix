@@ -17,7 +17,7 @@
 
 namespace FactIO/Internal/Csv {
 
-    pub opaque type Output = ##flixspt.factio.csv.CsvOutput
+    pub enum Output(##flixspt.factio.csv.CsvOutput)
 }
 
 namespace FactIO/Internal/Csv/Output {

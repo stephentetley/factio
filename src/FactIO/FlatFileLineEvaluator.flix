@@ -17,7 +17,7 @@
 
 namespace FactIO {
 
-    pub opaque type FlatFileLineEvaluator[a] = String -> Result[a, String] & Impure
+    pub enum FlatFileLineEvaluator[a](String -> Result[a, String] & Impure)
 
     instance Functor[FlatFileLineEvaluator] {
         pub def map(f: a -> b & ef, x: FlatFileLineEvaluator[a]): FlatFileLineEvaluator[b] & ef =

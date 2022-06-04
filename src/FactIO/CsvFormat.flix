@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-use FactIO.CsvFormat;
-use FactIO.CsvFormat.{CsvFormat};
+
 
 namespace FactIO {
 
     ///
     /// Represents a CSVFormat.
     ///
-    pub opaque type CsvFormat = ##org.apache.commons.csv.CSVFormat
+    pub enum CsvFormat(##org.apache.commons.csv.CSVFormat)
 
     instance ToString[CsvFormat] {
         pub def toString(x: CsvFormat): String = FactIO/CsvFormat.toString(x)
@@ -33,7 +32,9 @@ namespace FactIO {
 
 namespace FactIO/CsvFormat {
 
-
+    use FactIO.CsvFormat;
+    use FactIO.CsvFormat.{CsvFormat};
+    
     pub enum QuoteMode {
         case All,
         case AllNonNull,

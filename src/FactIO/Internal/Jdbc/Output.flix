@@ -17,7 +17,7 @@
 
 namespace FactIO/Internal/Jdbc {
 
-    pub opaque type Output = ##flixspt.factio.jdbc.JdbcOutput
+    pub enum Output(##flixspt.factio.jdbc.JdbcOutput)
 }
 
 namespace FactIO/Internal/Jdbc/Output {

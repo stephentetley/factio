@@ -17,7 +17,7 @@
 
 namespace FactIO {
 
-    pub opaque type JdbcRowEvaluator[a] = ##flixspt.factio.jdbc.JdbcRow -> Result[a, String] & Impure
+    pub enum JdbcRowEvaluator[a](##flixspt.factio.jdbc.JdbcRow -> Result[a, String] & Impure)
 
 
     instance Functor[JdbcRowEvaluator] {
