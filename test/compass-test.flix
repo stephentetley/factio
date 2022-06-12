@@ -15,7 +15,7 @@ namespace CompassTest {
         0
 
 
-    def printResult(rarr: Result[Array[a], String]): Unit & Impure with ToString[a] = match rarr {
+    def printResult(rarr: Result[Array[a, r], String]): Unit \ {Impure, Read(r)} with ToString[a] = match rarr {
         case Ok(arr) => {println("Success:"); Array.foreach(x -> println("${x}"), arr) }
         case Err(msg) => println("Error: ${msg}")
     }

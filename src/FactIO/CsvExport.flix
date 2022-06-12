@@ -63,17 +63,18 @@ namespace FactIO/CsvExport {
     use FactIO.CsvRowSetter.{CsvRowSetter};
 
 
-    def makeColumnIndices(headers: Array[String]): Map[String, Int32] & Impure =
-        Array.foldLeft((ac, s) -> {let (m,i) = ac; (Map.insert(s, i, m), i+1)}, (Map.empty(), 0), headers) |> fst
+    def makeColumnIndices(headers: List[String]): Map[String, Int32] =
+        List.foldLeft((ac, s) -> {let (m,i) = ac; (Map.insert(s, i, m), i+1)}, (Map.empty(), 0), headers) |> fst
 
-    pub def runCsvExport(mx: CsvExport[a], path: FlixSandbox/System.FilePath, format: CsvFormat, headings: Array[String], cs: FlixSandbox/Text.Charset): Result[a, String] & Impure =
+    pub def runCsvExport(mx: CsvExport[a], path: FlixSandbox/System.FilePath, format: CsvFormat, headings: List[String], cs: FlixSandbox/Text.Charset): Result[a, String] & Impure =
         use Result.flatMap;
         use FactIO/Internal/Csv/Output.{new => newOutput, close};
         let CsvFormat(fmt1) = format;
-        let cellcount       = Array.length(headings);
+        let cellcount       = List.length(headings);
         let headers         = makeColumnIndices(headings);
         let* handle         = Option.toOk("runCsvExport failed", newOutput(ToString.toString(path), fmt1, cellcount, cs));
-        let* ans            = apply1(bind(writeLine(headings), _ -> mx), headers, handle);
+        let aheadings       = List.toArray(headings, Static);
+        let* ans            = apply1(bind(writeLine(aheadings), _ -> mx), headers, handle);
         let _               = close(handle);
         Ok(ans)
 
@@ -201,7 +202,7 @@ namespace FactIO/CsvExport {
         }
     }
 
-    pub def writeLine(arr: Array[String]): CsvExport[Unit] & Impure =
+    pub def writeLine(arr: Array[String, r]): CsvExport[Unit] \ Read(r) =
         let* xs = liftAction(_ -> Array.toList(arr));
         let mx = makeSimpleWriter(0, xs);
         writeRow(mx)
