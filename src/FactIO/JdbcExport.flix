@@ -334,7 +334,7 @@ namespace FactIO/JdbcExport {
     pub def streamRowSetterX(stmt: PreparedStatement, f: a -> JdbcRowSetter[b], iter: Cursor[String, a]): JdbcExport[Unit] =
         JdbcExport(r ->
             FlixSandbox/Deprecated/Cursor.foldResult!((_, x1) -> apply1(writeRow(stmt, f(x1)), r), 0, iter)
-                |> Result.map(constant(()))
+                |> Result.map(_ -> ())
         )
 
  }

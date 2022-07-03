@@ -14,10 +14,21 @@ https://github.com/stephentetley/sheetio (Excel files)
 
 ## Build instructions
 
-March 2022 - `factio` now builds as a Flix package. 
+July 2022 - `factio` now builds as a Flix package. 
 
-It depends on `flix-sandbox` - a jar of the Java primitives and a Flix .pkg
-are included in the folder `libs`. In case these files go out of date you
-might have to build a version of `flix-sandbox` yourself.
+Compatible *.pkg and *.jar files for the dependencies are included in the folder `lib`.
 
+`src-java` contains a some Java wrappers that are compile to `factiojava-n.n.jar`. A 
+verion is included in `lib`.
+
+Dependencies:
+
+Apache Commons CSV
+Apache Commons IO
+sqlite-jdbc Java library
+
+https://github.com/stephentetley/flix-regex
 https://github.com/stephentetley/flix-sandbox
+https://github.com/stephentetley/charset-locale
+https://github.com/stephentetley/collection-interop
+

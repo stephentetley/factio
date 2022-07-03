@@ -20,7 +20,8 @@ namespace FactIO/FlatFileImport {
     use FlixSandbox/Deprecated.Cursor;
     use FlixSandbox/Deprecated.Cursor.{Cursor};
     use FlixSandbox/System.FilePath.{FilePath};
-    use FlixSandbox/Text.Charset.{Charset};
+    
+    use Text.Charset.{Charset};
 
     use FactIO.FlatFileLineEvaluator;
     use FactIO.FlatFileLineEvaluator.{FlatFileLineEvaluator};
@@ -28,7 +29,7 @@ namespace FactIO/FlatFileImport {
     ///
     /// Returns a new Flat File Stream.
     ///
-    pub def newFlatFileCursor(cs: FlixSandbox/Text.Charset, path: FlixSandbox/System.FilePath): Cursor[String, String] & Impure =
+    pub def newFlatFileCursor(cs: Text.Charset, path: FlixSandbox/System.FilePath): Cursor[String, String] & Impure =
         import new flixspt.factio.flatfile.LinesCursor(##java.nio.file.Path, ##java.nio.charset.Charset): ##flixspt.factio.flatfile.LinesCursor & Impure as newLinesCursor;
         import flixspt.factio.flatfile.LinesCursor.hasNext(): Bool & Impure;
         import flixspt.factio.flatfile.LinesCursor.next(): String & Impure;

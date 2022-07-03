@@ -20,7 +20,8 @@ namespace FactIO/CsvImport {
     use FlixSandbox/Deprecated.Cursor;
     use FlixSandbox/Deprecated.Cursor.{Cursor};
     use FlixSandbox/System.FilePath.{FilePath};
-    use FlixSandbox/Text.Charset.{Charset};
+    
+    use Text.Charset.{Charset};
 
     use FactIO.CsvFormat;
     use FactIO.CsvFormat.{CsvFormat};
@@ -36,7 +37,7 @@ namespace FactIO/CsvImport {
     /// Returns a new Csv Cursor.
     ///
     pub def newCsvCursor(format: CsvFormat,
-                        cs: FlixSandbox/Text.Charset,
+                        cs: Text.Charset,
                         path: FlixSandbox/System.FilePath): Cursor[String, CsvRow] & Impure =
         import static flixspt.factio.csv.CsvCursor.createCursorForFile(##java.nio.file.Path, ##org.apache.commons.csv.CSVFormat, ##java.nio.charset.Charset): ##flixspt.factio.csv.CsvCursor & Impure;
         import flixspt.factio.csv.CsvCursor.hasNext(): Bool & Impure;

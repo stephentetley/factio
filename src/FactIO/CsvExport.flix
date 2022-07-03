@@ -49,6 +49,7 @@ namespace FactIO {
 namespace FactIO/CsvExport {
 
     use Text.Charset.{Charset};
+
     use FlixSandbox/Deprecated.Cursor;
     use FlixSandbox/Deprecated.Cursor.{Cursor};
 
@@ -66,14 +67,14 @@ namespace FactIO/CsvExport {
     def makeColumnIndices(headers: List[String]): Map[String, Int32] =
         List.foldLeft((ac, s) -> {let (m,i) = ac; (Map.insert(s, i, m), i+1)}, (Map.empty(), 0), headers) |> fst
 
-    pub def runCsvExport(mx: CsvExport[a], path: FlixSandbox/System.FilePath, format: CsvFormat, headings: List[String], cs: FlixSandbox/Text.Charset): Result[a, String] & Impure =
+    pub def runCsvExport(mx: CsvExport[a], path: FlixSandbox/System.FilePath, format: CsvFormat, headings: List[String], cs: Text.Charset): Result[a, String] & Impure =
         use Result.flatMap;
         use FactIO/Internal/Csv/Output.{new => newOutput, close};
         let CsvFormat(fmt1) = format;
         let cellcount       = List.length(headings);
         let headers         = makeColumnIndices(headings);
         let* handle         = Option.toOk("runCsvExport failed", newOutput(ToString.toString(path), fmt1, cellcount, cs));
-        let aheadings       = List.toArray(headings, Static);
+        let aheadings       = List.toArray(Static, headings);
         let* ans            = apply1(bind(writeLine(aheadings), _ -> mx), headers, handle);
         let _               = close(handle);
         Ok(ans)
